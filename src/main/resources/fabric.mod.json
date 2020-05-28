@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "advancedchat",
+  "version": "${version}",
+  "name": "AdvancedChat",
+  "description": "A fancy mod for your chat.",
+  "authors": [
+    "DarkKronicle"
+  ],
+  "license": "CC0-1.0",
+  "icon": "assets/advancedchat/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+    ],
+    "client": [
+      "darkkronicle.advancedchat.AdvancedChatClient"
+    ]
+  },
+  "mixins": [
+    "advancedchat.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.8.4+build.198",
+    "fabric": "*",
+    "minecraft": "1.15.2"
+  }
+}
