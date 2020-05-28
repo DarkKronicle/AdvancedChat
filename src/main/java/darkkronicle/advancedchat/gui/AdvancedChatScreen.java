@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
@@ -40,6 +41,11 @@ public class AdvancedChatScreen extends Screen {
         this.chatField.setText(this.originalChatText);
         this.chatField.setChangedListener(this::onChatFieldUpdate);
         this.children.add(this.chatField);
+
+        addButton(new ButtonWidget(minecraft.getWindow().getScaledWidth()-60, 10, 50, 20, "Chat Log", button -> {
+            minecraft.openScreen(new ChatLogScreen());
+        }));
+
         this.commandSuggestor = new CommandSuggestor(this.minecraft, this, this.chatField, this.font, false, false, 1, 10, true, -805306368);
         this.commandSuggestor.refresh();
         this.setInitialFocus(this.chatField);
