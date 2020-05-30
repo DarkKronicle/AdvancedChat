@@ -18,7 +18,7 @@ public class ConfigMainScreen extends Screen {
 
     private List<ButtonWidget> filters = new ArrayList<>();
 
-    protected ConfigMainScreen() {
+    public ConfigMainScreen() {
         super(new TranslatableText("advancedchat.config.main"));
     }
 
@@ -31,7 +31,7 @@ public class ConfigMainScreen extends Screen {
         for (ButtonWidget button : filters) {
             addButton(button);
         }
-        addButton(new ButtonWidget(10, i*30+10, 60, 20, "Add filter", button -> {
+        addButton(new ButtonWidget(minecraft.getWindow().getScaledWidth()-70, 10, 60, 20, "Add filter", button -> {
             AdvancedChatClient.configObject.configFilters.add(new ConfigFilter());
             try {
                 AdvancedChatClient.configManager.saveConfig();
@@ -44,7 +44,16 @@ public class ConfigMainScreen extends Screen {
     }
 
     public ButtonWidget buttonFromFilter(ConfigFilter filter, int num) {
-        ButtonWidget button = new ButtonWidget(10, num*30+10, 100, 20, filter.getName(), button1 -> {
+        int x = 10;
+        int y = num*30+10;
+        int height = minecraft.getWindow().getScaledHeight();
+        int numPerRow = (int)Math.ceil((double)(height - 20) / 20);
+        if (y > height-30) {
+            int where = (num + 1) % numPerRow;
+            y = where * 30 + 10;
+            x = 110;
+        }
+        ButtonWidget button = new ButtonWidget(x, y, 100, 20, filter.getName(), button1 -> {
             minecraft.openScreen(new ConfigFilterScreen(filter));
         });
         return button;

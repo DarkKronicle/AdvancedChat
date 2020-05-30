@@ -8,21 +8,24 @@ public class ConfigFilter {
     private boolean active;
     private boolean ignoreCase;
     private String name;
+    private boolean showUnFilterInLog;
 
-    public ConfigFilter(String trigger, FilteredMessage.FilterResult triggerFilter, boolean active, boolean ignoreCase, String name) {
+    public ConfigFilter(String trigger, FilteredMessage.FilterResult triggerFilter, boolean active, boolean ignoreCase, String name, boolean showUnfiltered) {
         this.trigger = trigger;
         this.triggerFilter = triggerFilter;
         this.active = active;
         this.ignoreCase = ignoreCase;
         this.name = name;
+        showUnFilterInLog = showUnfiltered;
     }
 
     public ConfigFilter() {
-        trigger = "Nothing :D";
+        trigger = "To Search";
         triggerFilter = FilteredMessage.FilterResult.BLOCK;
         active = false;
         ignoreCase = false;
         name = "Default";
+        showUnFilterInLog = true;
     }
 
     public boolean isActive() {
@@ -64,5 +67,13 @@ public class ConfigFilter {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isShowUnFilterInLog() {
+        return showUnFilterInLog;
+    }
+
+    public void setShowUnFilterInLog(boolean showUnFilterInLog) {
+        this.showUnFilterInLog = showUnFilterInLog;
     }
 }

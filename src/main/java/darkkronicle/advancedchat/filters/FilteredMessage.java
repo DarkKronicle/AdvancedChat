@@ -4,11 +4,13 @@ public class FilteredMessage {
     private String message;
     private FilterResult result;
     private boolean filtered;
+    private boolean showUnfiltered;
 
-    public FilteredMessage(String message, FilterResult result, boolean filtered) {
+    public FilteredMessage(String message, FilterResult result, boolean filtered, boolean showUnfiltered) {
         this.message = message;
         this.result = result;
         this.filtered = filtered;
+        this.showUnfiltered = showUnfiltered;
     }
 
     public String getMessage() {
@@ -17,6 +19,10 @@ public class FilteredMessage {
 
     public FilterResult getResult() {
         return result;
+    }
+
+    public boolean isShowUnfiltered() {
+        return showUnfiltered;
     }
 
     public void setMessage(String message) {
@@ -37,8 +43,8 @@ public class FilteredMessage {
 
     public enum FilterResult {
         REPLACE,
-        BLOCK,
         REMOVE,
+        BLOCK,
         NOTIFY,
         BANNER,
         UNKNOWN,

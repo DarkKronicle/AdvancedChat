@@ -132,15 +132,21 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     private void addMessage(Text message, int messageId, int timestamp, boolean bl) {
-        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asString());
+        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asFormattedString());
         boolean hide = false;
-        switch (result.getResult()) {
-            case BLOCK:
-                hide = true;
-                break;
-            case REMOVE:
-                return;
+        Text finalText = message;
+        if (result.getResult() == FilteredMessage.FilterResult.BLOCK) {
+            hide = true;
+            if (!result.isShowUnfiltered()) {
+               return;
+            }
         }
+        if (result.isShowUnfiltered()) {
+            finalText = message;
+        } else {
+            finalText = new LiteralText(result.getMessage());
+        }
+        message = new LiteralText(result.getMessage());
         if (messageId != 0) {
             this.removeMessage(messageId);
         }
@@ -159,14 +165,14 @@ public class AdvancedChatHud extends ChatHud {
             }
         }
 
-        while(this.visibleMessages.size() > 100) {
+        while(this.visibleMessages.size() > AdvancedChatClient.configObject.visibleLines) {
             this.visibleMessages.remove(this.visibleMessages.size() - 1);
         }
 
         if (!bl) {
-            this.messages.add(0, new AdvancedChatHudLine(timestamp, message, messageId, result.getResult()));
+            this.messages.add(0, new AdvancedChatHudLine(timestamp, finalText, messageId, result.getResult()));
 
-            while(this.messages.size() > 1000) {
+            while(this.messages.size() > AdvancedChatClient.configObject.storedLines) {
                 this.messages.remove(this.messages.size() - 1);
             }
         }

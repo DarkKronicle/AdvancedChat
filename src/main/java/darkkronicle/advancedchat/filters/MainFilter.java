@@ -13,6 +13,8 @@ public class MainFilter extends Filter {
 
     public MainFilter() {
         filters.add(new BlockedFilter());
+        filters.add(new ReplaceFilter());
+        filters.add(new RemoveFilter());
     }
 
     @Override
@@ -20,15 +22,19 @@ public class MainFilter extends Filter {
         boolean filtered = false;
         int i = 0;
         FilteredMessage result = null;
-        while (!filtered && i < filters.size()) {
-            result = filters.get(i).filter(message);
-            filtered = result.isFiltered();
+        while (i < filters.size()) {
+            FilteredMessage mess  = filters.get(i).filter(message);
+            if(mess.isFiltered()) {
+                filtered = true;
+                result = mess;
+                message = result.getMessage();
+            }
             i++;
         }
         if (filtered) {
             return result;
         }
-        return new FilteredMessage(message, FilteredMessage.FilterResult.ALLOW, true);
+        return new FilteredMessage(message, FilteredMessage.FilterResult.ALLOW, true, false);
     }
 
     @Override

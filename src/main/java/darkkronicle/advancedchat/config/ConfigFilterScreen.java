@@ -25,6 +25,8 @@ public class ConfigFilterScreen extends Screen {
     private ButtonWidget delete;
     private TextFieldWidget nameWidget;
     private String name;
+    private boolean unfilteredInLog;
+    private CheckboxWidget unfilteredInLogBox;
 
     public ConfigFilterScreen(ConfigFilter configFilter) {
         super(new TranslatableText("advancedchat.config.filter"));
@@ -34,6 +36,7 @@ public class ConfigFilterScreen extends Screen {
         ignoreCase = configFilter.isIgnoreCase();
         active = configFilter.isActive();
         name = configFilter.getName();
+        unfilteredInLog = configFilter.isShowUnFilterInLog();
     }
 
     public void init() {
@@ -57,11 +60,13 @@ public class ConfigFilterScreen extends Screen {
 
         activeBox = new CheckboxWidget(10, 140, 20, 20, "Active", active);
 
-        save = new ButtonWidget(10, 170, 50, 20, "Save", button -> {
+        unfilteredInLogBox = new CheckboxWidget(10, 170, 20, 20, "Show unfiltered in Log", unfilteredInLog);
+
+        save = new ButtonWidget(10, 200, 50, 20, "Save", button -> {
             save();
         });
 
-        delete = new ButtonWidget(70, 170, 50, 20, "Delete", button -> {
+        delete = new ButtonWidget(70, 200, 50, 20, "Delete", button -> {
             delete();
         });
 
@@ -73,6 +78,7 @@ public class ConfigFilterScreen extends Screen {
         addButton(save);
         addButton(nameWidget);
         addButton(delete);
+        addButton(unfilteredInLogBox);
     }
 
     public FilteredMessage.FilterResult cycleResult(FilteredMessage.FilterResult result) {
@@ -107,6 +113,7 @@ public class ConfigFilterScreen extends Screen {
         configFilter.setTrigger(filter);
         configFilter.setTriggerFilter(result);
         configFilter.setName(name);
+        configFilter.setShowUnFilterInLog(unfilteredInLogBox.isChecked());
         try {
             AdvancedChatClient.configManager.saveConfig();
         } catch (IOException e) {

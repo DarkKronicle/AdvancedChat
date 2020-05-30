@@ -1,6 +1,7 @@
 package darkkronicle.advancedchat.gui;
 
 import darkkronicle.advancedchat.AdvancedChatClient;
+import darkkronicle.advancedchat.config.ConfigMainScreen;
 import darkkronicle.advancedchat.filters.FilteredMessage;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -37,9 +38,17 @@ public class ChatLogScreen extends Screen {
         searchText = "";
         addButton(searchBox);
         addButton(checkbox);
+
+        addButton(new ButtonWidget(10, 10, 50, 20, "Filters", button -> {
+            minecraft.openScreen(new ConfigMainScreen());
+        }));
         addButton(new ButtonWidget(MinecraftClient.getInstance().getWindow().getScaledWidth()-60, 10, 50, 20, filter.name(), button -> {
             filter = cycleResult(filter);
-            button.setMessage(filter.name());
+            if (filter == FilteredMessage.FilterResult.UNKNOWN) {
+                button.setMessage("ALL");
+            } else {
+                button.setMessage(filter.name());
+            }
         }));
     }
 

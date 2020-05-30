@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class BlockedFilter extends Filter {
-
+public class RemoveFilter extends Filter {
     private List<ConfigFilter> filters = new ArrayList<>();
 
     @Override
@@ -34,11 +33,11 @@ public class BlockedFilter extends Filter {
             }
             if (filter.isIgnoreCase()) {
                 if (message.toLowerCase().contains(filter.getTrigger().toLowerCase())) {
-                    return new FilteredMessage(message, FilteredMessage.FilterResult.BLOCK, true, filter.isShowUnFilterInLog());
+                    return new FilteredMessage(message.replaceAll("(?i)"+filter.getTrigger(), ""), FilteredMessage.FilterResult.REMOVE, true, filter.isShowUnFilterInLog());
                 }
             } else {
                 if (message.contains(filter.getTrigger())) {
-                    return new FilteredMessage(message, FilteredMessage.FilterResult.BLOCK, true, filter.isShowUnFilterInLog());
+                    return new FilteredMessage(message.replaceAll(filter.getTrigger(), ""), FilteredMessage.FilterResult.REMOVE, true, filter.isShowUnFilterInLog());
                 }
             }
         }
@@ -47,6 +46,7 @@ public class BlockedFilter extends Filter {
 
     @Override
     public FilteredMessage.FilterResult filterType() {
-        return FilteredMessage.FilterResult.BLOCK;
+        return FilteredMessage.FilterResult.REMOVE;
     }
+
 }
