@@ -24,10 +24,10 @@ public class ChatHudMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At("HEAD"))
+    /*@Inject(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At("HEAD"))
     private void addMessage(Text message, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
-        AdvancedChatClient.chatHud.addMessage(message, messageId);
-    }
+        //AdvancedChatClient.chatHud.addMessage(message, messageId);
+    }*/
 
     @Inject(method = "isChatFocused", at = @At("HEAD"), cancellable = true)
     public void isChatFocused(CallbackInfoReturnable<Boolean> ci) {

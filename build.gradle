@@ -19,6 +19,12 @@ dependencies {
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modApi "me.shedaniel.cloth:config-2:2.14.0"
+    include "me.shedaniel.cloth:config-2:2.14.0"
+
+    modCompile "io.github.prospector:modmenu:1.10.2+build.35"
+    include "io.github.prospector:modmenu:1.10.2+build.35"
 }
 
 processResources {

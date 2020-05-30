@@ -2,6 +2,8 @@ package darkkronicle.advancedchat.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import darkkronicle.advancedchat.AdvancedChatClient;
+import darkkronicle.advancedchat.filters.FilteredMessage;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
@@ -22,8 +24,9 @@ public class AdvancedChatHud extends ChatHud {
     private static final Logger LOGGER = LogManager.getLogger();
     private final MinecraftClient client;
     private final List<String> messageHistory = Lists.newArrayList();
-    private final List<ChatHudLine> messages = Lists.newArrayList();
-    private final List<ChatHudLine> visibleMessages = Lists.newArrayList();
+    private final List<AdvancedChatHudLine> messages = Lists.newArrayList();
+    private final List<AdvancedChatHudLine> hiddenMessages = Lists.newArrayList();
+    private final List<AdvancedChatHudLine> visibleMessages = Lists.newArrayList();
     private int scrolledLines;
     private boolean hasUnreadNewMessages;
 
@@ -56,7 +59,7 @@ public class AdvancedChatHud extends ChatHud {
                 int fadeTextOpacity;
                 int fadeBackgroundOpacity;
                 for(int i = 0; i + this.scrolledLines < this.visibleMessages.size() && i < visibleLineCount; ++i) {
-                    ChatHudLine chatHudLine = (ChatHudLine)this.visibleMessages.get(i + this.scrolledLines);
+                    AdvancedChatHudLine chatHudLine = this.visibleMessages.get(i + this.scrolledLines);
                     if (chatHudLine != null) {
                         ticksAlive = ticks - chatHudLine.getCreationTick();
                         if (ticksAlive < 200 || chatFocused) {
@@ -129,20 +132,30 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     private void addMessage(Text message, int messageId, int timestamp, boolean bl) {
+        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asString());
+        boolean hide = false;
+        switch (result.getResult()) {
+            case BLOCK:
+                hide = true;
+                break;
+            case REMOVE:
+                return;
+        }
         if (messageId != 0) {
             this.removeMessage(messageId);
         }
+        if(!hide) {
+            int i = MathHelper.floor((double) this.getWidth() / this.getChatScale());
+            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, false);
+            boolean bl2 = this.isChatFocused();
 
-        int i = MathHelper.floor((double)this.getWidth() / this.getChatScale());
-        List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, false);
-        boolean bl2 = this.isChatFocused();
-
-        Text text;
-        for(Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new ChatHudLine(timestamp, text, messageId))) {
-            text = (Text)var8.next();
-            if (bl2 && this.scrolledLines > 0) {
-                this.hasUnreadNewMessages = true;
-                this.scroll(1.0D);
+            Text text;
+            for (Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
+                text = (Text) var8.next();
+                if (bl2 && this.scrolledLines > 0) {
+                    this.hasUnreadNewMessages = true;
+                    this.scroll(1.0D);
+                }
             }
         }
 
@@ -151,7 +164,7 @@ public class AdvancedChatHud extends ChatHud {
         }
 
         if (!bl) {
-            this.messages.add(0, new ChatHudLine(timestamp, message, messageId));
+            this.messages.add(0, new AdvancedChatHudLine(timestamp, message, messageId, result.getResult()));
 
             while(this.messages.size() > 1000) {
                 this.messages.remove(this.messages.size() - 1);
@@ -165,7 +178,7 @@ public class AdvancedChatHud extends ChatHud {
         this.resetScroll();
 
         for(int i = this.messages.size() - 1; i >= 0; --i) {
-            ChatHudLine chatHudLine = (ChatHudLine)this.messages.get(i);
+            AdvancedChatHudLine chatHudLine = this.messages.get(i);
             this.addMessage(chatHudLine.getText(), chatHudLine.getId(), chatHudLine.getCreationTick(), true);
         }
 
@@ -216,7 +229,7 @@ public class AdvancedChatHud extends ChatHud {
                         this.client.textRenderer.getClass();
                         int j = (int)(f / 9.0D + (double)this.scrolledLines);
                         if (j >= 0 && j < this.visibleMessages.size()) {
-                            ChatHudLine chatHudLine = (ChatHudLine)this.visibleMessages.get(j);
+                            AdvancedChatHudLine chatHudLine = this.visibleMessages.get(j);
                             int k = 0;
                             Iterator var15 = chatHudLine.getText().iterator();
 
@@ -245,15 +258,15 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     public boolean isChatFocused() {
-        return this.client.currentScreen instanceof ChatScreen;
+        return this.client.currentScreen instanceof ChatScreen || this.client.currentScreen instanceof AdvancedChatScreen;
     }
 
     public void removeMessage(int messageId) {
         Iterator iterator = this.visibleMessages.iterator();
 
-        ChatHudLine chatHudLine2;
+        AdvancedChatHudLine chatHudLine2;
         while(iterator.hasNext()) {
-            chatHudLine2 = (ChatHudLine)iterator.next();
+            chatHudLine2 = (AdvancedChatHudLine)iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
             }
@@ -262,7 +275,7 @@ public class AdvancedChatHud extends ChatHud {
         iterator = this.messages.iterator();
 
         while(iterator.hasNext()) {
-            chatHudLine2 = (ChatHudLine)iterator.next();
+            chatHudLine2 = (AdvancedChatHudLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
                 break;
@@ -295,7 +308,7 @@ public class AdvancedChatHud extends ChatHud {
         return this.getHeight() / 9;
     }
 
-    public List<ChatHudLine> getMessages() {
+    public List<AdvancedChatHudLine> getMessages() {
         return messages;
     }
 }
