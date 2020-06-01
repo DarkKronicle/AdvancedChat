@@ -8,4 +8,6 @@ public class ConfigObject {
     public int visibleLines = 100;
     public boolean stackSame = false;
     public boolean linesUpDown = true;
+    public boolean showTime = false;
+    public String timeFormat = "hh:mm";
 }

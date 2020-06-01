@@ -16,6 +16,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
+import javax.swing.text.DateFormatter;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -96,11 +98,15 @@ public class ChatLogScreen extends Screen {
         List<String> messages = new ArrayList<>();
 
         if (fullMessages != null && fullMessages.size() != 0) {
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChatClient.configObject.timeFormat);
             fullMessages = fullMessages.stream().filter(line -> line.doesInclude(filter) || filter == FilteredMessage.FilterResult.UNKNOWN).collect(Collectors.toList());
             for (AdvancedChatHudLine message : fullMessages) {
                 String text = message.getText().asFormattedString();
                 if (message.getRepeats() > 1) {
                     text = text + "§7 (" + message.getRepeats() + ")";
+                }
+                if (AdvancedChatClient.configObject.showTime) {
+                    text = "§7[" + message.getTime().format(format) + "]§f " + text;
                 }
                 messages.add(text);
             }
