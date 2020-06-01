@@ -37,6 +37,7 @@ public class MainFilter extends Filter {
                     filtered = mess.isFiltered();
                 }
             }
+
             FilteredMessage notify;
             if (filt.getNotifyType() != ConfigFilter.NotifyType.NONE) {
                 notify = notifyFilter.filter(message, filt);
