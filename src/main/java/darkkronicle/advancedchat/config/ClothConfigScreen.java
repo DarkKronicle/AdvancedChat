@@ -23,6 +23,10 @@ public class ClothConfigScreen {
 
         general.addEntry(entry.startIntField("Visible Lines", AdvancedChatClient.configObject.visibleLines).setDefaultValue(100).setSaveConsumer(newval -> AdvancedChatClient.configObject.visibleLines = newval).setMax(500).setMin(50).build());
 
+        general.addEntry(entry.startBooleanToggle("Log Bottom to Top", AdvancedChatClient.configObject.linesUpDown).setSaveConsumer(newval -> AdvancedChatClient.configObject.linesUpDown = newval).build());
+
+        general.addEntry(entry.startBooleanToggle("Stack Messages", AdvancedChatClient.configObject.stackSame).setSaveConsumer(newval -> AdvancedChatClient.configObject.stackSame = newval).build());
+
         builder.setSavingRunnable(() -> {
             try {
                 AdvancedChatClient.configManager.saveConfig();

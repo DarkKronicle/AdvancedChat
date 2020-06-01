@@ -6,20 +6,70 @@ import net.minecraft.text.Text;
 
 public class AdvancedChatHudLine extends ChatHudLine {
 
-    private FilteredMessage.FilterResult type;
+    private FilteredMessage.FilterResult[] type;
+    private int repeats;
+    private Text text;
+    private int creationTick;
+    private int id;
 
-    public AdvancedChatHudLine(int creationTick, Text text, int id) {
+
+    public AdvancedChatHudLine(int creationTick, Text text, int id, FilteredMessage.FilterResult... type) {
         super(creationTick, text, id);
-        type = FilteredMessage.FilterResult.UNKNOWN;
+        this.text = text;
+        this.creationTick = creationTick;
+        this.id = id;
+        this.type = type;
+        repeats = 1;
     }
 
-    public AdvancedChatHudLine(int creationTick, Text text, int id, FilteredMessage.FilterResult type) {
+    public AdvancedChatHudLine(int creationTick, Text text, int id, int repeats, FilteredMessage.FilterResult... type) {
         super(creationTick, text, id);
         this.type = type;
+        this.repeats = repeats;
+        this.text = text;
+        this.creationTick = creationTick;
+        this.id = id;
     }
 
-    public FilteredMessage.FilterResult getType() {
+    public int getRepeats() {
+        return repeats;
+    }
+
+    public void setRepeats(int num) {
+        repeats = num;
+    }
+
+    public void addRepeat(int num) {
+        repeats = repeats + num;
+    }
+
+    public void setText(Text text) {
+
+    }
+
+    public FilteredMessage.FilterResult[] getType() {
         return type;
+    }
+
+    public Text getText() {
+        return this.text;
+    }
+
+    public int getCreationTick() {
+        return this.creationTick;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public boolean doesInclude(FilteredMessage.FilterResult test) {
+        for (FilteredMessage.FilterResult filter : this.type) {
+            if (test == filter) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

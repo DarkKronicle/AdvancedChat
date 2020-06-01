@@ -4,21 +4,34 @@ import darkkronicle.advancedchat.AdvancedChatClient;
 import darkkronicle.advancedchat.config.ConfigMainScreen;
 import darkkronicle.advancedchat.filters.FilteredMessage;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
-import net.minecraft.client.gui.widget.ListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.util.Texts;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class ChatLogScreen extends Screen {
     private TextFieldWidget searchBox;
+    private TextFieldWidget chatField;
     private String searchText;
     private CheckboxWidget checkbox;
+    private CheckboxWidget regex;
+    private CommandSuggestor commandSuggestor;
     private int scrolledLine = 1;
     private FilteredMessage.FilterResult filter = FilteredMessage.FilterResult.UNKNOWN;
 
@@ -26,23 +39,42 @@ public class ChatLogScreen extends Screen {
         super(new TranslatableText("advancedchat.screen.chatlog"));
     }
 
+    private AdvancedChatScreen chatScreen;
+
     @Override
     protected void init() {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        chatScreen = new AdvancedChatScreen("");
         this.buttons.clear();
-        searchBox = new TextFieldWidget(this.font, (MinecraftClient.getInstance().getWindow().getScaledWidth() / 2) - 50, 30, 100, 20, "Search...");
+        searchBox = new TextFieldWidget(this.font, (client.getWindow().getScaledWidth() / 2) - 50, 30, 100, 20, "Search...");
         searchBox.setHasBorder(true);
         searchBox.setMaxLength(256);
         searchBox.setChangedListener(this::onSearchBoxChange);
-        checkbox = new CheckboxWidget((MinecraftClient.getInstance().getWindow().getScaledWidth() / 2) + 55, 30, 20, 20, "Ignore Case", false);
+
+        regex = new CheckboxWidget((client.getWindow().getScaledWidth() / 2) + 55, 50, 20, 20, "Regex", false);
+        checkbox = new CheckboxWidget((client.getWindow().getScaledWidth() / 2) + 55, 30, 20, 20, "Ignore Case", false);
 
         searchText = "";
+
+        this.chatField = new TextFieldWidget(this.font, 4, client.getWindow().getScaledHeight() - 16, client.getWindow().getScaledWidth() - 8, 12, "Chatfield");
+        this.chatField.setMaxLength(256);
+        this.chatField.setText("");
+        this.chatField.setHasBorder(true);
+        this.chatField.setChangedListener(this::onChatFieldUpdate);
+
+        this.commandSuggestor = new CommandSuggestor(this.minecraft, this, this.chatField, this.font, false, false, 1, 10, true, -805306368);
+        this.commandSuggestor.refresh();
+
         addButton(searchBox);
         addButton(checkbox);
+        addButton(regex);
+        addButton(chatField);
 
         addButton(new ButtonWidget(10, 10, 50, 20, "Filters", button -> {
             minecraft.openScreen(new ConfigMainScreen());
         }));
-        addButton(new ButtonWidget(MinecraftClient.getInstance().getWindow().getScaledWidth()-60, 10, 50, 20, filter.name(), button -> {
+        addButton(new ButtonWidget(MinecraftClient.getInstance().getWindow().getScaledWidth() - 60, 10, 50, 20, "All", button -> {
             filter = cycleResult(filter);
             if (filter == FilteredMessage.FilterResult.UNKNOWN) {
                 button.setMessage("ALL");
@@ -57,20 +89,40 @@ public class ChatLogScreen extends Screen {
         if (this.minecraft.world == null) {
             this.renderDirtBackground(0);
         }
+        boolean upDown = AdvancedChatClient.configObject.linesUpDown;
         renderBackground();
-        drawCenteredString(this.font, getTitle().asFormattedString(), this.width / 2, (this.height - (this.height + 4 - 48)) / 2 - 4, 16777215);
+
         List<AdvancedChatHudLine> fullMessages = AdvancedChatClient.getChatHud().getMessages();
         List<String> messages = new ArrayList<>();
+
         if (fullMessages != null && fullMessages.size() != 0) {
-            fullMessages = fullMessages.stream().filter(line -> line.getType() == filter || filter == FilteredMessage.FilterResult.UNKNOWN).collect(Collectors.toList());
+            fullMessages = fullMessages.stream().filter(line -> line.doesInclude(filter) || filter == FilteredMessage.FilterResult.UNKNOWN).collect(Collectors.toList());
             for (AdvancedChatHudLine message : fullMessages) {
-                messages.add(message.getText().asFormattedString());
+                String text = message.getText().asFormattedString();
+                if (message.getRepeats() > 1) {
+                    text = text + "§7 (" + message.getRepeats() + ")";
+                }
+                messages.add(text);
             }
             if (searchText.length() != 0) {
-                if (checkbox.isChecked()) {
-                    messages = messages.stream().filter(string -> string.toLowerCase().contains(searchText.toLowerCase())).collect(Collectors.toList());
+                if (!regex.isChecked()) {
+                    if (checkbox.isChecked()) {
+                        messages = messages.stream().filter(string -> string.toLowerCase().contains(searchText.toLowerCase())).collect(Collectors.toList());
+                    } else {
+                        messages = messages.stream().filter(string -> string.contains(searchText)).collect(Collectors.toList());
+                    }
                 } else {
-                    messages = messages.stream().filter(string -> string.contains(searchText)).collect(Collectors.toList());
+                    try {
+                        Pattern p = Pattern.compile(searchText);
+                        messages = messages.stream().filter(string -> {
+                            Matcher matcher = p.matcher(string);
+                            return matcher.find();
+                        }).collect(Collectors.toList());
+                    } catch (PatternSyntaxException e) {
+                        drawString(this.font, "Bad regex!", 10, 59, 16777215);
+                        messages.clear();
+                    }
+
                 }
             }
             if (messages.size() == 0) {
@@ -79,25 +131,47 @@ public class ChatLogScreen extends Screen {
                 return;
             }
 
+            List<String> linedMessages = new ArrayList<>();
+            for (String message : messages) {
+                List<Text> lined = Texts.wrapLines(new LiteralText(message), width - 20, this.font, false, true);
+                if (!upDown) {
+                    Collections.reverse(lined);
+                }
+                for (Text text : lined) {
+                    linedMessages.add(text.asFormattedString());
+                }
+            }
+
             int linesPerPage = (int) Math.ceil(((double) (minecraft.getWindow().getScaledHeight() / 9) - 10));
             if (scrolledLine < 1) {
                 scrolledLine = 1;
             }
-            if (scrolledLine > messages.size()) {
-                scrolledLine = messages.size();
+            if (scrolledLine > linedMessages.size()) {
+                scrolledLine = linedMessages.size();
             }
             int startLine = scrolledLine;
             int endLine = scrolledLine + linesPerPage;
-            if (endLine > messages.size()) {
-                endLine = messages.size();
+            if (endLine > linedMessages.size()) {
+                endLine = linedMessages.size();
             }
-            drawCenteredString(this.font, startLine + "-" + endLine, minecraft.getWindow().getScaledWidth() / 2, minecraft.getWindow().getScaledHeight() - 10, 16777215);
+            drawCenteredString(this.font, startLine + "-" + endLine + "/" + linedMessages.size(), minecraft.getWindow().getScaledWidth() / 2, 10, 16777215);
             int pageLine = 1;
-            for (int i = startLine; i <= endLine; i++) {
-                int currentPage = i - 1;
-                String line = messages.get(currentPage);
-                drawString(this.font, line, 10, pageLine * 9 + 50, 16777215);
-                pageLine++;
+
+            if (upDown) {
+                for (int i = startLine; i <= endLine; i++) {
+                    int currentPage = i - 1;
+                    String line = linedMessages.get(currentPage);
+                    drawString(this.font, line, 10, pageLine * 9 + 50, 16777215);
+                    pageLine++;
+                }
+            } else {
+                int height = minecraft.getWindow().getScaledHeight();
+                for (int i = startLine; i <= endLine; i++) {
+                    int currentPage = i - 1;
+                    String line = linedMessages.get(currentPage);
+                    drawString(this.font, line, 10, height - (pageLine * 9 + 20), 16777215);
+                    pageLine++;
+                }
             }
         } else {
             drawString(this.font, "No chat messages yet!", 10, 59, 16777215);
@@ -135,7 +209,64 @@ public class ChatLogScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double d, double e, double amount) {
-        scrolledLine = scrolledLine + (int)Math.ceil(amount*7);
+        if (AdvancedChatClient.configObject.linesUpDown) {
+            scrolledLine = scrolledLine + (int) Math.ceil(amount * -7);
+        } else {
+            scrolledLine = scrolledLine + (int) Math.ceil(amount * 7);
+        }
         return false;
+    }
+
+    public void onChatFieldUpdate(String string) {
+
+    }
+
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.commandSuggestor.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        } else if (super.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        } else if (keyCode == 256) {
+            this.minecraft.openScreen((Screen) null);
+            return true;
+        } else if (keyCode != 257 && keyCode != 335) {
+            if (keyCode == 265) {
+                this.setChatFromHistory(-1);
+                return true;
+            } else if (keyCode == 264) {
+                this.setChatFromHistory(1);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            String string = this.chatField.getText().trim();
+            if (!string.isEmpty()) {
+                this.sendMessage(string);
+                chatField.setText("");
+            }
+
+            return true;
+        }
+    }
+
+    public void setChatFromHistory(int i) {
+        int j = chatScreen.getMessageHistorySize() + i;
+        int k = this.minecraft.inGameHud.getChatHud().getMessageHistory().size();
+        j = MathHelper.clamp(j, 0, k);
+        if (j != chatScreen.getMessageHistorySize()) {
+            if (j == k) {
+                chatScreen.setMessageHistorySize(k);
+                this.chatField.setText(chatScreen.getMessHist());
+            } else {
+                if (chatScreen.getMessageHistorySize() == k) {
+                    chatScreen.setMessHist(this.chatField.getText());
+                }
+
+                this.chatField.setText((String) this.minecraft.inGameHud.getChatHud().getMessageHistory().get(j));
+                this.commandSuggestor.setWindowActive(false);
+                chatScreen.setMessageHistorySize(j);
+            }
+        }
     }
 }

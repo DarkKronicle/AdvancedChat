@@ -4,28 +4,36 @@ import darkkronicle.advancedchat.filters.FilteredMessage;
 
 public class ConfigFilter {
     private String trigger;
-    private FilteredMessage.FilterResult triggerFilter;
+    private ReplaceType replaceType;
     private boolean active;
     private boolean ignoreCase;
     private String name;
     private boolean showUnFilterInLog;
+    private boolean regex;
+    private String replaceTo;
+    private NotifyType notifyType;
 
-    public ConfigFilter(String trigger, FilteredMessage.FilterResult triggerFilter, boolean active, boolean ignoreCase, String name, boolean showUnfiltered) {
+    public ConfigFilter(String trigger, ReplaceType replaceType, boolean active, boolean ignoreCase, String name, boolean showUnfiltered, boolean regex, String replaceTo) {
         this.trigger = trigger;
-        this.triggerFilter = triggerFilter;
+        this.replaceType = replaceType;
         this.active = active;
         this.ignoreCase = ignoreCase;
         this.name = name;
         showUnFilterInLog = showUnfiltered;
+        this.regex = regex;
+        this.replaceTo = replaceTo;
     }
 
     public ConfigFilter() {
         trigger = "To Search";
-        triggerFilter = FilteredMessage.FilterResult.BLOCK;
+        replaceType = ReplaceType.NONE;
         active = false;
         ignoreCase = false;
         name = "Default";
         showUnFilterInLog = true;
+        regex = false;
+        replaceTo = "**%REPLACED%**";
+        notifyType = NotifyType.NONE;
     }
 
     public boolean isActive() {
@@ -45,12 +53,12 @@ public class ConfigFilter {
         this.trigger = trigger;
     }
 
-    public FilteredMessage.FilterResult getTriggerFilter() {
-        return triggerFilter;
+    public ReplaceType getReplaceType() {
+        return replaceType;
     }
 
-    public void setTriggerFilter(FilteredMessage.FilterResult triggerFilter) {
-        this.triggerFilter = triggerFilter;
+    public void setReplaceType(ReplaceType replaceType) {
+        this.replaceType = replaceType;
     }
 
     public boolean isIgnoreCase() {
@@ -75,5 +83,41 @@ public class ConfigFilter {
 
     public void setShowUnFilterInLog(boolean showUnFilterInLog) {
         this.showUnFilterInLog = showUnFilterInLog;
+    }
+
+    public boolean isRegex() {
+        return regex;
+    }
+
+    public void setRegex(boolean regex) {
+        this.regex = regex;
+    }
+
+    public String getReplaceTo() {
+        return replaceTo;
+    }
+
+    public NotifyType getNotifyType() {
+        return notifyType;
+    }
+
+    public void setNotifyType(NotifyType notifyType) {
+        this.notifyType = notifyType;
+    }
+
+    public void setReplaceTo(String replaceTo) {
+        this.replaceTo = replaceTo;
+    }
+
+    public enum ReplaceType {
+        NONE,
+        ONLYCHANGED,
+        FULLLINE
+    }
+
+    public enum NotifyType {
+        NONE,
+        SOUND,
+        BANNER
     }
 }

@@ -18,7 +18,7 @@ public class ConfigManager {
     private final File config;
 
     public ConfigManager() {
-        config = new File(FabricLoader.getInstance().getConfigDirectory()+"/advancedchat/config.json");
+        config = new File(FabricLoader.getInstance().getConfigDirectory() + "/advancedchat/filterconfig.json");
         try {
             loadConfig();
         } catch (IOException e) {

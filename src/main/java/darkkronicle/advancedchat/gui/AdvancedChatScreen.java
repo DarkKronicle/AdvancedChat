@@ -3,7 +3,6 @@ package darkkronicle.advancedchat.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -16,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 @Environment(EnvType.CLIENT)
 public class AdvancedChatScreen extends Screen {
 
-    private String field_2389 = "";
+    private String messHist = "";
     private int messageHistorySize = -1;
     protected TextFieldWidget chatField;
     private String originalChatText = "";
@@ -160,10 +159,10 @@ public class AdvancedChatScreen extends Screen {
         if (j != this.messageHistorySize) {
             if (j == k) {
                 this.messageHistorySize = k;
-                this.chatField.setText(this.field_2389);
+                this.chatField.setText(this.messHist);
             } else {
                 if (this.messageHistorySize == k) {
-                    this.field_2389 = this.chatField.getText();
+                    this.messHist = this.chatField.getText();
                 }
 
                 this.chatField.setText((String) this.minecraft.inGameHud.getChatHud().getMessageHistory().get(j));
@@ -193,5 +192,22 @@ public class AdvancedChatScreen extends Screen {
 
     private void setText(String text) {
         this.chatField.setText(text);
+    }
+
+
+    public String getMessHist() {
+        return messHist;
+    }
+
+    public void setMessHist(String messHist) {
+        this.messHist = messHist;
+    }
+
+    public int getMessageHistorySize() {
+        return messageHistorySize;
+    }
+
+    public void setMessageHistorySize(int messageHistorySize) {
+        this.messageHistorySize = messageHistorySize;
     }
 }

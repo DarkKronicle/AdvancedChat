@@ -2,11 +2,11 @@ package darkkronicle.advancedchat.filters;
 
 public class FilteredMessage {
     private String message;
-    private FilterResult result;
+    private FilterResult[] result;
     private boolean filtered;
     private boolean showUnfiltered;
 
-    public FilteredMessage(String message, FilterResult result, boolean filtered, boolean showUnfiltered) {
+    public FilteredMessage(String message, boolean filtered, boolean showUnfiltered, FilterResult... result) {
         this.message = message;
         this.result = result;
         this.filtered = filtered;
@@ -17,7 +17,7 @@ public class FilteredMessage {
         return message;
     }
 
-    public FilterResult getResult() {
+    public FilterResult[] getResult() {
         return result;
     }
 
@@ -29,7 +29,7 @@ public class FilteredMessage {
         this.message = message;
     }
 
-    public void setResult(FilterResult result) {
+    public void setResult(FilterResult[] result) {
         this.result = result;
     }
 
@@ -41,9 +41,17 @@ public class FilteredMessage {
         this.filtered = filtered;
     }
 
+    public boolean doesInclude(FilterResult test) {
+        for (FilterResult filter : this.result) {
+            if (test == filter) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public enum FilterResult {
         REPLACE,
-        REMOVE,
         BLOCK,
         NOTIFY,
         BANNER,

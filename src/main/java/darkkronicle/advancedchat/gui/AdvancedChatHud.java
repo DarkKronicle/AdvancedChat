@@ -25,7 +25,7 @@ public class AdvancedChatHud extends ChatHud {
     private final MinecraftClient client;
     private final List<String> messageHistory = Lists.newArrayList();
     private final List<AdvancedChatHudLine> messages = Lists.newArrayList();
-    private final List<AdvancedChatHudLine> hiddenMessages = Lists.newArrayList();
+    private final List<AdvancedChatHudLine> bannerMessages = Lists.newArrayList();
     private final List<AdvancedChatHudLine> visibleMessages = Lists.newArrayList();
     private int scrolledLines;
     private boolean hasUnreadNewMessages;
@@ -64,17 +64,47 @@ public class AdvancedChatHud extends ChatHud {
                         ticksAlive = ticks - chatHudLine.getCreationTick();
                         if (ticksAlive < 200 || chatFocused) {
                             double fade = chatFocused ? 1.0D : getMessageOpacityMultiplier(ticksAlive);
-                            fadeTextOpacity = (int)(255.0D * fade * textOpacity);
-                            fadeBackgroundOpacity = (int)(255.0D * fade * backgroundOpacity);
+                            fadeTextOpacity = (int) (255.0D * fade * textOpacity);
+                            fadeBackgroundOpacity = (int) (255.0D * fade * backgroundOpacity);
                             ++line;
                             if (fadeTextOpacity > 3) {
                                 int y = (-i * 9);
                                 fill(matrix4f, -2, y - 9, k + 4, y, fadeBackgroundOpacity << 24);
                                 String string = chatHudLine.getText().asFormattedString();
+                                if (chatHudLine.getRepeats() != 1) {
+                                    string = string + "§7 (" + chatHudLine.getRepeats() + ")";
+                                }
                                 RenderSystem.enableBlend();
-                                this.client.textRenderer.drawWithShadow(string, 0.0F, (float)(y - 8), 16777215 + (fadeTextOpacity << 24));
+                                this.client.textRenderer.drawWithShadow(string, 0.0F, (float) (y - 8), 16777215 + (fadeTextOpacity << 24));
                                 RenderSystem.disableAlphaTest();
                                 RenderSystem.disableBlend();
+                            }
+                        }
+                    }
+                }
+                int offset = client.getWindow().getScaledHeight() - 60;
+                if (bannerMessages.size() != 0) {
+                    for (int i = 0; i < this.bannerMessages.size() && i < 20; ++i) {
+                        AdvancedChatHudLine chatHudLine = this.bannerMessages.get(i);
+                        if (chatHudLine != null) {
+                            ticksAlive = ticks - chatHudLine.getCreationTick();
+                            if (ticksAlive < 100) {
+                                double fade = chatFocused ? 1.0D : getMessageOpacityMultiplier(ticksAlive);
+                                fadeTextOpacity = (int) (255.0D * fade * textOpacity);
+                                fadeBackgroundOpacity = (int) (255.0D * fade * backgroundOpacity);
+                                ++line;
+                                if (fadeTextOpacity > 3) {
+                                    int y = (i * 9) - offset;
+                                    fill(matrix4f, -2, y - 9, k + 4, y, fadeBackgroundOpacity << 24);
+                                    String string = chatHudLine.getText().asFormattedString();
+                                    if (chatHudLine.getRepeats() != 1) {
+                                        string = string + "§7 (" + chatHudLine.getRepeats() + ")";
+                                    }
+                                    RenderSystem.enableBlend();
+                                    this.client.textRenderer.drawWithShadow(string, 0.0F, (float) (y - 8), 16777215 + (fadeTextOpacity << 24));
+                                    RenderSystem.disableAlphaTest();
+                                    RenderSystem.disableBlend();
+                                }
                             }
                         }
                     }
@@ -116,6 +146,7 @@ public class AdvancedChatHud extends ChatHud {
     public void clear(boolean clearHistory) {
         this.visibleMessages.clear();
         this.messages.clear();
+        this.bannerMessages.clear();
         if (clearHistory) {
             this.messageHistory.clear();
         }
@@ -132,13 +163,13 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     private void addMessage(Text message, int messageId, int timestamp, boolean bl) {
-        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asFormattedString());
+        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asFormattedString(), null);
         boolean hide = false;
         Text finalText = message;
-        if (result.getResult() == FilteredMessage.FilterResult.BLOCK) {
+        if (result.doesInclude(FilteredMessage.FilterResult.BLOCK) && result.getMessage().equals("")) {
             hide = true;
             if (!result.isShowUnfiltered()) {
-               return;
+                return;
             }
         }
         if (result.isShowUnfiltered()) {
@@ -146,33 +177,60 @@ public class AdvancedChatHud extends ChatHud {
         } else {
             finalText = new LiteralText(result.getMessage());
         }
-        message = new LiteralText(result.getMessage());
+        Text newMessage = new LiteralText(result.getMessage());
         if (messageId != 0) {
             this.removeMessage(messageId);
         }
-        if(!hide) {
+        if (!newMessage.asFormattedString().equals(message.asFormattedString())) {
+            message = newMessage;
+        }
+        if (!hide) {
             int i = MathHelper.floor((double) this.getWidth() / this.getChatScale());
-            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, false);
+            if (AdvancedChatClient.configObject.stackSame) {
+                int search = 20;
+                if (20 > visibleMessages.size()) {
+                    search = visibleMessages.size();
+                }
+                if (search > 0) {
+                    for (int num = 0; num < search; num++) {
+                        AdvancedChatHudLine mess = visibleMessages.get(num);
+                        if (mess.getText().asFormattedString().equals(message.asFormattedString())) {
+                            mess.addRepeat(1);
+                            return;
+                        }
+                    }
+                }
+            }
+            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, true);
             boolean bl2 = this.isChatFocused();
-
             Text text;
-            for (Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
-                text = (Text) var8.next();
-                if (bl2 && this.scrolledLines > 0) {
-                    this.hasUnreadNewMessages = true;
-                    this.scroll(1.0D);
+            if (result.doesInclude(FilteredMessage.FilterResult.BANNER)) {
+                for (Iterator var8 = list.iterator(); var8.hasNext(); this.bannerMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
+                    text = (Text) var8.next();
+                }
+            } else {
+                for (Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
+                    text = (Text) var8.next();
+                    if (bl2 && this.scrolledLines > 0) {
+                        this.hasUnreadNewMessages = true;
+                        this.scroll(1.0D);
+                    }
                 }
             }
         }
 
-        while(this.visibleMessages.size() > AdvancedChatClient.configObject.visibleLines) {
+        while (this.visibleMessages.size() > AdvancedChatClient.configObject.visibleLines) {
             this.visibleMessages.remove(this.visibleMessages.size() - 1);
+        }
+
+        while (this.bannerMessages.size() > 20) {
+            this.bannerMessages.remove(this.bannerMessages.size() - 1);
         }
 
         if (!bl) {
             this.messages.add(0, new AdvancedChatHudLine(timestamp, finalText, messageId, result.getResult()));
 
-            while(this.messages.size() > AdvancedChatClient.configObject.storedLines) {
+            while (this.messages.size() > AdvancedChatClient.configObject.storedLines) {
                 this.messages.remove(this.messages.size() - 1);
             }
         }
