@@ -96,6 +96,7 @@ public class ChatLogScreen extends Screen {
 
         List<AdvancedChatHudLine> fullMessages = AdvancedChatClient.getChatHud().getMessages();
         List<String> messages = new ArrayList<>();
+        String toreplace = AdvancedChatClient.configObject.replaceFormat.replaceAll("&", "§");
 
         if (fullMessages != null && fullMessages.size() != 0) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChatClient.configObject.timeFormat);
@@ -106,7 +107,7 @@ public class ChatLogScreen extends Screen {
                     text = text + "§7 (" + message.getRepeats() + ")";
                 }
                 if (AdvancedChatClient.configObject.showTime) {
-                    text = "§7[" + message.getTime().format(format) + "]§f " + text;
+                    text = toreplace.replaceAll("%TIME%", message.getTime().format(format)) + "§f" + text;
                 }
                 messages.add(text);
             }

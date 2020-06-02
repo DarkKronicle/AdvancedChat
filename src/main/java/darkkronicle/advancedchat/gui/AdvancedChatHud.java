@@ -186,6 +186,9 @@ public class AdvancedChatHud extends ChatHud {
         }
         if (!hide) {
             int i = MathHelper.floor((double) this.getWidth() / this.getChatScale());
+            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, true);
+            boolean bl2 = this.isChatFocused();
+            Text text;
             if (AdvancedChatClient.configObject.stackSame) {
                 int search = 20;
                 if (20 > visibleMessages.size()) {
@@ -194,16 +197,15 @@ public class AdvancedChatHud extends ChatHud {
                 if (search > 0) {
                     for (int num = 0; num < search; num++) {
                         AdvancedChatHudLine mess = visibleMessages.get(num);
-                        if (mess.getText().asFormattedString().equals(message.asFormattedString())) {
-                            mess.addRepeat(1);
-                            return;
+                        for (Text line : list) {
+                            if (mess.getText().asFormattedString().equals(line.asFormattedString())) {
+                                mess.addRepeat(1);
+                                return;
+                            }
                         }
                     }
                 }
             }
-            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, true);
-            boolean bl2 = this.isChatFocused();
-            Text text;
             if (result.doesInclude(FilteredMessage.FilterResult.BANNER)) {
                 for (Iterator var8 = list.iterator(); var8.hasNext(); this.bannerMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
                     text = (Text) var8.next();
@@ -211,6 +213,7 @@ public class AdvancedChatHud extends ChatHud {
             } else {
                 for (Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
                     text = (Text) var8.next();
+
                     if (bl2 && this.scrolledLines > 0) {
                         this.hasUnreadNewMessages = true;
                         this.scroll(1.0D);

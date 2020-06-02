@@ -45,6 +45,13 @@ public class ClothConfigScreen {
             }
         }).build());
 
+        general.addEntry(entry.startStrField("Time Full Format", AdvancedChatClient.configObject.replaceFormat).setSaveConsumer(newval -> AdvancedChatClient.configObject.replaceFormat = newval).setErrorSupplier(string -> {
+            if (string.contains("%TIME")) {
+                return Optional.empty();
+            }
+            return Optional.of("Needs to include %TIME%");
+        }).build());
+
         builder.setSavingRunnable(() -> {
             try {
                 AdvancedChatClient.configManager.saveConfig();
