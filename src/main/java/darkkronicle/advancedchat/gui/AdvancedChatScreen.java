@@ -7,8 +7,10 @@ import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
@@ -41,13 +43,19 @@ public class AdvancedChatScreen extends Screen {
         this.chatField.setChangedListener(this::onChatFieldUpdate);
         this.children.add(this.chatField);
 
-        addButton(new ButtonWidget(minecraft.getWindow().getScaledWidth()-60, 10, 50, 20, "Chat Log", button -> {
+        addButton(new ButtonWidget(minecraft.getWindow().getScaledWidth() - 60, 10, 50, 20, "Chat Log", button -> {
             minecraft.openScreen(new ChatLogScreen());
         }));
 
         this.commandSuggestor = new CommandSuggestor(this.minecraft, this, this.chatField, this.font, false, false, 1, 10, true, -805306368);
         this.commandSuggestor.refresh();
         this.setInitialFocus(this.chatField);
+
+        if (minecraft.player.isSleeping()) {
+            this.addButton(new ButtonWidget(this.width / 2 - 100, this.height - 40, 200, 20, I18n.translate("multiplayer.stopSleeping"), (buttonWidget) -> {
+                this.stopSleeping();
+            }));
+        }
     }
 
     public void resize(MinecraftClient client, int width, int height) {
@@ -78,7 +86,11 @@ public class AdvancedChatScreen extends Screen {
         } else if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else if (keyCode == 256) {
-            this.minecraft.openScreen((Screen) null);
+            if (!minecraft.player.isSleeping()) {
+                this.minecraft.openScreen((Screen) null);
+            } else {
+                this.stopSleeping();
+            }
             return true;
         } else if (keyCode != 257 && keyCode != 335) {
             if (keyCode == 265) {
@@ -209,5 +221,19 @@ public class AdvancedChatScreen extends Screen {
 
     public void setMessageHistorySize(int messageHistorySize) {
         this.messageHistorySize = messageHistorySize;
+    }
+
+    public void onClose() {
+        if (minecraft.player.isSleeping()) {
+            this.stopSleeping();
+        }
+        minecraft.openScreen(null);
+
+    }
+
+    private void stopSleeping() {
+        ClientPlayNetworkHandler clientPlayNetworkHandler = this.minecraft.player.networkHandler;
+        clientPlayNetworkHandler.sendPacket(new ClientCommandC2SPacket(this.minecraft.player, ClientCommandC2SPacket.Mode.STOP_SLEEPING));
+        this.minecraft.openScreen((Screen) null);
     }
 }
