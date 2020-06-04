@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class ConfigFilterScreen extends Screen {
     private String replaceTo;
 
     public ConfigFilterScreen(ConfigFilter configFilter) {
-        super(new TranslatableText("advancedchat.config.filter"));
+        super(new LiteralText("Filter Config"));
         this.configFilter = configFilter;
         filter = configFilter.getTrigger();
         replaceType = configFilter.getReplaceType();
