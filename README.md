@@ -11,8 +11,8 @@ The plugin has filters that are customizable, as well as a screen to view up to 
     - Regex filtering of messages.
     - Access the main configs.
 - Filters that can change messages, and notify you.
-    - Each filter is equiped with several different options to give you customization.
-    - Furthur advanced features with regex and chat formatting.
+    - Each filter is equipped with several options to give you customization.
+    - Further advanced features with regex and chat formatting.
     
 ## Filters
 
