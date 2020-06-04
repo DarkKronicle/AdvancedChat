@@ -13,6 +13,7 @@ The plugin has filters that are customizable, as well as a screen to view up to 
 - Filters that can change messages, and notify you.
     - Each filter is equipped with several options to give you customization.
     - Further advanced features with regex and chat formatting.
+- Other features that are coming soon!
     
 *ChatLogScreen*
 
@@ -66,4 +67,4 @@ Code: DarkKronicle
 
 Logo: Chronos22Gamer
 
-If you notice any bugs, please report to the bug tracker!
+If you notice any bugs, please report to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)
