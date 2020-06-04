@@ -32,6 +32,7 @@ import java.io.IOException;
 public class ConfigManager {
     // Based off of she daniel's code that was released under Apache License 2.0.
     // https://github.com/shedaniel/i-need-keybinds/blob/master/src/main/java/me/shedaniel/ink/ConfigManager.java
+    // http://www.apache.org/licenses/LICENSE-2.0
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File config;
