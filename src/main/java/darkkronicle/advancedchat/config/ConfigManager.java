@@ -14,6 +14,9 @@ import java.io.IOException;
 
 @Environment(EnvType.CLIENT)
 public class ConfigManager {
+    // Based off of she daniel's code that was released under Apache License 2.0.
+    // https://github.com/shedaniel/i-need-keybinds/blob/master/src/main/java/me/shedaniel/ink/ConfigManager.java
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File config;
 

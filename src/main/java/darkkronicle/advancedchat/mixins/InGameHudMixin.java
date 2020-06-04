@@ -16,6 +16,7 @@ public class InGameHudMixin {
 
     @Inject(method = "getChatHud", at = @At("HEAD"), cancellable = true)
     public void getChatHud(CallbackInfoReturnable<ChatHud> ci) {
+        // Allows to redirect methods in Minecraft that access the ChatHud to AdvancedChatHud.
         ci.setReturnValue(AdvancedChatClient.getChatHud());
     }
 

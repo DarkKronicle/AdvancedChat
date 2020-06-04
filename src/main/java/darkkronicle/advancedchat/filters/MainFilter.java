@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class MainFilter extends Filter {
+public class MainFilter {
 
     private ReplaceFilter replaceFilter;
     private NotifyFilter notifyFilter;
@@ -19,8 +19,12 @@ public class MainFilter extends Filter {
         notifyFilter = new NotifyFilter();
     }
 
-    @Override
-    public FilteredMessage filter(String message, ConfigFilter filter) {
+    /*
+    TODO
+    Eventually have filters take in Text objects to retain click events and other
+    Text specific things.
+     */
+    public FilteredMessage filter(String message) {
         boolean filtered = false;
         FilteredMessage result = null;
         List<FilteredMessage.FilterResult> filters = new ArrayList<>();
@@ -60,15 +64,5 @@ public class MainFilter extends Filter {
             return result;
         }
         return new FilteredMessage(message, true, false, FilteredMessage.FilterResult.ALLOW);
-    }
-
-    @Override
-    public void reloadFilters() {
-
-    }
-
-    @Override
-    public FilteredMessage.FilterResult filterType() {
-        return FilteredMessage.FilterResult.UNKNOWN;
     }
 }

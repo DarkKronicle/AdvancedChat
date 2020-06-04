@@ -25,20 +25,12 @@ public class FilteredMessage {
         return showUnfiltered;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public void setResult(FilterResult[] result) {
         this.result = result;
     }
 
     public boolean isFiltered() {
         return filtered;
-    }
-
-    public void setFiltered(boolean filtered) {
-        this.filtered = filtered;
     }
 
     public boolean doesInclude(FilterResult test) {
@@ -54,6 +46,7 @@ public class FilteredMessage {
         REPLACE,
         BLOCK,
         NOTIFY,
+        UNREAD,
         BANNER,
         UNKNOWN,
         ALLOW

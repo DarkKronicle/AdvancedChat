@@ -1,26 +1,24 @@
 package darkkronicle.advancedchat.gui;
 
 import darkkronicle.advancedchat.AdvancedChatClient;
+import darkkronicle.advancedchat.config.ClothConfigScreen;
 import darkkronicle.advancedchat.config.ConfigMainScreen;
 import darkkronicle.advancedchat.filters.FilteredMessage;
+import darkkronicle.advancedchat.util.FormattedText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.Texts;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
-import javax.swing.text.DateFormatter;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,6 +73,9 @@ public class ChatLogScreen extends Screen {
 
         addButton(new ButtonWidget(10, 10, 50, 20, "Filters", button -> {
             minecraft.openScreen(new ConfigMainScreen());
+        }));
+        addButton(new ButtonWidget(70, 10, 70, 20, "Configuration", button -> {
+            minecraft.openScreen(new ClothConfigScreen().getConfigScreen());
         }));
         addButton(new ButtonWidget(MinecraftClient.getInstance().getWindow().getScaledWidth() - 60, 10, 50, 20, "All", button -> {
             filter = cycleResult(filter);
@@ -140,7 +141,7 @@ public class ChatLogScreen extends Screen {
 
             List<String> linedMessages = new ArrayList<>();
             for (String message : messages) {
-                List<Text> lined = Texts.wrapLines(new LiteralText(message), width - 20, this.font, false, true);
+                List<Text> lined = Texts.wrapLines(FormattedText.formatText(message), width - 20, this.font, false, true);
                 if (!upDown) {
                     Collections.reverse(lined);
                 }
@@ -184,6 +185,9 @@ public class ChatLogScreen extends Screen {
             drawString(this.font, "No chat messages yet!", 10, 59, 16777215);
         }
 
+
+        this.chatField.render(mouseX, mouseY, delta);
+        this.commandSuggestor.render(mouseX, mouseY);
         super.render(mouseX, mouseY, delta);
     }
 
@@ -224,8 +228,10 @@ public class ChatLogScreen extends Screen {
         return false;
     }
 
-    public void onChatFieldUpdate(String string) {
-
+    public void onChatFieldUpdate(String chatText) {
+        String string = this.chatField.getText();
+        this.commandSuggestor.setWindowActive(!string.equals(""));
+        this.commandSuggestor.refresh();
     }
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

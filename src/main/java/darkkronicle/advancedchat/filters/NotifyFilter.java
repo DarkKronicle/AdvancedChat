@@ -1,6 +1,5 @@
 package darkkronicle.advancedchat.filters;
 
-import darkkronicle.advancedchat.AdvancedChatClient;
 import darkkronicle.advancedchat.config.ConfigFilter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -8,20 +7,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Environment(EnvType.CLIENT)
-public class NotifyFilter extends Filter {
+public class NotifyFilter {
 
-    @Override
-    public void reloadFilters() {
-
-    }
-
-    @Override
     public FilteredMessage filter(String message, ConfigFilter filter) {
         if (!filter.isActive()) {
             return new FilteredMessage(message, false, false, FilteredMessage.FilterResult.UNKNOWN);
@@ -60,11 +51,6 @@ public class NotifyFilter extends Filter {
 
         }
         return new FilteredMessage(message, false, false, FilteredMessage.FilterResult.UNKNOWN);
-    }
-
-    @Override
-    public FilteredMessage.FilterResult filterType() {
-        return FilteredMessage.FilterResult.NOTIFY;
     }
 
     public void notifyPlayer() {

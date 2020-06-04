@@ -18,6 +18,7 @@ public class ChatScreenMixin {
 
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)
     public void init(CallbackInfo ci) {
+        // If the main ChatScreen is ever opened, this redirects it to the custom screen.
         MinecraftClient.getInstance().openScreen(new AdvancedChatScreen(originalChatText));
         ci.cancel();
     }

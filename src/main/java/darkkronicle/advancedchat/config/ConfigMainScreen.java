@@ -7,7 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.LiteralText;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,11 +15,16 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ConfigMainScreen extends Screen {
+    /*
+    Class to allow customization of different filters in a nice gui.
+     */
+
+    //TODO Make gui include scrolling.
 
     private List<ButtonWidget> filters = new ArrayList<>();
 
     public ConfigMainScreen() {
-        super(new TranslatableText("advancedchat.config.main"));
+        super(new LiteralText("Filter Configuration"));
     }
 
     public void init() {
@@ -38,7 +43,6 @@ public class ConfigMainScreen extends Screen {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            AdvancedChatClient.mainFilter.reloadFilters();
             minecraft.openScreen(new ConfigMainScreen());
         }));
     }

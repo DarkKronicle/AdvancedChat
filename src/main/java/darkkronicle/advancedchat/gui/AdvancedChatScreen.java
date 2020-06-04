@@ -52,6 +52,7 @@ public class AdvancedChatScreen extends Screen {
         this.setInitialFocus(this.chatField);
 
         if (minecraft.player.isSleeping()) {
+            // Prevents softlocks from sleeping.
             this.addButton(new ButtonWidget(this.width / 2 - 100, this.height - 40, 200, 20, I18n.translate("multiplayer.stopSleeping"), (buttonWidget) -> {
                 this.stopSleeping();
             }));

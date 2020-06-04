@@ -1,8 +1,10 @@
 package darkkronicle.advancedchat.config;
 
-import darkkronicle.advancedchat.filters.FilteredMessage;
-
 public class ConfigFilter {
+    /*
+    Class used to store values about filters.
+     */
+
     private String trigger;
     private ReplaceType replaceType;
     private boolean active;
@@ -12,17 +14,6 @@ public class ConfigFilter {
     private boolean regex;
     private String replaceTo;
     private NotifyType notifyType;
-
-    public ConfigFilter(String trigger, ReplaceType replaceType, boolean active, boolean ignoreCase, String name, boolean showUnfiltered, boolean regex, String replaceTo) {
-        this.trigger = trigger;
-        this.replaceType = replaceType;
-        this.active = active;
-        this.ignoreCase = ignoreCase;
-        this.name = name;
-        showUnFilterInLog = showUnfiltered;
-        this.regex = regex;
-        this.replaceTo = replaceTo;
-    }
 
     public ConfigFilter() {
         trigger = "To Search";

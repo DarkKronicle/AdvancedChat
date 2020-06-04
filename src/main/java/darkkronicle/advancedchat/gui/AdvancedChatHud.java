@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import darkkronicle.advancedchat.AdvancedChatClient;
 import darkkronicle.advancedchat.filters.FilteredMessage;
+import darkkronicle.advancedchat.util.FormattedText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
@@ -39,6 +40,7 @@ public class AdvancedChatHud extends ChatHud {
         if (this.optionVisible()) {
             int visibleLineCount = this.getVisibleLineCount();
             int visibleMessagesCount = this.visibleMessages.size();
+
             if (visibleMessagesCount > 0) {
                 boolean chatFocused = false;
                 if (this.isChatFocused()) {
@@ -58,6 +60,7 @@ public class AdvancedChatHud extends ChatHud {
                 int ticksAlive;
                 int fadeTextOpacity;
                 int fadeBackgroundOpacity;
+
                 for(int i = 0; i + this.scrolledLines < this.visibleMessages.size() && i < visibleLineCount; ++i) {
                     AdvancedChatHudLine chatHudLine = this.visibleMessages.get(i + this.scrolledLines);
                     if (chatHudLine != null) {
@@ -78,6 +81,7 @@ public class AdvancedChatHud extends ChatHud {
                                 this.client.textRenderer.drawWithShadow(string, 0.0F, (float) (y - 8), 16777215 + (fadeTextOpacity << 24));
                                 RenderSystem.disableAlphaTest();
                                 RenderSystem.disableBlend();
+
                             }
                         }
                     }
@@ -88,11 +92,13 @@ public class AdvancedChatHud extends ChatHud {
                         AdvancedChatHudLine chatHudLine = this.bannerMessages.get(i);
                         if (chatHudLine != null) {
                             ticksAlive = ticks - chatHudLine.getCreationTick();
+
                             if (ticksAlive < 100) {
                                 double fade = chatFocused ? 1.0D : getMessageOpacityMultiplier(ticksAlive);
                                 fadeTextOpacity = (int) (255.0D * fade * textOpacity);
                                 fadeBackgroundOpacity = (int) (255.0D * fade * backgroundOpacity);
                                 ++line;
+
                                 if (fadeTextOpacity > 3) {
                                     int y = (i * 9) - offset;
                                     fill(matrix4f, -2, y - 9, k + 4, y, fadeBackgroundOpacity << 24);
@@ -104,6 +110,7 @@ public class AdvancedChatHud extends ChatHud {
                                     this.client.textRenderer.drawWithShadow(string, 0.0F, (float) (y - 8), 16777215 + (fadeTextOpacity << 24));
                                     RenderSystem.disableAlphaTest();
                                     RenderSystem.disableBlend();
+
                                 }
                             }
                         }
@@ -135,7 +142,7 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     private static double getMessageOpacityMultiplier(int age) {
-        double d = (double)age / 200.0D;
+        double d = (double) age / 200.0D;
         d = 1.0D - d;
         d *= 10.0D;
         d = MathHelper.clamp(d, 0.0D, 1.0D);
@@ -144,13 +151,19 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     public void clear(boolean clearHistory) {
-        this.visibleMessages.clear();
-        this.messages.clear();
-        this.bannerMessages.clear();
-        if (clearHistory) {
-            this.messageHistory.clear();
-        }
+        clear(clearHistory, false);
+    }
 
+    public void clear(boolean clearHistory, boolean force) {
+        // Can cancel clearing if you want messages to persist between multiple games/servers.
+        if ((AdvancedChatClient.configObject.clearChat || force) || !clearHistory) {
+            this.visibleMessages.clear();
+            this.messages.clear();
+            this.bannerMessages.clear();
+            if (clearHistory) {
+                this.messageHistory.clear();
+            }
+        }
     }
 
     public void addMessage(Text message) {
@@ -163,33 +176,39 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     private void addMessage(Text message, int messageId, int timestamp, boolean bl) {
-        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asFormattedString(), null);
+        // Filters main message.
+        FilteredMessage result = AdvancedChatClient.mainFilter.filter(message.asFormattedString());
+
         boolean hide = false;
-        Text finalText = message;
         if (result.doesInclude(FilteredMessage.FilterResult.BLOCK) && result.getMessage().equals("")) {
             hide = true;
             if (!result.isShowUnfiltered()) {
                 return;
             }
         }
-        if (result.isShowUnfiltered()) {
-            finalText = message;
-        } else {
-            finalText = new LiteralText(result.getMessage());
-        }
-        Text newMessage = new LiteralText(result.getMessage());
+
+        Text finalText = message;
+
         if (messageId != 0) {
             this.removeMessage(messageId);
         }
-        if (!newMessage.asFormattedString().equals(message.asFormattedString())) {
-            message = newMessage;
+        if (!result.getMessage().equals(message.asFormattedString())) {
+            // If the message hasn't been changed clickEvents can be overriden. This is to minimize.
+            message = FormattedText.formatText(result.getMessage());
+            if (!result.isShowUnfiltered()) {
+                finalText = message;
+            }
         }
+
         if (!hide) {
             int i = MathHelper.floor((double) this.getWidth() / this.getChatScale());
-            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, true);
+            List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, false);
             boolean bl2 = this.isChatFocused();
+            boolean stack = false;
             Text text;
             if (AdvancedChatClient.configObject.stackSame) {
+                // Message stacking logic.
+
                 int search = 20;
                 if (20 > visibleMessages.size()) {
                     search = visibleMessages.size();
@@ -200,23 +219,25 @@ public class AdvancedChatHud extends ChatHud {
                         for (Text line : list) {
                             if (mess.getText().asFormattedString().equals(line.asFormattedString())) {
                                 mess.addRepeat(1);
-                                return;
+                                stack = true;
                             }
                         }
                     }
                 }
             }
-            if (result.doesInclude(FilteredMessage.FilterResult.BANNER)) {
-                for (Iterator var8 = list.iterator(); var8.hasNext(); this.bannerMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
-                    text = (Text) var8.next();
-                }
-            } else {
-                for (Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
-                    text = (Text) var8.next();
+            if (!stack) {
+                if (result.doesInclude(FilteredMessage.FilterResult.BANNER)) {
+                    for (Iterator var8 = list.iterator(); var8.hasNext(); this.bannerMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
+                        text = (Text) var8.next();
+                    }
+                } else {
+                    for (Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatHudLine(timestamp, text, messageId, result.getResult()))) {
+                        text = (Text) var8.next();
 
-                    if (bl2 && this.scrolledLines > 0) {
-                        this.hasUnreadNewMessages = true;
-                        this.scroll(1.0D);
+                        if (bl2 && this.scrolledLines > 0) {
+                            this.hasUnreadNewMessages = true;
+                            this.scroll(1.0D);
+                        }
                     }
                 }
             }

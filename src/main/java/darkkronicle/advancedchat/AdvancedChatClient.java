@@ -51,6 +51,5 @@ public class AdvancedChatClient implements ClientModInitializer {
             configObject.configFilters.add(new ConfigFilter());
         }
         mainFilter = new MainFilter();
-        mainFilter.reloadFilters();
     }
 }

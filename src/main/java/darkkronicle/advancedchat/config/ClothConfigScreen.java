@@ -14,7 +14,9 @@ import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class ClothConfigScreen {
+
     public Screen getConfigScreen() {
+
         ConfigBuilder builder = ConfigBuilder.create();
         builder.setTransparentBackground(true);
         builder.setTitle("AdvancedChat Options");
@@ -26,30 +28,37 @@ public class ClothConfigScreen {
                 return Optional.of("Stored lines can't be less than visible lines!");
             }
             return Optional.empty();
+
         }).build());
 
         general.addEntry(entry.startIntField("Visible Lines", AdvancedChatClient.configObject.visibleLines).setDefaultValue(100).setSaveConsumer(newval -> AdvancedChatClient.configObject.visibleLines = newval).setMax(500).setMin(50).build());
 
-        general.addEntry(entry.startBooleanToggle("Log Bottom to Top", AdvancedChatClient.configObject.linesUpDown).setSaveConsumer(newval -> AdvancedChatClient.configObject.linesUpDown = newval).build());
+        general.addEntry(entry.startBooleanToggle("Log Bottom to Top", AdvancedChatClient.configObject.linesUpDown).setDefaultValue(true).setSaveConsumer(newval -> AdvancedChatClient.configObject.linesUpDown = newval).build());
 
-        general.addEntry(entry.startBooleanToggle("Stack Messages", AdvancedChatClient.configObject.stackSame).setSaveConsumer(newval -> AdvancedChatClient.configObject.stackSame = newval).build());
+        general.addEntry(entry.startBooleanToggle("Stack Messages", AdvancedChatClient.configObject.stackSame).setDefaultValue(false).setSaveConsumer(newval -> AdvancedChatClient.configObject.stackSame = newval).build());
 
-        general.addEntry(entry.startBooleanToggle("Show Time in Log", AdvancedChatClient.configObject.showTime).setSaveConsumer(newval -> AdvancedChatClient.configObject.showTime = newval).build());
+        general.addEntry(entry.startBooleanToggle("Clear Chat on Disconnect", AdvancedChatClient.configObject.clearChat).setDefaultValue(true).setSaveConsumer(newval -> AdvancedChatClient.configObject.clearChat = newval).build());
 
-        general.addEntry(entry.startStrField("Time Format", AdvancedChatClient.configObject.timeFormat).setSaveConsumer(newval -> AdvancedChatClient.configObject.timeFormat = newval).setErrorSupplier(string -> {
+        general.addEntry(entry.startBooleanToggle("Show Time in Log", AdvancedChatClient.configObject.showTime).setDefaultValue(false).setSaveConsumer(newval -> AdvancedChatClient.configObject.showTime = newval).build());
+
+        general.addEntry(entry.startStrField("Time Format", AdvancedChatClient.configObject.timeFormat).setDefaultValue("hh:mm").setSaveConsumer(newval -> AdvancedChatClient.configObject.timeFormat = newval).setErrorSupplier(string -> {
             try {
                 DateTimeFormatter.ofPattern(string);
                 return Optional.empty();
+
             } catch (Exception e) {
                 return Optional.of("Format isn't correct! (hh:mm:ss...)");
+
             }
+
         }).build());
 
-        general.addEntry(entry.startStrField("Time Full Format", AdvancedChatClient.configObject.replaceFormat).setSaveConsumer(newval -> AdvancedChatClient.configObject.replaceFormat = newval).setErrorSupplier(string -> {
-            if (string.contains("%TIME")) {
+        general.addEntry(entry.startStrField("Time Full Format", AdvancedChatClient.configObject.replaceFormat).setDefaultValue("&7[%TIME%]").setSaveConsumer(newval -> AdvancedChatClient.configObject.replaceFormat = newval).setErrorSupplier(string -> {
+            if (string.contains("%TIME%")) {
                 return Optional.empty();
             }
             return Optional.of("Needs to include %TIME%");
+
         }).build());
 
         builder.setSavingRunnable(() -> {
@@ -58,10 +67,11 @@ public class ClothConfigScreen {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         });
 
-
         return builder.build();
+
     }
 
 }

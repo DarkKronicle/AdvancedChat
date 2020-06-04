@@ -1,7 +1,6 @@
 package darkkronicle.advancedchat.config;
 
 import darkkronicle.advancedchat.AdvancedChatClient;
-import darkkronicle.advancedchat.filters.FilteredMessage;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
@@ -11,6 +10,10 @@ import net.minecraft.text.TranslatableText;
 import java.io.IOException;
 
 public class ConfigFilterScreen extends Screen {
+    /*
+    A class to customize everythinig you see in ConfigFilter
+     */
+
 
     private ConfigFilter configFilter;
     private String filter;
@@ -171,7 +174,6 @@ public class ConfigFilterScreen extends Screen {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        AdvancedChatClient.mainFilter.reloadFilters();
         minecraft.openScreen(new ConfigMainScreen());
 
     }
@@ -184,7 +186,6 @@ public class ConfigFilterScreen extends Screen {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        AdvancedChatClient.mainFilter.reloadFilters();
         minecraft.openScreen(new ConfigMainScreen());
     }
 
