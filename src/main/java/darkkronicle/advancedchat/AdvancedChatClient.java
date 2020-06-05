@@ -21,12 +21,19 @@ import darkkronicle.advancedchat.config.ConfigManager;
 import darkkronicle.advancedchat.config.ConfigObject;
 import darkkronicle.advancedchat.filters.MainFilter;
 import darkkronicle.advancedchat.gui.AdvancedChatHud;
+import darkkronicle.advancedchat.gui.ChatLogScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 
@@ -38,6 +45,8 @@ public class AdvancedChatClient implements ClientModInitializer {
 
     public static ConfigObject configObject;
     public static ConfigManager configManager;
+
+    private FabricKeyBinding openChatLog;
 
     public static AdvancedChatHud getChatHud() {
         if (chatHud == null) {
@@ -55,9 +64,16 @@ public class AdvancedChatClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        openChatLog = FabricKeyBinding.Builder.create(new Identifier("advancedchat", "openlog"), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Y, "key.categories.multiplayer").build();
+        KeyBindingRegistry.INSTANCE.register(openChatLog);
+
         ClientTickCallback.EVENT.register((client) -> {
+            if (openChatLog.isPressed()) {
+                MinecraftClient.getInstance().openScreen(new ChatLogScreen());
+            }
             ticks++;
         });
+
         HudRenderCallback.EVENT.register(AdvancedChatClient::renderChatHud);
         configManager = new ConfigManager();
         if (configObject.configFilters == null) {
