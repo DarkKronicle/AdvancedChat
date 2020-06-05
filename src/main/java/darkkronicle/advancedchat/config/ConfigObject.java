@@ -26,6 +26,7 @@ public class ConfigObject {
     public boolean linesUpDown = true;
     public boolean clearChat = true;
     public boolean showTime = false;
+    public boolean showChatTime = false;
     public String timeFormat = "hh:mm";
     public String replaceFormat = "&7[%TIME%] ";
 }

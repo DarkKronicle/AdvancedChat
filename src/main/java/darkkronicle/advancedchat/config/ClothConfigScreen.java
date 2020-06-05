@@ -57,6 +57,8 @@ public class ClothConfigScreen {
 
         general.addEntry(entry.startBooleanToggle("Show Time in Log", AdvancedChatClient.configObject.showTime).setDefaultValue(false).setSaveConsumer(newval -> AdvancedChatClient.configObject.showTime = newval).build());
 
+        general.addEntry(entry.startBooleanToggle("Show Time in Chat", AdvancedChatClient.configObject.showChatTime).setDefaultValue(false).setSaveConsumer(newval -> AdvancedChatClient.configObject.showChatTime = newval).build());
+
         general.addEntry(entry.startStrField("Time Format", AdvancedChatClient.configObject.timeFormat).setDefaultValue("hh:mm").setSaveConsumer(newval -> AdvancedChatClient.configObject.timeFormat = newval).setErrorSupplier(string -> {
             try {
                 DateTimeFormatter.ofPattern(string);
@@ -69,7 +71,7 @@ public class ClothConfigScreen {
 
         }).build());
 
-        general.addEntry(entry.startStrField("Time Full Format", AdvancedChatClient.configObject.replaceFormat).setDefaultValue("&7[%TIME%]").setSaveConsumer(newval -> AdvancedChatClient.configObject.replaceFormat = newval).setErrorSupplier(string -> {
+        general.addEntry(entry.startStrField("Time Full Format", AdvancedChatClient.configObject.replaceFormat).setDefaultValue("&7[%TIME%] ").setSaveConsumer(newval -> AdvancedChatClient.configObject.replaceFormat = newval).setErrorSupplier(string -> {
             if (string.contains("%TIME%")) {
                 return Optional.empty();
             }

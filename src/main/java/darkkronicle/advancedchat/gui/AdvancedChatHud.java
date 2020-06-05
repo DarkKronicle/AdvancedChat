@@ -33,6 +33,9 @@ import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -216,6 +219,9 @@ public class AdvancedChatHud extends ChatHud {
         }
 
         if (!hide) {
+            if (AdvancedChatClient.configObject.showChatTime) {
+                message = FormattedText.formatText(AdvancedChatClient.configObject.replaceFormat.replaceAll("%TIME%", LocalDateTime.now().format(DateTimeFormatter.ofPattern(AdvancedChatClient.configObject.timeFormat))).replaceAll("&", "§") + "§f").append(message);
+            }
             int i = MathHelper.floor((double) this.getWidth() / this.getChatScale());
             List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, false);
             boolean bl2 = this.isChatFocused();
