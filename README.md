@@ -10,7 +10,7 @@ The plugin has filters that are customizable, as well as a screen to view up to 
     - You can view up to 5000 lines of chat.
     - Regex filtering of messages.
     - Access the main configs.
-    - See when messages were posted.
+- See when messages were posted in ChatLogScreen or normal chat.
 - Filters that can change messages, and notify you.
     - Each filter is equipped with several options to give you customization.
     - Further advanced features with regex and chat formatting.
