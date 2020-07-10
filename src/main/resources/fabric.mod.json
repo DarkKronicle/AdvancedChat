@@ -3,34 +3,31 @@
   "id": "advancedchat",
   "version": "${version}",
   "name": "AdvancedChat",
-  "description": "A mod to allow you to have lots more control over chat!",
+  "description": "Mod to add new features to the chat.",
   "authors": [
     "DarkKronicle"
   ],
   "contact": {
     "sources": "https://github.com/DarkKronicle/AdvancedChat"
   },
-  "license": "GPL-3.0",
-  "icon": "assets/advancedchat/icon.png",
+  "license": "CC0-1.0",
+  "icon": "assets/AdvancedChat/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "darkkronicle.advancedchat.AdvancedChatClient"
+      "net.darkkronicle.advancedchat.AdvancedChat"
     ],
     "modmenu": [
-      "darkkronicle.advancedchat.config.ModMenuImpl"
+      "net.darkkronicle.advancedchat.config.ModMenuImpl"
     ]
   },
   "mixins": [
-    "advancedchat.mixins.json"
+    "AdvancedChat.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.8.4+build.198",
+    "fabricloader": ">=0.8.9+build.203",
     "fabric": "*",
-    "minecraft": "1.15.2"
-  },
-  "suggests": {
-    "modmenu": "*"
+    "minecraft": "1.16.1"
   },
   "custom": {
     "modmenu:clientsideOnly": true

@@ -1,14 +1,11 @@
 {
   "required": true,
-  "minVersion": "0.8",
-  "package": "darkkronicle.advancedchat.mixins",
+  "package": "net.darkkronicle.advancedchat.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
   ],
   "client": [
-    "ChatHudMixin",
-    "InGameHudMixin",
-    "ChatScreenMixin"
+    "MixinChatHud"
   ],
   "injectors": {
     "defaultRequire": 1

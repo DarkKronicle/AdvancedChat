@@ -1,24 +1,9 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
-package darkkronicle.advancedchat.config;
+package net.darkkronicle.advancedchat.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import darkkronicle.advancedchat.AdvancedChatClient;
+import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -49,20 +34,36 @@ public class ConfigManager {
     public void loadConfig() throws IOException {
         config.getParentFile().mkdirs();
         if (!config.exists() || !config.canRead()) {
-            AdvancedChatClient.configObject = new ConfigObject();
+            AdvancedChat.configStorage = new ConfigStorage();
+            if (AdvancedChat.configStorage.filters.size() == 0) {
+                AdvancedChat.configStorage.filters.add(Filter.EMPTY);
+                try {
+                    saveConfig();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             saveConfig();
             return;
         }
         boolean failed = false;
         try {
-            AdvancedChatClient.configObject = GSON.fromJson(new FileReader(config), ConfigObject.class);
+            AdvancedChat.configStorage = GSON.fromJson(new FileReader(config), ConfigStorage.class);
         } catch (Exception e) {
             e.printStackTrace();
             failed = true;
         }
 
-        if (failed || AdvancedChatClient.configObject == null) {
-            AdvancedChatClient.configObject = new ConfigObject();
+        if (failed || AdvancedChat.configStorage == null) {
+            AdvancedChat.configStorage = new ConfigStorage();
+        }
+        if (AdvancedChat.configStorage.filters.size() == 0) {
+            AdvancedChat.configStorage.filters.add(Filter.EMPTY);
+            try {
+                saveConfig();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         saveConfig();
     }
@@ -70,11 +71,11 @@ public class ConfigManager {
     public void saveConfig() throws IOException {
         config.getParentFile().mkdirs();
         if (!config.exists() && !config.createNewFile()) {
-            AdvancedChatClient.configObject = new ConfigObject();
+            AdvancedChat.configStorage = new ConfigStorage();
             return;
         }
         try {
-            String result = GSON.toJson(AdvancedChatClient.configObject);
+            String result = GSON.toJson(AdvancedChat.configStorage);
             if (!config.exists()) {
                 config.createNewFile();
             }
@@ -84,7 +85,8 @@ public class ConfigManager {
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
-            AdvancedChatClient.configObject = new ConfigObject();
+            AdvancedChat.configStorage = new ConfigStorage();
         }
     }
+
 }
