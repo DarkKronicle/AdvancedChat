@@ -29,7 +29,7 @@ public class MixinChatHud {
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("HEAD"))
     public void addMessage(Text message, CallbackInfo ci) {
         SplitText text = new SplitText(message);
-        Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatch(text.getFullMessage(), "Gave 1 [Command", Filter.FindType.LITERAL);
+        Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(text.getFullMessage(), "Gave 1 [Command", Filter.FindType.LITERAL);
         if (!omatches.isPresent()) {
             return;
         }

@@ -27,7 +27,7 @@ public class ReplaceFilter extends AbstractFilter {
     @Override
     public Optional<StringRenderable> filter(StringRenderable text) {
         SplitText splitText = new SplitText(text);
-        Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatch(splitText.getFullMessage(), super.filterString, findType);
+        Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(splitText.getFullMessage(), super.filterString, findType);
         if (!omatches.isPresent()) {
             return Optional.empty();
         }

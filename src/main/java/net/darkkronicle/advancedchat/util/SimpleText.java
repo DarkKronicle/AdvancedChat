@@ -8,6 +8,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Style;
 
+/*
+Class that allows for easy mutable objects that are like minecraft Text.
+ */
+
 @Accessors(chain = true)
 @AllArgsConstructor
 @Environment(EnvType.CLIENT)
@@ -22,6 +26,7 @@ public class SimpleText {
         this.message = text.getMessage();
     }
 
+    // Defensive copy of simpleText.
     public SimpleText copySimpleText() {
         return new SimpleText(this);
     }

@@ -36,7 +36,7 @@ public class ConfigManager {
         if (!config.exists() || !config.canRead()) {
             AdvancedChat.configStorage = new ConfigStorage();
             if (AdvancedChat.configStorage.filters.size() == 0) {
-                AdvancedChat.configStorage.filters.add(Filter.EMPTY);
+                AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
                 try {
                     saveConfig();
                 } catch (IOException e) {
@@ -58,7 +58,7 @@ public class ConfigManager {
             AdvancedChat.configStorage = new ConfigStorage();
         }
         if (AdvancedChat.configStorage.filters.size() == 0) {
-            AdvancedChat.configStorage.filters.add(Filter.EMPTY);
+            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
             try {
                 saveConfig();
             } catch (IOException e) {
