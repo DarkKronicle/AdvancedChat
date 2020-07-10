@@ -34,7 +34,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +53,23 @@ public class AdvancedChatHud extends ChatHud {
         this.client = client;
     }
 
+    private static double getMessageOpacityMultiplier(int age) {
+        double d = (double) age / 200.0D;
+        d = 1.0D - d;
+        d *= 10.0D;
+        d = MathHelper.clamp(d, 0.0D, 1.0D);
+        d *= d;
+        return d;
+    }
+
+    public static int getWidth(double widthOption) {
+        return MathHelper.floor(widthOption * 280.0D + 40.0D);
+    }
+
+    public static int getHeight(double heightOption) {
+        return MathHelper.floor(heightOption * 160.0D + 20.0D);
+    }
+
     public void render(int ticks) {
         if (this.optionVisible()) {
             int visibleLineCount = this.getVisibleLineCount();
@@ -66,9 +82,9 @@ public class AdvancedChatHud extends ChatHud {
                 }
 
                 double d = this.getChatScale();
-                int k = MathHelper.ceil((double)this.getWidth() / d);
+                int k = MathHelper.ceil((double) this.getWidth() / d);
                 RenderSystem.pushMatrix();
-                RenderSystem.translatef(2.0F, client.getWindow().getScaledHeight()-40, 0.0F);
+                RenderSystem.translatef(2.0F, client.getWindow().getScaledHeight() - 40, 0.0F);
                 RenderSystem.scaled(d, d, 1.0D);
                 double textOpacity = this.client.options.chatOpacity * 0.8999999761581421D + 0.10000000149011612D;
                 double backgroundOpacity = this.client.options.textBackgroundOpacity;
@@ -79,7 +95,7 @@ public class AdvancedChatHud extends ChatHud {
                 int fadeTextOpacity;
                 int fadeBackgroundOpacity;
 
-                for(int i = 0; i + this.scrolledLines < this.visibleMessages.size() && i < visibleLineCount; ++i) {
+                for (int i = 0; i + this.scrolledLines < this.visibleMessages.size() && i < visibleLineCount; ++i) {
                     AdvancedChatHudLine chatHudLine = this.visibleMessages.get(i + this.scrolledLines);
                     if (chatHudLine != null) {
                         ticksAlive = ticks - chatHudLine.getCreationTick();
@@ -157,15 +173,6 @@ public class AdvancedChatHud extends ChatHud {
 
     private boolean optionVisible() {
         return this.client.options.chatVisibility != ChatVisibility.HIDDEN;
-    }
-
-    private static double getMessageOpacityMultiplier(int age) {
-        double d = (double) age / 200.0D;
-        d = 1.0D - d;
-        d *= 10.0D;
-        d = MathHelper.clamp(d, 0.0D, 1.0D);
-        d *= d;
-        return d;
     }
 
     public void clear(boolean clearHistory) {
@@ -286,7 +293,7 @@ public class AdvancedChatHud extends ChatHud {
         this.visibleMessages.clear();
         this.resetScroll();
 
-        for(int i = this.messages.size() - 1; i >= 0; --i) {
+        for (int i = this.messages.size() - 1; i >= 0; --i) {
             AdvancedChatHudLine chatHudLine = this.messages.get(i);
             this.addMessage(chatHudLine.getText(), chatHudLine.getId(), chatHudLine.getCreationTick(), true);
         }
@@ -298,7 +305,7 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     public void addToMessageHistory(String message) {
-        if (this.messageHistory.isEmpty() || !((String)this.messageHistory.get(this.messageHistory.size() - 1)).equals(message)) {
+        if (this.messageHistory.isEmpty() || !this.messageHistory.get(this.messageHistory.size() - 1).equals(message)) {
             this.messageHistory.add(message);
         }
 
@@ -310,7 +317,7 @@ public class AdvancedChatHud extends ChatHud {
     }
 
     public void scroll(double amount) {
-        this.scrolledLines = (int)((double)this.scrolledLines + amount);
+        this.scrolledLines = (int) ((double) this.scrolledLines + amount);
         int i = this.visibleMessages.size();
         if (this.scrolledLines > i - this.getVisibleLineCount()) {
             this.scrolledLines = i - this.getVisibleLineCount();
@@ -327,26 +334,26 @@ public class AdvancedChatHud extends ChatHud {
         if (this.isChatFocused() && !this.client.options.hudHidden && this.optionVisible()) {
             double d = this.getChatScale();
             double e = x - 2.0D;
-            double f = (double)this.client.getWindow().getScaledHeight() - y - 40.0D;
-            e = (double)MathHelper.floor(e / d);
-            f = (double)MathHelper.floor(f / d);
+            double f = (double) this.client.getWindow().getScaledHeight() - y - 40.0D;
+            e = MathHelper.floor(e / d);
+            f = MathHelper.floor(f / d);
             if (e >= 0.0D && f >= 0.0D) {
                 int i = Math.min(this.getVisibleLineCount(), this.visibleMessages.size());
-                if (e <= (double)MathHelper.floor((double)this.getWidth() / this.getChatScale())) {
+                if (e <= (double) MathHelper.floor((double) this.getWidth() / this.getChatScale())) {
                     this.client.textRenderer.getClass();
-                    if (f < (double)(9 * i + i)) {
+                    if (f < (double) (9 * i + i)) {
                         this.client.textRenderer.getClass();
-                        int j = (int)(f / 9.0D + (double)this.scrolledLines);
+                        int j = (int) (f / 9.0D + (double) this.scrolledLines);
                         if (j >= 0 && j < this.visibleMessages.size()) {
                             AdvancedChatHudLine chatHudLine = this.visibleMessages.get(j);
                             int k = 0;
                             Iterator var15 = chatHudLine.getText().iterator();
 
-                            while(var15.hasNext()) {
-                                Text text = (Text)var15.next();
+                            while (var15.hasNext()) {
+                                Text text = (Text) var15.next();
                                 if (text instanceof LiteralText) {
-                                    k += this.client.textRenderer.getStringWidth(Texts.getRenderChatMessage(((LiteralText)text).getRawString(), false));
-                                    if ((double)k > e) {
+                                    k += this.client.textRenderer.getStringWidth(Texts.getRenderChatMessage(((LiteralText) text).getRawString(), false));
+                                    if ((double) k > e) {
                                         return text;
                                     }
                                 }
@@ -374,8 +381,8 @@ public class AdvancedChatHud extends ChatHud {
         Iterator iterator = this.visibleMessages.iterator();
 
         AdvancedChatHudLine chatHudLine2;
-        while(iterator.hasNext()) {
-            chatHudLine2 = (AdvancedChatHudLine)iterator.next();
+        while (iterator.hasNext()) {
+            chatHudLine2 = (AdvancedChatHudLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
             }
@@ -383,7 +390,7 @@ public class AdvancedChatHud extends ChatHud {
 
         iterator = this.messages.iterator();
 
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             chatHudLine2 = (AdvancedChatHudLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
@@ -403,14 +410,6 @@ public class AdvancedChatHud extends ChatHud {
 
     public double getChatScale() {
         return this.client.options.chatScale;
-    }
-
-    public static int getWidth(double widthOption) {
-        return MathHelper.floor(widthOption * 280.0D + 40.0D);
-    }
-
-    public static int getHeight(double heightOption) {
-        return MathHelper.floor(heightOption * 160.0D + 20.0D);
     }
 
     public int getVisibleLineCount() {
