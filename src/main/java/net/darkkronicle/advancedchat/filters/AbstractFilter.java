@@ -18,8 +18,9 @@ public abstract class AbstractFilter {
         this.filterString = "";
     }
 
-    public AbstractFilter(String filterString) {
+    public AbstractFilter(String filterString, Filter.FindType findType) {
         this.filterString = filterString;
+        this.findType = findType;
     }
 
     public abstract Optional<StringRenderable> filter(StringRenderable text);

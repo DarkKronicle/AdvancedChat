@@ -3,6 +3,7 @@ package net.darkkronicle.advancedchat.util;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.With;
 import lombok.experimental.Accessors;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,9 +17,9 @@ Class that allows for easy mutable objects that are like minecraft Text.
 @AllArgsConstructor
 @Environment(EnvType.CLIENT)
 public class SimpleText {
-    @Getter @Setter
+    @Getter @Setter @With
     private String message;
-    @Getter @Setter
+    @Getter @Setter @With
     private Style style;
 
     private SimpleText(SimpleText text) {

@@ -1,8 +1,10 @@
 package net.darkkronicle.advancedchat.storage;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,25 +17,23 @@ import java.util.List;
  */
 
 @Environment(EnvType.CLIENT)
+@Data
 @AllArgsConstructor
 public class Filter {
 
     /**
      * Name is only cosmetic. Shows up when editing filters. Way to distinguish filters for the player.
       */
-    @Getter @Setter
     private String name;
 
     /**
      * Whether or not it should be used to filter chat messages currently.
      */
-    @Getter @Setter
     private boolean active;
 
     /**
      * The Expression to find a match. The way it is interpreted is defined by findType.
      */
-    @Getter @Setter
     private String findString;
 
     /** How findString is used.
@@ -41,7 +41,6 @@ public class Filter {
      * UPPERLOWER is like literal, but ignore case.
      * REGEX interprets findString as a regular expression.
      */
-    @Getter @Setter
     private FindType findType;
 
     /**
@@ -49,25 +48,28 @@ public class Filter {
      * ONLYMATCH replaces only what was matched.
      * FULLLINE replaces the full message.
      */
-    @Getter @Setter
     private ReplaceType replaceType;
 
     /**
      * What the found string replaces to. (ex. If replaceType is FULLLINE this will replace the message with this)
      */
-    @Getter @Setter
     private SimpleText replaceTo;
 
     /** How the filter notifies the client of a found string.
      * SOUND plays a sound when the filter is triggered.
      */
-    @Getter @Setter
     private NotifyType notifyType;
 
-    /** 
+    private boolean replaceTextColor;
+
+    private boolean replaceBackgroundColor;
+
+    private ColorUtil.SimpleColor color;
+
+    /**
      * The default filter. Used for new filters.
      */
-    public static final Filter DEFAULT = new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH, new SimpleText("AWESOME!", Style.EMPTY), NotifyType.NONE);
+    public static final Filter DEFAULT = new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH, new SimpleText("AWESOME!", Style.EMPTY), NotifyType.NONE, false, false, ColorUtil.BLACK);
 
     /**
      * In case the config.json has a missing value this will prevent NPE's from happening when ever the filter is accessed.
@@ -92,6 +94,9 @@ public class Filter {
             }
             if (filter.notifyType == null) {
                 filter.notifyType = NotifyType.NONE;
+            }
+            if (filter.color == null) {
+                filter.color = ColorUtil.BLACK;
             }
         }
     }

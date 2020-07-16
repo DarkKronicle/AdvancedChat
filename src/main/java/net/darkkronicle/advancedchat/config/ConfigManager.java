@@ -3,6 +3,7 @@ package net.darkkronicle.advancedchat.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -43,6 +44,14 @@ public class ConfigManager {
                     e.printStackTrace();
                 }
             }
+            if (AdvancedChat.configStorage.tabs.size() == 0) {
+                AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+                try {
+                    saveConfig();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             saveConfig();
             return;
         }
@@ -59,6 +68,14 @@ public class ConfigManager {
         }
         if (AdvancedChat.configStorage.filters.size() == 0) {
             AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+            try {
+                saveConfig();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (AdvancedChat.configStorage.tabs.size() == 0) {
+            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
             try {
                 saveConfig();
             } catch (IOException e) {

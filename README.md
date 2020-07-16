@@ -1,6 +1,6 @@
 # AdvancedChat
 
-A plugin designed to give the user more control over Minecrafts built in chat.
+A mod designed to give the user more control over Minecrafts built in chat.
 
 The plugin has filters that are customizable, as well as a screen to view up to 5000 lines of chat.
 

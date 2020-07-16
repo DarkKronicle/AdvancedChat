@@ -1,5 +1,6 @@
 package net.darkkronicle.advancedchat.mixin;
 
+import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
@@ -7,13 +8,18 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,21 +28,20 @@ import java.util.Optional;
 @Mixin(ChatHud.class)
 public class MixinChatHud {
 
-
     @Shadow
-    private void addMessage(StringRenderable message, int messageId, int timestamp, boolean bl) {}
+    @Final
+    private MinecraftClient client;
 
-    @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("HEAD"))
-    public void addMessage(Text message, CallbackInfo ci) {
-        SplitText text = new SplitText(message);
-        Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(text.getFullMessage(), "Gave 1 [Command", Filter.FindType.LITERAL);
-        if (!omatches.isPresent()) {
-            return;
-        }
-        List<SearchText.StringMatch> matches = omatches.get();
-        text.replaceStrings(matches, "SCREAMING");
-        System.out.println(text.getFullMessage());
-        addMessage(text.getStringRenderable(), 0, MinecraftClient.getInstance().inGameHud.getTicks(), false);
-
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    public void render(MatrixStack matrixStack, int ticks, CallbackInfo ci) {
+        // Cancels normal ChatHud from being rendered.
+        ci.cancel();
     }
+
+    @Inject(method = "addMessage(Lnet/minecraft/text/StringRenderable;IIZ)V", at = @At("HEAD"), cancellable = true)
+    private void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
+        AdvancedChat.getAdvancedChatHud().addMessage(stringRenderable, messageId, timestamp, bl);
+        ci.cancel();
+    }
+
 }

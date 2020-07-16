@@ -1,6 +1,7 @@
 package net.darkkronicle.advancedchat.filters;
 
 import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
@@ -16,23 +17,32 @@ public class ReplaceFilter extends AbstractFilter {
 
     private SimpleText replaceTo;
     private Filter.ReplaceType type;
+    private ColorUtil.SimpleColor color;
 
-    public ReplaceFilter(String filterString, SimpleText replaceTo, Filter.FindType findType, Filter.ReplaceType type) {
+    public ReplaceFilter(String filterString, SimpleText replaceTo, Filter.FindType findType, Filter.ReplaceType type, ColorUtil.SimpleColor color) {
         super.filterString = filterString;
         this.replaceTo = replaceTo;
         this.type = type;
+        this.color = color;
         super.findType = findType;
     }
 
     @Override
     public Optional<StringRenderable> filter(StringRenderable text) {
         SplitText splitText = new SplitText(text);
-        Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(splitText.getFullMessage(), super.filterString, findType);
-        if (!omatches.isPresent()) {
-            return Optional.empty();
+        if (type == Filter.ReplaceType.ONLYMATCH) {
+            Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(splitText.getFullMessage(), super.filterString, findType);
+            if (!omatches.isPresent()) {
+                return Optional.empty();
+            }
+            List<SearchText.StringMatch> matches = omatches.get();
+            splitText.replaceStrings(matches, replaceTo.getMessage(), color);
+            return Optional.of(splitText.getStringRenderable());
+        } else if (type == Filter.ReplaceType.FULLMESSAGE) {
+            if (SearchText.isMatch(splitText.getFullMessage(), super.filterString, findType)) {
+                return Optional.of(SplitText.getStringRenderableFromText(replaceTo));
+            }
         }
-        List<SearchText.StringMatch> matches = omatches.get();
-        splitText.replaceStrings(matches, replaceTo.getMessage());
-        return Optional.of(splitText.getStringRenderable());
+        return Optional.empty();
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.StringRenderable;
 import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
@@ -116,7 +117,7 @@ public class SplitText {
      * @param replace String to replace the matches to.
      */
     public void replaceStrings(List<SearchText.StringMatch> matches, String replace) {
-        replaceStrings(matches, new SimpleText(replace, Style.EMPTY));
+        replaceStrings(matches, replace, null);
     }
 
     /**
@@ -126,7 +127,7 @@ public class SplitText {
      * @param matches List of {@link net.darkkronicle.advancedchat.util.SearchText.StringMatch} to replace.
      * @param replace {@link SimpleText} to replace the matches to.
      */
-    public void replaceStrings(List<SearchText.StringMatch> matches, SimpleText replace) {
+    public void replaceStrings(List<SearchText.StringMatch> matches, String replace, ColorUtil.SimpleColor color) {
         // List of new SimpleText to form a new SplitText.
         ArrayList<SimpleText> newSiblings = new ArrayList<>();
         // int used to remember where the match stopped before.
@@ -169,11 +170,14 @@ public class SplitText {
                         togo = stopped - totalchar;
                     }
                     // Splits the text from the beginning to the match. Used to easily edit the Style.
-                    newSiblings.add(text.copySimpleText().setMessage(text.getMessage().substring(togo, startedInt)));
-                    if (replace.getStyle().equals(Style.EMPTY)) {
-                        newSiblings.add(text.copySimpleText().setMessage(replace.getMessage()));
+                    newSiblings.add(text.withMessage(text.getMessage().substring(togo, startedInt)));
+                    if (color == null) {
+                        newSiblings.add(text.withMessage(replace));
                     } else {
-                        newSiblings.add(replace);
+                        Style original = text.getStyle();
+                        TextColor textColor = TextColor.fromRgb(color.color());
+                        original = original.withColor(textColor);
+                        newSiblings.add(text.withStyle(original).withMessage(replace));
                     }
                     started = true;
                     modified = true;
@@ -188,7 +192,7 @@ public class SplitText {
                         stopped = match.end;
                         continue;
                     }
-                    newSiblings.add(text.copySimpleText().setMessage(text.getMessage().substring(endedInt)));
+                    newSiblings.add(text.withMessage(text.getMessage().substring(endedInt)));
                     ended = true;
                     modified = true;
 
@@ -202,8 +206,10 @@ public class SplitText {
                 if (!modified) {
                     if (stopped != 0 && totalchar < stopped && totalchar + length > stopped) {
                         // Used for multiple matches.
-                        newSiblings.add(text.copySimpleText().setMessage(text.getMessage().substring(stopped - totalchar)));
+                        newSiblings.add(text.withMessage(text.getMessage().substring(stopped - totalchar)));
                     } else if (stopped != 0 && stopped <= totalchar) {
+                        newSiblings.add(text);
+                    } else if (stopped == 0) {
                         newSiblings.add(text);
                     }
                 }
@@ -227,6 +233,12 @@ public class SplitText {
 
     public List<SimpleText> getSiblings() {
         return siblings;
+    }
+
+    public static StringRenderable getStringRenderableFromText(SimpleText text) {
+        TextCollector textCollector = new TextCollector();
+        textCollector.add(StringRenderable.styled(text.getMessage(), text.getStyle()));
+        return textCollector.getCombined();
     }
 
 }
