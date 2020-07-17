@@ -52,7 +52,7 @@ public class Filter {
     /**
      * What the found string replaces to. (ex. If replaceType is FULLLINE this will replace the message with this)
      */
-    private SimpleText replaceTo;
+    private String replaceTo;
 
     /** How the filter notifies the client of a found string.
      * SOUND plays a sound when the filter is triggered.
@@ -68,7 +68,7 @@ public class Filter {
     /**
      * The default filter. Used for new filters.
      */
-    public static final Filter DEFAULT = new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH, new SimpleText("AWESOME!", Style.EMPTY), NotifyType.NONE, false, false, ColorUtil.BLACK);
+    public static final Filter DEFAULT = new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH,"AWESOME!", NotifyType.NONE, false, false, ColorUtil.BLACK);
 
     /**
      * In case the config.json has a missing value this will prevent NPE's from happening when ever the filter is accessed.
@@ -89,7 +89,7 @@ public class Filter {
                 filter.replaceType = ReplaceType.NONE;
             }
             if (filter.replaceTo == null) {
-                filter.replaceTo = new SimpleText("AWESOME!", Style.EMPTY);
+                filter.replaceTo = "AWESOME!";
             }
             if (filter.notifyType == null) {
                 filter.notifyType = NotifyType.NONE;

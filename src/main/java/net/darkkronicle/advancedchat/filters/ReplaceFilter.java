@@ -21,11 +21,11 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class ReplaceFilter extends AbstractFilter {
 
-    private SimpleText replaceTo;
+    private String replaceTo;
     private Filter.ReplaceType type;
     private ColorUtil.SimpleColor color;
 
-    public ReplaceFilter(String filterString, SimpleText replaceTo, Filter.FindType findType, Filter.ReplaceType type, ColorUtil.SimpleColor color) {
+    public ReplaceFilter(String filterString, String replaceTo, Filter.FindType findType, Filter.ReplaceType type, ColorUtil.SimpleColor color) {
         super.filterString = filterString;
         this.replaceTo = replaceTo;
         this.type = type;
@@ -43,14 +43,14 @@ public class ReplaceFilter extends AbstractFilter {
                 return Optional.empty();
             }
             List<SearchText.StringMatch> matches = omatches.get();
-            splitText.replaceStrings(matches, replaceTo.getMessage(), color);
+            splitText.replaceStrings(matches, replaceTo, color);
             return Optional.of(splitText.getStringRenderable());
 
         } else if (type == Filter.ReplaceType.FULLMESSAGE) {
             if (SearchText.isMatch(splitText.getFullMessage(), super.filterString, findType)) {
-                SimpleText toReplace = replaceTo;
+                SimpleText toReplace = new SimpleText(replaceTo, Style.EMPTY);
                 if (color != null) {
-                    Style original = replaceTo.getStyle();
+                    Style original = Style.EMPTY;
                     TextColor textColor = TextColor.fromRgb(color.color());
                     original = original.withColor(textColor);
                     toReplace = toReplace.withStyle(original);

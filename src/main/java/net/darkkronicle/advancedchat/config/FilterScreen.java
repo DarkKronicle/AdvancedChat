@@ -63,7 +63,7 @@ public class FilterScreen {
                     new TranslatableText("config.advancedchat.filter.info.replacetype.fullline")
             ).setSaveConsumer(filter::setReplaceType).build());
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.replaceto"), filter.getReplaceTo().getMessage()).setTooltip(new TranslatableText("config.advancedchat.filter.info.replaceto")).setSaveConsumer(val -> filter.getReplaceTo().setMessage(val)).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.replaceto"), filter.getReplaceTo()).setTooltip(new TranslatableText("config.advancedchat.filter.info.replaceto")).setSaveConsumer(val -> filter.setReplaceTo(val)).build());
 
             category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifytype"), Filter.NotifyType.values(), filter.getNotifyType()).setTooltip(
                     new TranslatableText("config.advancedchat.filter.info.notifytype.none"),

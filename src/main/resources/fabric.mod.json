@@ -22,10 +22,10 @@
     ]
   },
   "mixins": [
-    "AdvancedChat.mixins.json"
+    "advancedchat.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.8.9+build.203",
+    "fabricloader": ">=0.8.9+build.204",
     "fabric": "*",
     "minecraft": "1.16.1"
   },
