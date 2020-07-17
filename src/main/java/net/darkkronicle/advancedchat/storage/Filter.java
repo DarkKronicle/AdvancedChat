@@ -1,9 +1,8 @@
 package net.darkkronicle.advancedchat.storage;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.fabricmc.api.EnvType;
@@ -103,19 +102,27 @@ public class Filter {
 
 
     public enum FindType {
+        @SerializedName("literal")
         LITERAL,
+        @SerializedName("upperlower")
         UPPERLOWER,
+        @SerializedName("regex")
         REGEX
     }
 
     public enum ReplaceType {
+        @SerializedName("none")
         NONE,
+        @SerializedName("onlymatch")
         ONLYMATCH,
+        @SerializedName("fullmessage")
         FULLMESSAGE
     }
 
     public enum NotifyType {
+        @SerializedName("none")
         NONE,
+        @SerializedName("sound")
         SOUND
     }
 

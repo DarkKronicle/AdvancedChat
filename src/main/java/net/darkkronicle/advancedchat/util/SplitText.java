@@ -1,5 +1,6 @@
 package net.darkkronicle.advancedchat.util;
 
+import net.darkkronicle.advancedchat.AdvancedChat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.TextCollector;
@@ -10,6 +11,8 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,42 +41,6 @@ public class SplitText {
         }, Style.EMPTY);
     }
 
-    /**
-     * <h1>copyStyle</h1>
-     * Used to do a defensive copy of minecraft Style.
-     *
-     * @param style Style to copy.
-     * @return Style that is a copy of imputed parameter.
-     */
-    public static Style copyStyle(Style style) {
-        Style copy = Style.EMPTY;
-        copy.withColor(style.getColor());
-        if (style.isItalic()) {
-            copy.withItalic(true);
-        }
-        if (style.isUnderlined()) {
-            copy.withFormatting(Formatting.UNDERLINE);
-        }
-        if (style.isStrikethrough()) {
-            copy.withFormatting(Formatting.STRIKETHROUGH);
-        }
-        if (style.isObfuscated()) {
-            copy.withFormatting(Formatting.OBFUSCATED);
-        }
-        if (style.getClickEvent() != null) {
-            ClickEvent click = style.getClickEvent();
-            copy.withClickEvent(click);
-        }
-        if (style.getHoverEvent() != null) {
-            HoverEvent hover = style.getHoverEvent();
-            copy.setHoverEvent(hover);
-        }
-        if (style.getInsertion() != null) {
-            copy.withInsertion(style.getInsertion());
-        }
-        copy.withFont(style.getFont());
-        return copy;
-    }
 
     /**
      * <h1>getFullMessage</h1>
@@ -239,6 +206,16 @@ public class SplitText {
         TextCollector textCollector = new TextCollector();
         textCollector.add(StringRenderable.styled(text.getMessage(), text.getStyle()));
         return textCollector.getCombined();
+    }
+
+    public void addTime(DateTimeFormatter format, LocalTime time) {
+        String replaceFormat = AdvancedChat.configStorage.replaceFormat;
+        ColorUtil.SimpleColor color = AdvancedChat.configStorage.timeColor;
+        Style style = Style.EMPTY;
+        TextColor textColor = TextColor.fromRgb(color.color());
+        style = style.withColor(textColor);
+        SimpleText text = new SimpleText(replaceFormat.replaceAll("%TIME%", time.format(format)), style);
+        siblings.add(0, text);
     }
 
 }

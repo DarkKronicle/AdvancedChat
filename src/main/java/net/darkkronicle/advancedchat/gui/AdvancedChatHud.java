@@ -41,6 +41,12 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public void render(MatrixStack matrices, int tick) {
+//        if (AdvancedChat.getChatLogData().isChatHudTime()) {
+//            for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
+//                tab.reset();
+//            }
+//        }
+
         double chatScale = this.getChatScale();
         // Set up rendering
         matrices.push();

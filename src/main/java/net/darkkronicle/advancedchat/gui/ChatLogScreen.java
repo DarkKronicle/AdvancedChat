@@ -9,15 +9,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.ChatMessages;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringRenderable;
 import net.minecraft.text.TranslatableText;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -122,7 +119,10 @@ public class ChatLogScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        AdvancedChat.getChatLogData().checkLast();
+//        AdvancedChat.getChatLogData().checkLast();
+//        if (AdvancedChat.getChatLogData().isChatLogTime()) {
+//            AdvancedChat.getChatLogData().reformatMessages();
+//        }
         renderBackground(matrices);
         drawCenteredString(matrices, client.textRenderer, "ChatLog", client.getWindow().getScaledWidth()/2, 20, ColorUtil.WHITE.color());
         int windowHeight = client.getWindow().getScaledHeight();

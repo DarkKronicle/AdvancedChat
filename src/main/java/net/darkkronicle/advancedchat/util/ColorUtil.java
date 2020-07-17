@@ -1,8 +1,6 @@
 package net.darkkronicle.advancedchat.util;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Value;
 import lombok.With;

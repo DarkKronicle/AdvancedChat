@@ -17,6 +17,8 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
@@ -52,6 +54,32 @@ public class ModMenuImpl implements ModMenuApi {
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();
 
+        ConfigCategory general = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.general"));
+        general.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.timeformat"), AdvancedChat.configStorage.timeFormat).setTooltip(new TranslatableText("config.advancedchat.info.timeformat")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.timeFormat = newval;
+        }).setErrorSupplier(string -> {
+            try {
+                DateTimeFormatter.ofPattern(string);
+                return Optional.empty();
+            } catch (Exception e) {
+                return Optional.of(new TranslatableText("warn.advancedchat.timeformaterror"));
+            }
+        }).setDefaultValue("hh:mm").build());
+
+        general.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.replaceformat"), AdvancedChat.configStorage.replaceFormat).setTooltip(new TranslatableText("config.advancedchat.info.replaceformat")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.replaceFormat = newval;
+        }).setErrorSupplier(string -> {
+            if (string.contains("%TIME%")) {
+                return Optional.empty();
+            }
+            return Optional.of(new TranslatableText("warn.advancedchat.replaceformaterror"));
+        }).setDefaultValue("[%TIME%] ").build());
+
+        general.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.timecolor"), AdvancedChat.configStorage.timeColor.color()).setTooltip(new TranslatableText("config.advancedchat.info.timecolor")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.timeColor = ColorUtil.intToColor(newval);
+
+        }).setDefaultValue(ColorUtil.WHITE.color()).build());
+
         // Filters category. Used for configuring general filter options as well as opening the FilterScreen and creating new.
         ConfigCategory filters = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.filters"));
 
@@ -81,6 +109,10 @@ public class ModMenuImpl implements ModMenuApi {
 
         ConfigCategory chattabs = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chattabs"));
 
+        chattabs.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chattab.storedlines"), AdvancedChat.configStorage.chatConfig.storedLines).setTooltip(new TranslatableText("config.advancedchat.chattab.info.storedlines")).setMin(50).setMax(1000).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.chatConfig.storedLines = newval;
+        }).setDefaultValue(200).build());
+
         chattabs.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.tabmenu"), select, select[0]).setNameProvider((s -> {
             if (s.equalsIgnoreCase("1")) {
                 return new TranslatableText("config.advancedchat.click");
@@ -105,6 +137,10 @@ public class ModMenuImpl implements ModMenuApi {
 
         ConfigCategory chathud = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chathud"));
 
+        chathud.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.chathud.showtime"), AdvancedChat.configStorage.chatConfig.showTime).setTooltip(new TranslatableText("config.advancedchat.chathud.info.showtime")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.chatConfig.showTime = newval;
+        }).setDefaultValue(false).build());
+
         chathud.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.chathud.backgroundcolor"), AdvancedChat.configStorage.chatConfig.hudBackground.color()).setTooltip(new TranslatableText("config.advancedchat.chathud.info.backgroundcolor")).setSaveConsumer(newval -> {
             AdvancedChat.configStorage.chatConfig.hudBackground = ColorUtil.intToColor(newval);
 
@@ -114,6 +150,16 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.chatConfig.emptyText = ColorUtil.intToColor(newval);
 
         }).setDefaultValue(ColorUtil.WHITE.color()).build());
+
+        ConfigCategory chatlog = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chatlog"));
+
+        chatlog.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.chatlog.showtime"), AdvancedChat.configStorage.chatLogConfig.showTime).setTooltip(new TranslatableText("config.advancedchat.chatlog.info.showtime")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.chatLogConfig.showTime = newval;
+        }).setDefaultValue(false).build());
+
+        chatlog.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chatlog.storedlines"), AdvancedChat.configStorage.chatLogConfig.storedLines).setTooltip(new TranslatableText("config.advancedchat.chatlog.info.storedlines")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.chatLogConfig.storedLines = newval;
+        }).setMin(100).setMax(3000).setDefaultValue(1000).build());
 
         return builder.build();
     }

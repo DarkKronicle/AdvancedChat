@@ -23,7 +23,7 @@ public class SimpleText {
     private Style style;
 
     private SimpleText(SimpleText text) {
-        this.style = SplitText.copyStyle(text.getStyle());
+        this.style = text.withStyle(text.getStyle()).getStyle();
         this.message = text.getMessage();
     }
 

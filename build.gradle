@@ -33,6 +33,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
+    compile 'com.google.code.gson:gson:2.8.6'
+
 }
 
 processResources {

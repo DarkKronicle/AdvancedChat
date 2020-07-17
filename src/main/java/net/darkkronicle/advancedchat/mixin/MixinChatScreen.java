@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatScreen.class)
 public class MixinChatScreen {
 
-
     @Shadow private String originalChatText;
 
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)

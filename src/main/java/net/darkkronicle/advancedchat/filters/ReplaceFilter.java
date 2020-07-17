@@ -8,6 +8,8 @@ import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +48,14 @@ public class ReplaceFilter extends AbstractFilter {
 
         } else if (type == Filter.ReplaceType.FULLMESSAGE) {
             if (SearchText.isMatch(splitText.getFullMessage(), super.filterString, findType)) {
-                return Optional.of(SplitText.getStringRenderableFromText(replaceTo));
+                SimpleText toReplace = replaceTo;
+                if (color != null) {
+                    Style original = replaceTo.getStyle();
+                    TextColor textColor = TextColor.fromRgb(color.color());
+                    original = original.withColor(textColor);
+                    toReplace = toReplace.withStyle(original);
+                }
+                return Optional.of(SplitText.getStringRenderableFromText(toReplace));
 
             }
         }
