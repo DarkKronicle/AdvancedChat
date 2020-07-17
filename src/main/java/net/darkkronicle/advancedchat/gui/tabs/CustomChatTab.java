@@ -1,13 +1,16 @@
 package net.darkkronicle.advancedchat.gui.tabs;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.text.StringRenderable;
 
+/**
+ * <h1>CustomChatTab</h1>
+ * ChatTab that loads from {@link net.darkkronicle.advancedchat.storage.ChatTab}.
+ * Easy to customize.
+ */
 public class CustomChatTab extends AbstractChatTab {
     @Getter
     private String name;

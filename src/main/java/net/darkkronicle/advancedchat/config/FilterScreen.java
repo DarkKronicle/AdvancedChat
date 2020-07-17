@@ -14,13 +14,12 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-import java.io.IOException;
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class FilterScreen {
 
-
+    // Screen for configuring filters.
     public static Screen getScreen(Screen parentScreen) {
         Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
@@ -33,12 +32,12 @@ public class FilterScreen {
 
         String[] select = {"1", "2"};
 
-
-
+        // Goes through each filter that is saved. Saves it to a /storage/Filter.class
         for (Filter filter : AdvancedChat.configStorage.filters) {
 
             ConfigCategory category;
             if (builder.hasCategory(new LiteralText(filter.getName()))) {
+                // If there is a name conflict, it renames it to the name + 1;
                 filter.setName(filter.getName()+"1");
                 ModMenuImpl.save();
             }

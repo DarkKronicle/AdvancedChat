@@ -1,6 +1,7 @@
 package net.darkkronicle.advancedchat.gui;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ModMenuImpl;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.CustomChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -151,12 +152,18 @@ public class AdvancedChatScreen extends Screen {
                     return true;
                 }
 
-                int width = AdvancedChat.configStorage.chatConfig.width + 4;
                 int height = 11;
-                int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5;
-                int y = (int) (this.client.getWindow().getScaledHeight() - bottomOffset - mouseY);
-                if (y >= 0 && y <= height && mouseX >= 0 && mouseX <= width) {
+                int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
+                int y = client.getWindow().getScaledHeight() - bottomOffset;
+                int width = AdvancedChat.configStorage.chatConfig.width + 4;
+                if (isOverButton((int) mouseX, (int) mouseY, 0, y, width, height)) {
                     chatHud.cycleTab();
+                }
+                if (isOverButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 52, client.getWindow().getScaledHeight() - 27, 50, 11)) {
+                    client.openScreen(new ChatLogScreen());
+                }
+                if (isOverButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11)) {
+                    client.openScreen(ModMenuImpl.getScreen(this));
                 }
             }
 
@@ -212,15 +219,27 @@ public class AdvancedChatScreen extends Screen {
     private void renderChatTab(MatrixStack matrices, int mouseX, int mouseY, AdvancedChatHud hud) {
         int width = AdvancedChat.configStorage.chatConfig.width + 4;
         int height = 11;
-        int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5;
-        int trueY = this.client.getWindow().getScaledHeight() - bottomOffset;
+        int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
+        int y = client.getWindow().getScaledHeight() - bottomOffset;
+        renderButton(matrices, mouseX, mouseY, 0, y, width, height, hud.getCurrentTab().getName());
+        renderButton(matrices, mouseX, mouseY, client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, "Chat Log");
+        renderButton(matrices, (int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, "Settings");
+    }
+
+    private void renderButton(MatrixStack matrices, int mouseX, int mouseY, int x, int y, int width, int height, String message) {
         ColorUtil.SimpleColor background = AdvancedChat.configStorage.chatConfig.hudBackground;
-        int y = this.client.getWindow().getScaledHeight() - bottomOffset - mouseY;
-        if (y >= 0 && y <= height && mouseX >= 0 && mouseX <= width) {
+        if (mouseY >= y && mouseY <= y + height && mouseX >= x && mouseX <= x + width) {
             background = ColorUtil.WHITE.withAlpha(background.alpha());
         }
-        fill(matrices, 0, trueY, width, trueY - height, background.color());
-        drawCenteredString(matrices, client.textRenderer, hud.getCurrentTab().getName(),  width / 2, trueY - height + 2, AdvancedChat.configStorage.chatConfig.emptyText.color());
+        fill(matrices, x, y, x + width, y + height, background.color());
+        drawCenteredString(matrices, client.textRenderer, message, (width / 2) + x, y + (height - 9), AdvancedChat.configStorage.chatConfig.emptyText.color());
+    }
+
+    private boolean isOverButton(int mouseX, int mouseY, int x, int y, int width, int height) {
+        if (mouseY >= y && mouseY <= y + height && mouseX >= x && mouseX <= x + width) {
+            return true;
+        }
+        return false;
     }
 
 

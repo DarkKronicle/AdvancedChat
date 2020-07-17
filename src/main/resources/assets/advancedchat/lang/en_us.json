@@ -48,7 +48,8 @@
   "config.advancedchat.chathud.emptytextcolor": "Empty Text Color",
   "config.advancedchat.chathud.info.emptytextcolor": "!BUGGY! Chat color of empty style text.",
   "config.advancedchat.chathud.backgroundcolor": "Chat Hud Background Color",
-  "config.advancedchat.chathud.info.backgroundcolor": "What the color of the chat hud appears as."
+  "config.advancedchat.chathud.info.backgroundcolor": "What the color of the chat hud appears as.",
+  "screen.advancedchat.chatlog": "Chat Log"
 
 
 }

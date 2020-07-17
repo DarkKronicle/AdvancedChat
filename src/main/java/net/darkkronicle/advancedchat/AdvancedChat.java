@@ -4,7 +4,9 @@ import net.darkkronicle.advancedchat.config.ConfigManager;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
+import net.darkkronicle.advancedchat.gui.ChatLogScreen;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
+import net.darkkronicle.advancedchat.storage.ChatLogData;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
@@ -18,6 +20,7 @@ public class AdvancedChat implements ClientModInitializer {
     public static MainFilter filter;
     private static AdvancedChatHud advancedChatHud;
     public static MainChatTab chatTab;
+    private static ChatLogData chatLogData;
 
     @Override
     public void onInitializeClient() {
@@ -35,6 +38,13 @@ public class AdvancedChat implements ClientModInitializer {
             advancedChatHud = new AdvancedChatHud(MinecraftClient.getInstance());
         }
         return advancedChatHud;
+    }
+
+    public static ChatLogData getChatLogData() {
+        if (chatLogData == null) {
+            chatLogData = new ChatLogData();
+        }
+        return chatLogData;
     }
 
 }

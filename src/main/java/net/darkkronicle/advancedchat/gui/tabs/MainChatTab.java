@@ -2,7 +2,6 @@ package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Getter;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.filters.AbstractFilter;
 import net.darkkronicle.advancedchat.filters.ColorFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedChatLine;
@@ -18,6 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * <h1>MainChatTab</h1>
+ * Main chat tab that manages other chat tabs.
+ */
 public class MainChatTab extends AbstractChatTab {
     @Getter
     private ArrayList<AbstractChatTab> allChatTabs = new ArrayList<>();
@@ -38,24 +41,37 @@ public class MainChatTab extends AbstractChatTab {
     public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
-
+        StringRenderable unfiltered = stringRenderable;
         Optional<StringRenderable> filtered = AdvancedChat.filter.filter(stringRenderable);
         if (filtered.isPresent()) {
             stringRenderable = filtered.get();
         }
+
         ColorUtil.SimpleColor backcolor = null;
         for (ColorFilter colorFilter : AdvancedChat.filter.getColorFilters()) {
             backcolor = colorFilter.getBackgroundColor(stringRenderable);
         }
+        // Goes through chat tabs
+        boolean dontforward = false;
+        ArrayList<AbstractChatTab> added = new ArrayList<>();
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
                 if (tab.shouldAdd(stringRenderable)) {
                     tab.addMessage(stringRenderable, messageId, timestamp, bl);
+                    added.add(tab);
                     if (!tab.isForward()) {
-                        return;
+                        dontforward = true;
+                        break;
                     }
                 }
             }
+        }
+        if (!dontforward) {
+            added.add(this);
+        }
+        AdvancedChat.getChatLogData().addMessage(unfiltered, added.toArray(new AbstractChatTab[0]));
+        if (dontforward) {
+            return;
         }
         if (!shouldAdd(stringRenderable)) {
             return;
@@ -90,6 +106,10 @@ public class MainChatTab extends AbstractChatTab {
         }
     }
 
+    /**
+     * <h1>setUpTabs</h1>
+     * Method used for loading in tabs from the config.
+     */
     public void setUpTabs() {
         customChatTabs = new ArrayList<>();
         allChatTabs = new ArrayList<>();

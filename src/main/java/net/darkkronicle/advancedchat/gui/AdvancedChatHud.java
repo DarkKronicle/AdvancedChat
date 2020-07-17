@@ -10,11 +10,9 @@ import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.options.ChatVisibility;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.StringRenderable;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -46,7 +44,6 @@ public class AdvancedChatHud extends DrawableHelper {
         double chatScale = this.getChatScale();
         // Set up rendering
         matrices.push();
-        drawCenteredString(matrices, client.textRenderer, "Hello I hate this", 50, 30, ColorUtil.WHITE.color());
         matrices.scale((float) chatScale, (float) chatScale, 1);
 
         // Declare useful variables
@@ -69,14 +66,23 @@ public class AdvancedChatHud extends DrawableHelper {
         ColorUtil.SimpleColor textColor = AdvancedChat.configStorage.chatConfig.emptyText;
         ColorUtil.SimpleColor backgroundColor = AdvancedChat.configStorage.chatConfig.hudBackground;
         boolean chatFocused = isChatFocused();
+        int finalheight = 0;
         if (currentTab.visibleMessages.size() > 0) {
 
             int lines = 0;
 
+            // Check to see if the scroll is too far.
             if (scrolledLines >= currentTab.visibleMessages.size()) {
                 scrolledLines = 0;
             }
-            int finalheight = 0;
+            if (chatFocused) {
+                // Scroll bar
+                int size = currentTab.visibleMessages.size();
+                float add = (float) scrolledLines / (size - getVisibleLineCount() + 1);
+                int scrollHeight = (int) (add * maxSize);
+                fill(matrices, actualWidth + 3, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
+            }
+
             for (int i = 0; i + scrolledLines < currentTab.visibleMessages.size(); i++) {
                 AdvancedChatLine line = currentTab.visibleMessages.get(i + scrolledLines);
                 lines++;
@@ -98,6 +104,7 @@ public class AdvancedChatHud extends DrawableHelper {
                         int timeAlive = tick - line.getCreationTick();
                         if (timeAlive < fadestop) {
                             ColorUtil.SimpleColor fadebackground;
+                            // Fade background and text.
                             if (line.getBackground() != null) {
                                 fadebackground = ColorUtil.fade(line.getBackground(), timeAlive, fadestart, fadestop);
                             } else {
@@ -111,12 +118,13 @@ public class AdvancedChatHud extends DrawableHelper {
                     }
                 }
             }
-            if (chatFocused) {
-                if (currentTab.visibleMessages.size() > 0) {
-                    fill(matrices, 0, finalheight, actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
-                } else {
-                    fill(matrices, 0, windowHeight - bottomScreenOffset, actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
-                }
+
+        }
+        if (chatFocused) {
+            if (currentTab.visibleMessages.size() > 0) {
+                fill(matrices, 0, finalheight, actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
+            } else {
+                fill(matrices, 0, windowHeight - bottomScreenOffset, actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
             }
         }
 
@@ -216,7 +224,6 @@ public class AdvancedChatHud extends DrawableHelper {
         }
     }
 
-    //TODO AAAAAAAHHHH
     public Style getText(double mouseX, double mouseY) {
         if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden()) {
             double trueX = mouseX - 2;

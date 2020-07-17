@@ -12,6 +12,10 @@ import net.minecraft.text.StringRenderable;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * <h1>ReplaceFilter</h1>
+ * Filter used for replacing matches in a StringRenderable
+ */
 @Environment(EnvType.CLIENT)
 public class ReplaceFilter extends AbstractFilter {
 
@@ -29,6 +33,7 @@ public class ReplaceFilter extends AbstractFilter {
 
     @Override
     public Optional<StringRenderable> filter(StringRenderable text) {
+        // Grabs SplitText for easy mutability.
         SplitText splitText = new SplitText(text);
         if (type == Filter.ReplaceType.ONLYMATCH) {
             Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(splitText.getFullMessage(), super.filterString, findType);
@@ -38,9 +43,11 @@ public class ReplaceFilter extends AbstractFilter {
             List<SearchText.StringMatch> matches = omatches.get();
             splitText.replaceStrings(matches, replaceTo.getMessage(), color);
             return Optional.of(splitText.getStringRenderable());
+
         } else if (type == Filter.ReplaceType.FULLMESSAGE) {
             if (SearchText.isMatch(splitText.getFullMessage(), super.filterString, findType)) {
                 return Optional.of(SplitText.getStringRenderableFromText(replaceTo));
+
             }
         }
         return Optional.empty();

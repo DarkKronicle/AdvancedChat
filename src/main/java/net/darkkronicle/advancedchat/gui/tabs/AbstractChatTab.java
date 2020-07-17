@@ -22,11 +22,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Class to manage different tabs used in AdvancedChatHud
+ * <h1>AbstractChatTab</h1>
+ * Base ChatTab that allows for custom chat tabs in AdvancedChatHud.
  */
 @Environment(EnvType.CLIENT)
 @Data
 public abstract class AbstractChatTab {
+
+    // Each tab stores their own messages.
     public final List<AdvancedChatLine> messages = new ArrayList<>();
     public final List<AdvancedChatLine> visibleMessages = new ArrayList<>();
     private final String name;
@@ -39,8 +42,18 @@ public abstract class AbstractChatTab {
         this.name = name;
     }
 
+    /**
+     * <h1>shouldAdd</h1>
+     * If the inputted message should be put into the chat tab.
+     * @param stringRenderable Object to search.
+     * @return True if it should be added.
+     */
     public abstract boolean shouldAdd(StringRenderable stringRenderable);
 
+    /**
+     * <h1>reset</h1>
+     * Method to reformat the messages if Chat size changes or something.
+     */
     public void reset() {
         this.visibleMessages.clear();
 
@@ -51,6 +64,14 @@ public abstract class AbstractChatTab {
 
     }
 
+    /**
+     * <h1>addMessage</h1>
+     * Used for adding messages into the tab.
+     * @param stringRenderable StringRenderable to add.
+     * @param messageId ID of message.
+     * @param timestamp Amount of ticks when it was created.
+     * @param bl Add to messages
+     */
     public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl) {
         if (!shouldAdd(stringRenderable)) {
             return;
