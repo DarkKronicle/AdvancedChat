@@ -98,7 +98,22 @@ public class MainChatTab extends AbstractChatTab {
 
 
         StringRenderable logged = stringRenderable;
-        boolean showtime = AdvancedChat.configStorage.chatLogConfig.showTime;
+        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
+
+        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
+            AdvancedChatLine chatLine = messages.get(i);
+            if (stringRenderable.getString().equals(chatLine.getText().getString())) {
+                for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
+                    AdvancedChatLine visibleLine = visibleMessages.get(j);
+                    if (visibleLine.getUuid().equals(chatLine.getUuid())) {
+                        visibleLine.setStacks(visibleLine.getStacks() + 1);
+                        return;
+                    }
+                }
+
+            }
+        }
+        boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
             SplitText text = new SplitText(stringRenderable);
@@ -118,7 +133,7 @@ public class MainChatTab extends AbstractChatTab {
                     return;
                 }
             }
-            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, backcolor, 0));
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, backcolor, 0, logLine.getUuid()));
             hud.messageAddedToTab(this);
         }
 
@@ -128,7 +143,7 @@ public class MainChatTab extends AbstractChatTab {
         }
 
         if (!bl) {
-            this.messages.add(0, new AdvancedChatLine(timestamp, logged, messageId, time, backcolor, 0));
+            this.messages.add(0, logLine);
 
             while(this.messages.size() > visibleMessagesMaxSize) {
                 this.messages.remove(this.messages.size() - 1);

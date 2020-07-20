@@ -43,7 +43,23 @@ public class ChatTabScreen {
 
         String[] select = {"1", "2"};
 
+        ConfigCategory chattabs = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chattabs"));
 
+        chattabs.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chattab.storedlines"), AdvancedChat.configStorage.chatConfig.storedLines).setTooltip(new TranslatableText("config.advancedchat.chattab.info.storedlines")).setMin(50).setMax(1000).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.chatConfig.storedLines = newval;
+        }).setDefaultValue(200).build());
+
+        chattabs.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.chattab.createnew"), select, select[0]).setNameProvider((s -> {
+            if (s.equalsIgnoreCase("1")) {
+                return new TranslatableText("config.advancedchat.click");
+            }
+
+            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+            ModMenuImpl.save();
+            MinecraftClient.getInstance().openScreen(ChatTabScreen.getScreen(parentScreen));
+            return new TranslatableText("config.advancedchat.click");
+
+        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
 
         for (ChatTab chatTab : AdvancedChat.configStorage.tabs) {
 

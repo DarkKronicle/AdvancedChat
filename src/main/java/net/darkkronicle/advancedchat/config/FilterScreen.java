@@ -17,6 +17,7 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
@@ -44,6 +45,21 @@ public class FilterScreen {
         ConfigEntryBuilder entry = builder.entryBuilder();
 
         String[] select = {"1", "2"};
+
+        ConfigCategory filters = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.filters"));
+
+        filters.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.createnew"), select, select[0]).setNameProvider((s -> {
+            if (s.equalsIgnoreCase("1")) {
+                return new TranslatableText("config.advancedchat.click");
+            }
+            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+            ModMenuImpl.save();
+            MinecraftClient.getInstance().openScreen(FilterScreen.getScreen(parentScreen));
+            return new TranslatableText("config.advancedchat.click");
+
+        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
+
+
 
         // Goes through each filter that is saved. Saves it to a /storage/Filter.class
         for (Filter filter : AdvancedChat.configStorage.filters) {

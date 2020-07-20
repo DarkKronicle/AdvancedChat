@@ -49,22 +49,22 @@ public class ConfigManager {
         config.getParentFile().mkdirs();
         if (!config.exists() || !config.canRead()) {
             AdvancedChat.configStorage = new ConfigStorage();
-            if (AdvancedChat.configStorage.filters.size() == 0) {
-                AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
-                try {
-                    saveConfig();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (AdvancedChat.configStorage.tabs.size() == 0) {
-                AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
-                try {
-                    saveConfig();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+//            if (AdvancedChat.configStorage.filters.size() == 0) {
+//                AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+//                try {
+//                    saveConfig();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (AdvancedChat.configStorage.tabs.size() == 0) {
+//                AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+//                try {
+//                    saveConfig();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
             saveConfig();
             return;
         }
@@ -79,22 +79,22 @@ public class ConfigManager {
         if (failed || AdvancedChat.configStorage == null) {
             AdvancedChat.configStorage = new ConfigStorage();
         }
-        if (AdvancedChat.configStorage.filters.size() == 0) {
-            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
-            try {
-                saveConfig();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (AdvancedChat.configStorage.tabs.size() == 0) {
-            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
-            try {
-                saveConfig();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (AdvancedChat.configStorage.filters.size() == 0) {
+//            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+//            try {
+//                saveConfig();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (AdvancedChat.configStorage.tabs.size() == 0) {
+//            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+//            try {
+//                saveConfig();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
         saveConfig();
     }
 

@@ -41,6 +41,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.UUID;
 
 public class AdvancedChatHud extends DrawableHelper {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -103,7 +104,7 @@ public class AdvancedChatHud extends DrawableHelper {
             int lines = 0;
             boolean alternate = AdvancedChat.configStorage.alternatelines;
             boolean didAlternate = false;
-            LocalTime lastTime = null;
+            UUID lastUuid = null;
             // Check to see if the scroll is too far.
             if (scrolledLines >= currentTab.visibleMessages.size()) {
                 scrolledLines = 0;
@@ -122,10 +123,10 @@ public class AdvancedChatHud extends DrawableHelper {
                 int relativeHeight = (lines * lineHeight);
                 int height = (windowHeight - bottomScreenOffset) - relativeHeight;
                 if (alternate) {
-                    if (lastTime == null) {
-                        lastTime = line.getTime();
+                    if (lastUuid == null) {
+                        lastUuid = line.getUuid();
                     }
-                    if (!lastTime.equals(line.getTime())) {
+                    if (!lastUuid.equals(line.getUuid())) {
                         if (didAlternate) {
                             backgroundColor = ogcolor;
                             didAlternate = false;
@@ -137,7 +138,7 @@ public class AdvancedChatHud extends DrawableHelper {
                             }
                             didAlternate = true;
                         }
-                        lastTime = line.getTime();
+                        lastUuid = line.getUuid();
                     }
                 }
                 if (relativeHeight <= maxSize) {
@@ -304,7 +305,7 @@ public class AdvancedChatHud extends DrawableHelper {
                 if (trueX <= (double) MathHelper.floor((double) getWidth())) {
                     if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
                         int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
-                        if (lineNum >= 0 && lineNum < currentTab.visibleMessages.size()) {
+                        if (lineNum >= 0 && lineNum < currentTab.visibleMessages.size() && lineNum <= getVisibleLineCount() + scrolledLines) {
                             AdvancedChatLine chatHudLine = currentTab.visibleMessages.get(lineNum);
                             return this.client.textRenderer.getTextHandler().trimToWidth(chatHudLine.getText(), (int)trueX);
                         }

@@ -14,6 +14,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 package net.darkkronicle.advancedchat.gui;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ModMenuImpl;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -24,7 +25,9 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,7 +189,10 @@ public class ChatLogScreen extends Screen {
             drawStringWithShadow(matrices, client.textRenderer, "Nothing found...", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
         }
 
-
+        Style style = this.getText(mouseX, mouseY);
+        if (style != null && style.getHoverEvent() != null) {
+            this.renderTextHoverEffect(matrices, style, mouseX, mouseY);
+        }
 
         super.render(matrices, mouseX, mouseY, delta);
     }
@@ -202,5 +208,46 @@ public class ChatLogScreen extends Screen {
         return false;
     }
 
+    public int getVisibleLineCount() {
+        int maxHeight = client.getWindow().getScaledHeight() - 90;
+        int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
+        int lineCount = (int) Math.floor((float) maxHeight / lineHeight);
+        return lineCount;
+    }
+
+    public Style getText(double mouseX, double mouseY) {
+        double trueX = mouseX - 2;
+        double trueY = (double)this.client.getWindow().getScaledHeight() - mouseY - 20;
+//      trueX = MathHelper.floor(trueX);
+//      trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));
+        if (trueX >= 0.0D && trueY >= 0.0D) {
+            int numOfMessages = Math.min(this.getVisibleLineCount(), AdvancedChat.getChatLogData().getFormattedMessages().size());
+            if (trueX <= (double) MathHelper.floor((double) getWidth())) {
+                if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
+                    int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
+                    if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getFormattedMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
+                        ChatLogLine chatHudLine = AdvancedChat.getChatLogData().getFormattedMessages().get(lineNum);
+                        return this.client.textRenderer.getTextHandler().trimToWidth(chatHudLine.getText(), (int)trueX - 20);
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+            AdvancedChatHud chatHud = AdvancedChat.getAdvancedChatHud();
+
+            Style style = chatHud.getText(mouseX, mouseY);
+            if (style != null && this.handleTextClick(style)) {
+                return true;
+            }
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+
+    }
 
 }

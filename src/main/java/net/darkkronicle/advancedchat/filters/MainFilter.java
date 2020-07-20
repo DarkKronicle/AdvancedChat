@@ -62,6 +62,9 @@ public class MainFilter extends AbstractFilter {
        colorFilters = new ArrayList<>();
        for (Filter filter : AdvancedChat.configStorage.filters) {
            // If it replaces anything.
+           if (!filter.isActive()) {
+               continue;
+           }
            if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
                if (filter.isReplaceTextColor()) {
                    filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo(), filter.getFindType(), filter.getReplaceType(), filter.getColor()));

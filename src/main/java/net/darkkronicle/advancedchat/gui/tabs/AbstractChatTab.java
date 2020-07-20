@@ -93,6 +93,22 @@ public abstract class AbstractChatTab {
         }
 
         StringRenderable logged = stringRenderable;
+        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
+
+        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
+            AdvancedChatLine chatLine = messages.get(i);
+            if (stringRenderable.getString().equals(chatLine.getText().getString())) {
+                for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
+                    AdvancedChatLine visibleLine = visibleMessages.get(j);
+                    if (visibleLine.getUuid().equals(chatLine.getUuid())) {
+                        visibleLine.setStacks(visibleLine.getStacks() + 1);
+                        return;
+                    }
+                }
+
+            }
+        }
+
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
@@ -107,14 +123,8 @@ public abstract class AbstractChatTab {
         for (StringRenderable renderable : list) {
             // TODO Make chat stacking based on full message, not just line.
             stringRenderable2 = renderable;
-            for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < visibleMessages.size(); i++) {
-                AdvancedChatLine chatLine = visibleMessages.get(i);
-                if (stringRenderable2.getString().equals(chatLine.getText().getString())) {
-                    chatLine.setStacks(chatLine.getStacks() + 1);
-                    return;
-                }
-            }
-            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time));
+
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, logLine.getUuid()));
             hud.messageAddedToTab(this);
         }
 
@@ -124,7 +134,7 @@ public abstract class AbstractChatTab {
         }
 
         if (!bl) {
-            this.messages.add(0, new AdvancedChatLine(timestamp, logged, messageId, time));
+            this.messages.add(0, logLine);
 
             while(this.messages.size() > visibleMessagesMaxSize) {
                 this.messages.remove(this.messages.size() - 1);
