@@ -38,7 +38,7 @@ A Minecraft mod designed to give the client more customizability over the vanill
     - Stack up to 20 messages back
 - More features soon to come!
 
-*This mod is still in development and will have improvements and changes over time. To help contribute, please submit all bugs and feature requests to the bug tracker!*
+*This mod is still in development and will have improvements and changes over time. To help contribute, please submit all bugs and feature requests to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)*
 
 ## Screenshots
 
@@ -55,4 +55,4 @@ Code & Mastermind: DarkKronicle
 
 Logo & Proofreading: Chronos22Gamer
 
-If you notice any bugs, please report to the bug tracker!
+If you notice any bugs, please report to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)
