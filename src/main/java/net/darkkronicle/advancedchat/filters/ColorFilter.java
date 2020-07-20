@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.NonNull;
@@ -12,13 +25,11 @@ import net.minecraft.text.StringRenderable;
 import java.util.Optional;
 
 /**
- * <h1>ColorFilter</h1>
  * Filter used to change the background color of a message.
  */
 @Environment(EnvType.CLIENT)
 public class ColorFilter extends AbstractFilter {
     /**
-     * <h1>Color</h1>
      * {@link net.darkkronicle.advancedchat.util.ColorUtil.SimpleColor} that will change the background color.
      */
     private final ColorUtil.SimpleColor color;

@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.util;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
@@ -18,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * <h1>SplitText</h1>
  * A helper class that can take a StringRenderable, break it up, and put it back together.
  * This breaks up the StringRenderable into different {@link SimpleText}.
  * This allows for easy editing of text and can modify it in {@link net.darkkronicle.advancedchat.filters.ReplaceFilter}
@@ -29,7 +41,6 @@ public class SplitText {
     private ArrayList<SimpleText> siblings = new ArrayList<>();
 
     /**
-     * <h1>SplitText</h1>
      * Takes a stringRenderable and splits it into a list of {@link SimpleText}.
      *
      * @param stringRenderable StringRenderable to split into different {@link SimpleText}
@@ -43,7 +54,6 @@ public class SplitText {
 
 
     /**
-     * <h1>getFullMessage</h1>
      * Takes the SplitText that is stored inside of this class, and puts it into a plain string.
      * Used mainly for debugging and {@link SearchText}
      *
@@ -61,7 +71,6 @@ public class SplitText {
     }
 
     /**
-     * <h1>getStringRenderable</h1>
      * Links stored SimpleText into a StringRenderable that is then returned.
      * After mutating text in here it can be brought back to a minecraft friendly
      * object.
@@ -77,7 +86,6 @@ public class SplitText {
     }
 
     /**
-     * <h1>replaceStrings</h1>
      * Complex method used to split up the split text in this class and replace matches to a string.
      *
      * @param matches List of {@link net.darkkronicle.advancedchat.util.SearchText.StringMatch} to replace.
@@ -88,7 +96,6 @@ public class SplitText {
     }
 
     /**
-     * <h1>replaceStrings</h1>
      * Complex method used to split up the split text in this class and replace matches to a string.
      *
      * @param matches List of {@link net.darkkronicle.advancedchat.util.SearchText.StringMatch} to replace.

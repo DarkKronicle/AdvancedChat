@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Data;
@@ -20,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * <h1>AbstractChatTab</h1>
  * Base ChatTab that allows for custom chat tabs in AdvancedChatHud.
  */
 @Environment(EnvType.CLIENT)
@@ -41,7 +53,6 @@ public abstract class AbstractChatTab {
     }
 
     /**
-     * <h1>shouldAdd</h1>
      * If the inputted message should be put into the chat tab.
      * @param stringRenderable Object to search.
      * @return True if it should be added.
@@ -49,7 +60,6 @@ public abstract class AbstractChatTab {
     public abstract boolean shouldAdd(StringRenderable stringRenderable);
 
     /**
-     * <h1>reset</h1>
      * Method to reformat the messages if Chat size changes or something.
      */
     public void reset() {
@@ -63,7 +73,6 @@ public abstract class AbstractChatTab {
     }
 
     /**
-     * <h1>addMessage</h1>
      * Used for adding messages into the tab.
      * @param stringRenderable StringRenderable to add.
      * @param messageId ID of message.
@@ -84,7 +93,7 @@ public abstract class AbstractChatTab {
         }
 
         StringRenderable logged = stringRenderable;
-        boolean showtime = AdvancedChat.configStorage.chatLogConfig.showTime;
+        boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
             SplitText text = new SplitText(stringRenderable);
@@ -95,8 +104,17 @@ public abstract class AbstractChatTab {
         List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, this.client.textRenderer);
 
         StringRenderable stringRenderable2;
-        for(Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, null))) {
-            stringRenderable2 = (StringRenderable)var8.next();
+        for (StringRenderable renderable : list) {
+            // TODO Make chat stacking based on full message, not just line.
+            stringRenderable2 = renderable;
+            for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < visibleMessages.size(); i++) {
+                AdvancedChatLine chatLine = visibleMessages.get(i);
+                if (stringRenderable2.getString().equals(chatLine.getText().getString())) {
+                    chatLine.setStacks(chatLine.getStacks() + 1);
+                    return;
+                }
+            }
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time));
             hud.messageAddedToTab(this);
         }
 
@@ -106,7 +124,7 @@ public abstract class AbstractChatTab {
         }
 
         if (!bl) {
-            this.messages.add(0, new AdvancedChatLine(timestamp, logged, messageId, time, null));
+            this.messages.add(0, new AdvancedChatLine(timestamp, logged, messageId, time));
 
             while(this.messages.size() > visibleMessagesMaxSize) {
                 this.messages.remove(this.messages.size() - 1);

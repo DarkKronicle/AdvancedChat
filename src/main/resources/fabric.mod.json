@@ -10,7 +10,7 @@
   "contact": {
     "sources": "https://github.com/DarkKronicle/AdvancedChat"
   },
-  "license": "CC0-1.0",
+  "license": "GPL-3.0",
   "icon": "assets/AdvancedChat/icon.png",
   "environment": "*",
   "entrypoints": {

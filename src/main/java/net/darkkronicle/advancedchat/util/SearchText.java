@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.util;
 
 import lombok.AllArgsConstructor;
@@ -15,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class SearchText {
 
-    /** <h1>isMatch</h1>
+    /**
      * Method to see if there is a match somewhere with a string with an expression.
      * Is similar to {@link #findMatches(String, String, Filter.FindType)} just less expensive since
      * it doesn't need to find every match.
@@ -42,7 +55,7 @@ public class SearchText {
         return false;
     }
 
-    /** <h1>findMatches</h1>
+    /**
      * Method to find all matches within a string.
      * Is similar to {@link #isMatch(String, String, Filter.FindType)}}. This method just finds every
      * match and returns it.
@@ -96,7 +109,6 @@ public class SearchText {
     }
 
     /**
-     * <h1>StringMatch</h1>
      * Storage class that contains Matcher.match info. Used with {@link #findMatches(String, String, Filter.FindType)} and {@link #isMatch(String, String, Filter.FindType)}
      */
     @AllArgsConstructor

@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.gui;
 
 import com.google.common.collect.Lists;
@@ -5,9 +18,12 @@ import com.google.common.collect.Queues;
 import lombok.Getter;
 import lombok.Setter;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.SimpleText;
+import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.options.ChatVisibility;
@@ -16,10 +32,12 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.StringRenderable;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -71,12 +89,21 @@ public class AdvancedChatHud extends DrawableHelper {
         }
         ColorUtil.SimpleColor textColor = AdvancedChat.configStorage.chatConfig.emptyText;
         ColorUtil.SimpleColor backgroundColor = AdvancedChat.configStorage.chatConfig.hudBackground;
+        ColorUtil.SimpleColor ogcolor = backgroundColor;
         boolean chatFocused = isChatFocused();
+        if (AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.ALWAYS) {
+            chatFocused = true;
+        }
+        if (AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.FOCUSONLY && !chatFocused) {
+            return;
+        }
         int finalheight = 0;
         if (currentTab.visibleMessages.size() > 0) {
 
             int lines = 0;
-
+            boolean alternate = AdvancedChat.configStorage.alternatelines;
+            boolean didAlternate = false;
+            LocalTime lastTime = null;
             // Check to see if the scroll is too far.
             if (scrolledLines >= currentTab.visibleMessages.size()) {
                 scrolledLines = 0;
@@ -92,9 +119,27 @@ public class AdvancedChatHud extends DrawableHelper {
             for (int i = 0; i + scrolledLines < currentTab.visibleMessages.size(); i++) {
                 AdvancedChatLine line = currentTab.visibleMessages.get(i + scrolledLines);
                 lines++;
-
                 int relativeHeight = (lines * lineHeight);
                 int height = (windowHeight - bottomScreenOffset) - relativeHeight;
+                if (alternate) {
+                    if (lastTime == null) {
+                        lastTime = line.getTime();
+                    }
+                    if (!lastTime.equals(line.getTime())) {
+                        if (didAlternate) {
+                            backgroundColor = ogcolor;
+                            didAlternate = false;
+                        } else {
+                            if (backgroundColor.alpha() <= 215) {
+                                backgroundColor = backgroundColor.withAlpha(backgroundColor.alpha() + 40);
+                            } else {
+                                backgroundColor = backgroundColor.withAlpha(backgroundColor.alpha() - 40);
+                            }
+                            didAlternate = true;
+                        }
+                        lastTime = line.getTime();
+                    }
+                }
                 if (relativeHeight <= maxSize) {
                     if (chatFocused) {
                         ColorUtil.SimpleColor fadebackground;
@@ -104,7 +149,16 @@ public class AdvancedChatHud extends DrawableHelper {
                             fadebackground = backgroundColor;
                         }
                         fill(matrices, 0, height, actualWidth + 4, height + lineHeight, fadebackground.color());
-                        drawTextWithShadow(matrices, client.textRenderer, line.getText(), 1, height + 1, textColor.color());
+                        StringRenderable newString = line.getText();
+                        if (line.getStacks() > 0) {
+                            SplitText toPrint = new SplitText(line.getText());
+                            Style style = Style.EMPTY;
+                            TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
+                            style = style.withColor(color);
+                            toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
+                            newString = toPrint.getStringRenderable();
+                        }
+                        drawTextWithShadow(matrices, client.textRenderer, newString, 1, height + 1, textColor.color());
                         finalheight = height;
                     } else {
                         int timeAlive = tick - line.getCreationTick();
@@ -119,7 +173,16 @@ public class AdvancedChatHud extends DrawableHelper {
 
                             ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, timeAlive, fadestart, fadestop);
                             fill(matrices, 0, height, actualWidth + 4, height + lineHeight, fadebackground.color());
-                            drawTextWithShadow(matrices, client.textRenderer, line.getText(), 1, height + 1, fadetext.color());
+                            StringRenderable newString = line.getText();
+                            if (line.getStacks() > 0) {
+                                SplitText toPrint = new SplitText(line.getText());
+                                Style style = Style.EMPTY;
+                                TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
+                                style = style.withColor(color);
+                                toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
+                                newString = toPrint.getStringRenderable();
+                            }
+                            drawTextWithShadow(matrices, client.textRenderer, newString, 1, height + 1, fadetext.color());
                         }
                     }
                 }
@@ -249,10 +312,8 @@ public class AdvancedChatHud extends DrawableHelper {
                 }
 
             }
-            return null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public boolean isChatFocused() {

@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.util;
 
 import lombok.AccessLevel;
@@ -8,7 +21,6 @@ import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
 
 /**
- * <h1>ColorUtil</h1>
  * A static utility class that helps when dealing with colors that use bit shifting, like Minecraft.
  * In here there is a color storage class that makes getting int and creating new colors simple.
  */
@@ -64,7 +76,7 @@ public class ColorUtil {
     // Standard quick reference colors
     public final SimpleColor WHITE = new SimpleColor(255, 255, 255, 255);
     public final SimpleColor BLACK = new SimpleColor(0, 0, 0, 255);
-
+    public final SimpleColor GRAY = new SimpleColor(128, 128, 128, 255);
     /**
      * Simple class that uses Lombok's many features to simplify.
      * You can convert at anytime from the color, to an int.

@@ -1,72 +1,58 @@
 # AdvancedChat
 
-A mod designed to give the user more control over Minecrafts built in chat.
-
-The plugin has filters that are customizable, as well as a screen to view up to 5000 lines of chat.
+A Minecraft mod designed to give the client more customizability over the vanilla chat.
 
 ## Features
 
-- ChatLogScreen that is easily accessible from the chat screen.
-    - You can view up to 5000 lines of chat.
-    - Regex filtering of messages.
-    - Access the main configs.
-- See when messages were posted in ChatLogScreen or normal chat.
-- Filters that can change messages, and notify you.
-    - Each filter is equipped with several options to give you customization.
-    - Further advanced features with regex and chat formatting.
-- Stacking of messages
-- Other features that are coming soon!
-    
-*ChatLogScreen*
+- Change colors
+    - Background of the Chat Hud
+    - Blank text
+    - Have the messages in chat hud be striped (alternates between lighter and darker backgrounds between messages)
+- Advanced Search
+    - Use Regular Expressions
+    - Case Sensitive or Insensitive
+- Chat Tabs
+    - Sections of chat that can store specific messages that matches an advanced search
+    - Have a preset prefix to start chat when you open up chat in the specified tab
+    - Block messages from going into the main chat tab
+- Chat Filters
+    - Replace an advanced search with specified text
+    - Change the color of the match
+    - Change the background color of the match
+    - Play a sound when a match is found
+    - Replace the full message
+- Chat Log Screen
+    - Stores up to 5000 messages
+    - Can filter out using a search box
+    - Show customized chat tabs
+    - Customized Keybind to open it
+- Show time when messages are posted
+    - Customize the format on how they display
+    - Customize the color
+- Change chat hud visibility
+    - Have the hud display behave like vanilla
+    - Have the hud display at all times
+    - Have the hud only display when chat is focused
+- Stack messages
+    - Stack only up to the last message
+    - Stack up to 20 messages back
+- More features soon to come!
 
-![ChatLogScreen](images/FullChatScreen.png)
-![ChatBox](images/ChatBox.png)
+*This mod is still in development and will have improvements and changes over time. To help contribute, please submit all bugs and feature requests to the bug tracker!*
 
-*Lots of configurations!*
-
-![Configuration](images/ConfigScreen.png)
-
-*Chat Stacking!*
-
-![Chat Stacking](images/ChatStackingpt1.png)
-![Chat Stacking](images/ChatStackingpt2.png)
-
-## Filters
-
-Filters are little modules that view each chat message and react to it differently. In the filter config screen you have some configuration options:
-
- ![Filter Config](images/FilterConfig.png)
- 
- 1. Filter Name
- 2. What the filter looks for
- 3. What the filter can replace the message for.
- 4. If the filter should replace the full message, or just what is changed.
- 5. If the filter should notify you or move message to top of the screen.
- 6. If Regex should be used to find matches. 
- 7. Whether it's active.
- 8. Whether it should ignore case if Regex is off.
- 9. Whether it should show an unchanged version inside ChatLogScreen.
- 
- If you replace anything, either ONLYCHANGED or FULLLINE, you have the option to reuse what was replaced. Here's an example of that!
- 
- ![Replace Filter](images/FilterConfigReplace.png)
- 
- ![Replace Demo](images/UnfilteredPt3.png)
- 
- You can also block the full line and replace it with whatever!
- 
- ![Block Demo](images/BlockingMessages.png)
- 
 ## Screenshots
 
-![Regex Private](images/RegexPrivate.png)
+![alternate](images/alternate.png)
+![colors](images/colors.png)
+![logscreen](images/logscreen.png)
+![tab](images/tab.png)
 
-![Regex](images/Regex.png)
+This isn't all the features, so try it out for yourself!
 
 ## Credits and other
 
-Code: DarkKronicle
+Code & Mastermind: DarkKronicle
 
-Logo: Chronos22Gamer
+Logo & Proofreading: Chronos22Gamer
 
-If you notice any bugs, please report to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)
+If you notice any bugs, please report to the bug tracker!

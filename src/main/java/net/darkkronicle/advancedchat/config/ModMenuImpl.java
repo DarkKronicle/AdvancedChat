@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.config;
 
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
@@ -141,6 +154,18 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.chatConfig.showTime = newval;
         }).setDefaultValue(false).build());
 
+        chathud.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.alternatelines"), AdvancedChat.configStorage.alternatelines).setTooltip(new TranslatableText("config.advancedchat.info.alternatelines")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.alternatelines = newval;
+        }).setDefaultValue(false).build());
+
+        chathud.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.visibility"), ConfigStorage.Visibility.values(), AdvancedChat.configStorage.visibility).setTooltip(
+                new TranslatableText("config.advancedchat.info.visibility.vanilla"),
+                new TranslatableText("config.advancedchat.info.visibility.always"),
+                new TranslatableText("config.advancedchat.info.visibility.focusonly")
+        ).setDefaultValue(ConfigStorage.Visibility.VANILLA).setSaveConsumer(vis -> {
+            AdvancedChat.configStorage.visibility = vis;
+        }).build());
+
         chathud.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.chathud.backgroundcolor"), AdvancedChat.configStorage.chatConfig.hudBackground.color()).setTooltip(new TranslatableText("config.advancedchat.chathud.info.backgroundcolor")).setSaveConsumer(newval -> {
             AdvancedChat.configStorage.chatConfig.hudBackground = ColorUtil.intToColor(newval);
 
@@ -150,6 +175,10 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.chatConfig.emptyText = ColorUtil.intToColor(newval);
 
         }).setDefaultValue(ColorUtil.WHITE.color()).build());
+
+        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chatstack"), AdvancedChat.configStorage.chatStack).setTooltip(new TranslatableText("config.advancedchat.info.chatstack")).setDefaultValue(0).setMin(0).setMax(20).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatStack = val;
+        }).build());
 
         ConfigCategory chatlog = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chatlog"));
 

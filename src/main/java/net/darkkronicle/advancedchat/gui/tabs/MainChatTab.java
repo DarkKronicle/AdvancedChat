@@ -1,3 +1,16 @@
+/* AdvancedChat: A Minecraft Mod to modify the chat.
+Copyright (C) 2020 DarkKronicle
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Getter;
@@ -21,7 +34,6 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * <h1>MainChatTab</h1>
  * Main chat tab that manages other chat tabs.
  */
 public class MainChatTab extends AbstractChatTab {
@@ -97,8 +109,16 @@ public class MainChatTab extends AbstractChatTab {
         List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, client.textRenderer);
 
         StringRenderable stringRenderable2;
-        for(Iterator var8 = list.iterator(); var8.hasNext(); this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, backcolor))) {
-            stringRenderable2 = (StringRenderable)var8.next();
+        for (StringRenderable renderable : list) {
+            stringRenderable2 = renderable;
+            for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < visibleMessages.size(); i++) {
+                AdvancedChatLine chatLine = visibleMessages.get(i);
+                if (stringRenderable2.getString().equals(chatLine.getText().getString())) {
+                    chatLine.setStacks(chatLine.getStacks() + 1);
+                    return;
+                }
+            }
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, backcolor, 0));
             hud.messageAddedToTab(this);
         }
 
@@ -108,7 +128,7 @@ public class MainChatTab extends AbstractChatTab {
         }
 
         if (!bl) {
-            this.messages.add(0, new AdvancedChatLine(timestamp, logged, messageId, time, backcolor));
+            this.messages.add(0, new AdvancedChatLine(timestamp, logged, messageId, time, backcolor, 0));
 
             while(this.messages.size() > visibleMessagesMaxSize) {
                 this.messages.remove(this.messages.size() - 1);
@@ -117,7 +137,6 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     /**
-     * <h1>setUpTabs</h1>
      * Method used for loading in tabs from the config.
      */
     public void setUpTabs() {
