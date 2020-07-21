@@ -33,10 +33,6 @@ public class AdvancedChatLine {
     private int stacks;
     private UUID uuid;
 
-    public AdvancedChatLine(int creationTick, StringRenderable text, int id) {
-        this(creationTick, text, id, LocalTime.now());
-    }
-
     public AdvancedChatLine(int creationTick, StringRenderable text, int id, LocalTime localTime) {
         this(creationTick, text, id, localTime, null, 0);
     }

@@ -41,6 +41,7 @@ public class ConfigStorage {
         public int width =  280;
         public int lineSpace = 9;
         public int yOffset = 30;
+        public int xOffset = 0;
         public int storedLines = 200;
 
         public ColorUtil.SimpleColor hudBackground = ColorUtil.BLACK.withAlpha(100);

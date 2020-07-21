@@ -75,6 +75,7 @@ public class AdvancedChatHud extends DrawableHelper {
         Window window = this.client.getWindow();
         int windowHeight = window.getScaledHeight();
         int actualWidth = MathHelper.ceil((double) getWidth() / this.getChatScale());
+        int xoffset = AdvancedChat.configStorage.chatConfig.xOffset;
         int bottomScreenOffset = AdvancedChat.configStorage.chatConfig.yOffset;
         int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
         int maxSize = getHeight();
@@ -114,7 +115,7 @@ public class AdvancedChatHud extends DrawableHelper {
                 int size = currentTab.visibleMessages.size();
                 float add = (float) scrolledLines / (size - getVisibleLineCount() + 1);
                 int scrollHeight = (int) (add * maxSize);
-                fill(matrices, actualWidth + 3, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
+                fill(matrices, actualWidth + 3 + xoffset, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4 + xoffset, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
             }
 
             for (int i = 0; i + scrolledLines < currentTab.visibleMessages.size(); i++) {
@@ -149,7 +150,7 @@ public class AdvancedChatHud extends DrawableHelper {
                         } else {
                             fadebackground = backgroundColor;
                         }
-                        fill(matrices, 0, height, actualWidth + 4, height + lineHeight, fadebackground.color());
+                        fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
                         StringRenderable newString = line.getText();
                         if (line.getStacks() > 0) {
                             SplitText toPrint = new SplitText(line.getText());
@@ -159,7 +160,7 @@ public class AdvancedChatHud extends DrawableHelper {
                             toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
                             newString = toPrint.getStringRenderable();
                         }
-                        drawTextWithShadow(matrices, client.textRenderer, newString, 1, height + 1, textColor.color());
+                        drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
                         finalheight = height;
                     } else {
                         int timeAlive = tick - line.getCreationTick();
@@ -173,7 +174,7 @@ public class AdvancedChatHud extends DrawableHelper {
                             }
 
                             ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, timeAlive, fadestart, fadestop);
-                            fill(matrices, 0, height, actualWidth + 4, height + lineHeight, fadebackground.color());
+                            fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
                             StringRenderable newString = line.getText();
                             if (line.getStacks() > 0) {
                                 SplitText toPrint = new SplitText(line.getText());
@@ -183,7 +184,7 @@ public class AdvancedChatHud extends DrawableHelper {
                                 toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
                                 newString = toPrint.getStringRenderable();
                             }
-                            drawTextWithShadow(matrices, client.textRenderer, newString, 1, height + 1, fadetext.color());
+                            drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
                         }
                     }
                 }
@@ -192,9 +193,9 @@ public class AdvancedChatHud extends DrawableHelper {
         }
         if (chatFocused) {
             if (currentTab.visibleMessages.size() > 0) {
-                fill(matrices, 0, finalheight, actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
+                fill(matrices, xoffset, finalheight, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
             } else {
-                fill(matrices, 0, windowHeight - bottomScreenOffset, actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
+                fill(matrices, xoffset, windowHeight - bottomScreenOffset, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
             }
         }
 
@@ -296,7 +297,7 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public Style getText(double mouseX, double mouseY) {
         if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden()) {
-            double trueX = mouseX - 2;
+            double trueX = mouseX - 2 - AdvancedChat.configStorage.chatConfig.xOffset;
             double trueY = (double)this.client.getWindow().getScaledHeight() - mouseY - AdvancedChat.configStorage.chatConfig.yOffset;
 //            trueX = MathHelper.floor(trueX);
 //            trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));

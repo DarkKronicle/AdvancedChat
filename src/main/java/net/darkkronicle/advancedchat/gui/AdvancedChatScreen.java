@@ -29,8 +29,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
-
 public class AdvancedChatScreen extends Screen {
     private String field_2389 = "";
     private int messageHistorySize = -1;
@@ -164,7 +162,7 @@ public class AdvancedChatScreen extends Screen {
                 int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
                 int y = client.getWindow().getScaledHeight() - bottomOffset;
                 int width = AdvancedChat.configStorage.chatConfig.width + 4;
-                if (isOverButton((int) mouseX, (int) mouseY, 0, y, width, height)) {
+                if (isOverButton((int) mouseX + AdvancedChat.configStorage.chatConfig.xOffset, (int) mouseY, 0, y, width, height)) {
                     chatHud.cycleTab();
                 }
                 if (isOverButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 52, client.getWindow().getScaledHeight() - 27, 50, 11)) {
@@ -229,7 +227,7 @@ public class AdvancedChatScreen extends Screen {
         int height = 11;
         int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;
-        renderButton(matrices, mouseX, mouseY, 0, y, width, height, hud.getCurrentTab().getName());
+        renderButton(matrices, mouseX, mouseY, AdvancedChat.configStorage.chatConfig.xOffset, y, width, height, hud.getCurrentTab().getName());
         renderButton(matrices, mouseX, mouseY, client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, "Chat Log");
         renderButton(matrices, (int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, "Settings");
     }

@@ -180,6 +180,22 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.chatStack = val;
         }).build());
 
+        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.xoffset"), AdvancedChat.configStorage.chatConfig.xOffset).setTooltip(new TranslatableText("config.advancedchat.info.xoffset")).setMin(0).setMax(500).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.xOffset = val;
+        }).setDefaultValue(0).build());
+
+        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.yoffset"), AdvancedChat.configStorage.chatConfig.yOffset).setTooltip(new TranslatableText("config.advancedchat.info.yoffset")).setMin(10).setMax(1000).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.yOffset = val;
+        }).setDefaultValue(30).build());
+
+        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.width"), AdvancedChat.configStorage.chatConfig.width).setTooltip(new TranslatableText("config.advancedchat.info.width")).setMin(100).setMax(1000).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.width = val;
+        }).setDefaultValue(280).build());
+
+        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.height"), AdvancedChat.configStorage.chatConfig.height).setTooltip(new TranslatableText("config.advancedchat.info.height")).setMin(100).setMax(700).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.height = val;
+        }).setDefaultValue(171).build());
+
         ConfigCategory chatlog = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chatlog"));
 
         chatlog.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.chatlog.showtime"), AdvancedChat.configStorage.chatLogConfig.showTime).setTooltip(new TranslatableText("config.advancedchat.chatlog.info.showtime")).setSaveConsumer(newval -> {
