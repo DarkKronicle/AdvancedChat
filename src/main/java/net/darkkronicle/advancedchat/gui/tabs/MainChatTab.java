@@ -66,7 +66,6 @@ public class MainChatTab extends AbstractChatTab {
             Optional<ColorUtil.SimpleColor> optcolor = colorFilter.getBackgroundColor(text1);
             if (optcolor.isPresent()) {
                 backcolor = optcolor.get();
-                System.out.println("AAAAAAAA");
             }
         }
         // Goes through chat tabs
