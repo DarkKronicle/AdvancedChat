@@ -15,6 +15,7 @@ package net.darkkronicle.advancedchat.gui;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import lombok.Setter;
 import net.darkkronicle.advancedchat.AdvancedChat;
@@ -27,17 +28,16 @@ import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.options.ChatVisibility;
+import net.minecraft.client.util.Texts;
 import net.minecraft.client.util.Window;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -59,7 +59,7 @@ public class AdvancedChatHud extends DrawableHelper {
         currentTab = AdvancedChat.chatTab;
     }
 
-    public void render(MatrixStack matrices, int tick) {
+    public void render(int tick) {
 //        if (AdvancedChat.getChatLogData().isChatHudTime()) {
 //            for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
 //                tab.reset();
@@ -68,8 +68,8 @@ public class AdvancedChatHud extends DrawableHelper {
 
         double chatScale = this.getChatScale();
         // Set up rendering
-        matrices.push();
-        matrices.scale((float) chatScale, (float) chatScale, 1);
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef((float) chatScale, (float) chatScale, 1);
 
         // Declare useful variables
         Window window = this.client.getWindow();
@@ -115,7 +115,7 @@ public class AdvancedChatHud extends DrawableHelper {
                 int size = currentTab.visibleMessages.size();
                 float add = (float) scrolledLines / (size - getVisibleLineCount() + 1);
                 int scrollHeight = (int) (add * maxSize);
-                fill(matrices, actualWidth + 3 + xoffset, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4 + xoffset, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
+                fill(actualWidth + 3 + xoffset, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4 + xoffset, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
             }
 
             for (int i = 0; i + scrolledLines < currentTab.visibleMessages.size(); i++) {
@@ -150,17 +150,16 @@ public class AdvancedChatHud extends DrawableHelper {
                         } else {
                             fadebackground = backgroundColor;
                         }
-                        fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                        StringRenderable newString = line.getText();
+                        fill(xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
+                        Text newString = line.getText();
                         if (line.getStacks() > 0) {
                             SplitText toPrint = new SplitText(line.getText());
-                            Style style = Style.EMPTY;
-                            TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
-                            style = style.withColor(color);
+                            Style style = new Style();
+                            style.setColor(Formatting.GRAY);
                             toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
-                            newString = toPrint.getStringRenderable();
+                            newString = toPrint.getText();
                         }
-                        drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
+                        this.client.textRenderer.drawWithShadow(newString.asFormattedString(), xoffset + 1, height + 1, textColor.color());
                         finalheight = height;
                     } else {
                         int timeAlive = tick - line.getCreationTick();
@@ -174,17 +173,16 @@ public class AdvancedChatHud extends DrawableHelper {
                             }
 
                             ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, timeAlive, fadestart, fadestop);
-                            fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                            StringRenderable newString = line.getText();
+                            fill(xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
+                            Text newString = line.getText();
                             if (line.getStacks() > 0) {
                                 SplitText toPrint = new SplitText(line.getText());
-                                Style style = Style.EMPTY;
-                                TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
-                                style = style.withColor(color);
+                                Style style = new Style();
+                                style = style.setColor(Formatting.GRAY);
                                 toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
-                                newString = toPrint.getStringRenderable();
+                                newString = toPrint.getText();
                             }
-                            drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
+                            this.client.textRenderer.drawWithShadow(newString.asFormattedString(), xoffset + 1, height + 1, fadetext.color());
                         }
                     }
                 }
@@ -193,14 +191,14 @@ public class AdvancedChatHud extends DrawableHelper {
         }
         if (chatFocused) {
             if (currentTab.visibleMessages.size() > 0) {
-                fill(matrices, xoffset, finalheight, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
+                fill(xoffset, finalheight, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
             } else {
-                fill(matrices, xoffset, windowHeight - bottomScreenOffset, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
+                fill(xoffset, windowHeight - bottomScreenOffset, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
             }
         }
 
 
-        matrices.pop();
+        RenderSystem.popMatrix();
     }
 
     public void messageAddedToTab(AbstractChatTab tab) {
@@ -237,7 +235,7 @@ public class AdvancedChatHud extends DrawableHelper {
         LOGGER.info("[CHAT] {}", message.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
     }
 
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl) {
+    public void addMessage(Text stringRenderable, int messageId, int timestamp, boolean bl) {
         AdvancedChat.chatTab.addMessage(stringRenderable, messageId, timestamp, bl);
 
     }
@@ -279,23 +277,8 @@ public class AdvancedChatHud extends DrawableHelper {
 
     }
 
-    public boolean getQueuedMessage(double d, double e) {
-        if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden() && !this.queuedMessages.isEmpty()) {
-            double f = d - 2.0D;
-            double g = (double)this.client.getWindow().getScaledHeight() - e - 40.0D;
-            if (f <= (double)MathHelper.floor((double)this.getWidth() / this.getChatScale()) && g < 0.0D && g > (double)MathHelper.floor(-9.0D * this.getChatScale())) {
-                this.addMessage((Text)this.queuedMessages.remove());
-                this.lastTimeCheck = System.currentTimeMillis();
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
 
-    public Style getText(double mouseX, double mouseY) {
+    public Text getText(double mouseX, double mouseY) {
         if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden()) {
             double trueX = mouseX - 2 - AdvancedChat.configStorage.chatConfig.xOffset;
             double trueY = (double)this.client.getWindow().getScaledHeight() - mouseY - AdvancedChat.configStorage.chatConfig.yOffset;
@@ -307,8 +290,14 @@ public class AdvancedChatHud extends DrawableHelper {
                     if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
                         int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
                         if (lineNum >= 0 && lineNum < currentTab.visibleMessages.size() && lineNum <= getVisibleLineCount() + scrolledLines) {
+                            int k = 0;
                             AdvancedChatLine chatHudLine = currentTab.visibleMessages.get(lineNum);
-                            return this.client.textRenderer.getTextHandler().trimToWidth(chatHudLine.getText(), (int)trueX);
+                            for (Text text : chatHudLine.getText()) {
+                                k += this.client.textRenderer.getStringWidth(Texts.getRenderChatMessage(((LiteralText)text).getRawString(), false));
+                                if (k >= trueX) {
+                                    return text;
+                                }
+                            }
                         }
                     }
                 }
@@ -340,36 +329,6 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public int getVisibleLineCount() {
         return AdvancedChatHud.getHeight() / AdvancedChat.configStorage.chatConfig.lineSpace;
-    }
-
-    private long getChatDelayMS() {
-        return (long)(this.client.options.chatDelay * 1000.0D);
-    }
-
-    private void processQueuedMessages() {
-        if (!this.queuedMessages.isEmpty()) {
-            long l = System.currentTimeMillis();
-            if (l - this.lastTimeCheck >= this.getChatDelayMS()) {
-                this.addMessage((Text)this.queuedMessages.remove());
-                this.lastTimeCheck = l;
-            }
-
-        }
-    }
-
-    public void addQueuedMessage(Text text) {
-        if (this.client.options.chatDelay <= 0.0D) {
-            this.addMessage(text);
-        } else {
-            long l = System.currentTimeMillis();
-            if (l - this.lastTimeCheck >= this.getChatDelayMS()) {
-                this.addMessage(text);
-                this.lastTimeCheck = l;
-            } else {
-                this.queuedMessages.add(text);
-            }
-        }
-
     }
 
     public void cycleTab() {

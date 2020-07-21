@@ -16,12 +16,11 @@ package net.darkkronicle.advancedchat.util;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.TextCollector;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.time.LocalTime;
@@ -43,13 +42,11 @@ public class SplitText {
     /**
      * Takes a stringRenderable and splits it into a list of {@link SimpleText}.
      *
-     * @param stringRenderable StringRenderable to split into different {@link SimpleText}
      */
-    public SplitText(StringRenderable stringRenderable) {
-        stringRenderable.visit((style, string) -> {
-            siblings.add(new SimpleText(string, style));
-            return Optional.empty();
-        }, Style.EMPTY);
+    public SplitText(Text text) {
+        for (Text child : text) {
+            siblings.add(new SimpleText(child.getString(), child.getStyle()));
+        }
     }
 
 
@@ -77,12 +74,12 @@ public class SplitText {
      *
      * @return StringRenderable that is composed of all the {@link SimpleText}
      */
-    public StringRenderable getStringRenderable() {
-        TextCollector textCollector = new TextCollector();
+    public Text getText() {
+        Text toadd = new LiteralText("");
         for (SimpleText text : getSiblings()) {
-            textCollector.add(StringRenderable.styled(text.getMessage(), text.getStyle()));
+            toadd.append(new LiteralText(text.getMessage()).setStyle(text.getStyle()));
         }
-        return textCollector.getCombined();
+        return toadd;
     }
 
     /**
@@ -149,8 +146,6 @@ public class SplitText {
                         newSiblings.add(text.withMessage(replace));
                     } else {
                         Style original = text.getStyle();
-                        TextColor textColor = TextColor.fromRgb(color.color());
-                        original = original.withColor(textColor);
                         newSiblings.add(text.withStyle(original).withMessage(replace));
                     }
                     started = true;
@@ -209,18 +204,14 @@ public class SplitText {
         return siblings;
     }
 
-    public static StringRenderable getStringRenderableFromText(SimpleText text) {
-        TextCollector textCollector = new TextCollector();
-        textCollector.add(StringRenderable.styled(text.getMessage(), text.getStyle()));
-        return textCollector.getCombined();
+    public static Text getTextfromSimple(SimpleText text) {
+        Text toadd = new LiteralText(text.getMessage());
+        return toadd.setStyle(text.getStyle());
     }
 
     public void addTime(DateTimeFormatter format, LocalTime time) {
-        String replaceFormat = AdvancedChat.configStorage.replaceFormat;
-        ColorUtil.SimpleColor color = AdvancedChat.configStorage.timeColor;
-        Style style = Style.EMPTY;
-        TextColor textColor = TextColor.fromRgb(color.color());
-        style = style.withColor(textColor);
+        String replaceFormat = AdvancedChat.configStorage.replaceFormat.replaceAll("&", "§");
+        Style style = new Style();
         SimpleText text = new SimpleText(replaceFormat.replaceAll("%TIME%", time.format(format)), style);
         siblings.add(0, text);
     }

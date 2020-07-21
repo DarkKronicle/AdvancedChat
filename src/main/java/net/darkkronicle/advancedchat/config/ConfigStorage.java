@@ -26,8 +26,7 @@ public class ConfigStorage {
     public ArrayList<ChatTab> tabs = new ArrayList<>();
 
     public String timeFormat = "hh:mm";
-    public String replaceFormat = "[%TIME%] ";
-    public ColorUtil.SimpleColor timeColor = ColorUtil.WHITE;
+    public String replaceFormat = "&9[%TIME%] &r";
 
     public Visibility visibility = Visibility.VANILLA;
 

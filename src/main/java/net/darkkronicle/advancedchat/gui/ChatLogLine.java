@@ -21,7 +21,7 @@ import lombok.experimental.NonFinal;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.time.LocalTime;
 
@@ -31,7 +31,7 @@ import java.time.LocalTime;
 @Data
 @Value
 public class ChatLogLine {
-    StringRenderable text;
+    Text text;
     int id;
     AbstractChatTab[] tab;
     @NonFinal

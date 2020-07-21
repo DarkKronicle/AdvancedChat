@@ -31,7 +31,7 @@ public class MixinInGameHud {
     @Shadow private int ticks;
 
     @Inject(method = "render", at = @At("RETURN"))
-    private void hudRender(MatrixStack matrixStack, float f, CallbackInfo ci) {
-        AdvancedChat.getAdvancedChatHud().render(matrixStack, this.ticks);
+    private void hudRender(float f, CallbackInfo ci) {
+        AdvancedChat.getAdvancedChatHud().render(this.ticks);
     }
 }

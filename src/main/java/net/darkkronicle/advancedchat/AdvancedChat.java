@@ -24,11 +24,12 @@ import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
+import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
@@ -49,14 +50,14 @@ public class AdvancedChat implements ClientModInitializer {
 
         chatTab = new MainChatTab();
 
-        KeyBinding keyBinding = new KeyBinding(
-                "config.advancedchat.key.openlog",
+        FabricKeyBinding keyBinding = FabricKeyBinding.Builder.create(
+                new Identifier("advancedchat", "openlog"),
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_Y,
                 "category.advancedchat.keys"
-        );
-        KeyBindingHelper.registerKeyBinding(keyBinding);
-        ClientTickEvents.START_CLIENT_TICK.register(s -> {
+        ).build();
+        KeyBindingRegistry.INSTANCE.register(keyBinding);
+        ClientTickCallback.EVENT.register(s -> {
             if (keyBinding.wasPressed()) {
                 s.openScreen(new ChatLogScreen());
             }

@@ -22,9 +22,9 @@ import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.ChatMessages;
+import net.minecraft.client.util.Texts;
 import net.minecraft.client.util.Window;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -42,12 +42,12 @@ public class ChatLogData {
     private boolean chatLogTime = AdvancedChat.configStorage.chatLogConfig.showTime;
     private boolean chatHudTime = AdvancedChat.configStorage.chatConfig.showTime;
 
-    public void addMessage(StringRenderable stringRenderable, AbstractChatTab... tab) {
+    public void addMessage(Text stringRenderable, AbstractChatTab... tab) {
         addMessage(stringRenderable, 0, LocalTime.now(), tab);
     }
 
-    public void addMessage(StringRenderable stringRenderable, int id, LocalTime time, AbstractChatTab... tab) {
-        StringRenderable original = stringRenderable;
+    public void addMessage(Text stringRenderable, int id, LocalTime time, AbstractChatTab... tab) {
+        Text original = stringRenderable;
         MinecraftClient client = MinecraftClient.getInstance();
         if (lastWidth == 0 && lastHeight == 0) {
             lastWidth = client.getWindow().getScaledWidth();
@@ -59,18 +59,18 @@ public class ChatLogData {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
             SplitText text = new SplitText(stringRenderable);
             text.addTime(format, time);
-            stringRenderable = text.getStringRenderable();
+            stringRenderable = text.getText();
         }
 
         ChatLogLine line = new ChatLogLine(original, id, tab, time);
 
         rawMessages.add(line);
         int width = ChatLogScreen.getWidth();
-        List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, client.textRenderer);
+        List<Text> list = Texts.wrapLines(stringRenderable, width, client.textRenderer, false, false);
 
-        StringRenderable stringRenderable2;
+        Text stringRenderable2;
         for(Iterator var8 = list.iterator(); var8.hasNext(); this.formattedMessages.add(0, new ChatLogLine(stringRenderable2, id, tab, time))) {
-            stringRenderable2 = (StringRenderable)var8.next();
+            stringRenderable2 = (Text)var8.next();
         }
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatLogConfig.storedLines;

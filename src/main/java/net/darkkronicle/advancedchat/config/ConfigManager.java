@@ -16,8 +16,6 @@ package net.darkkronicle.advancedchat.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ChatTab;
-import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;

@@ -43,58 +43,58 @@ public class ChatTabScreen {
 
         String[] select = {"1", "2"};
 
-        ConfigCategory chattabs = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chattabs"));
+        ConfigCategory chattabs = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chattabs").getString());
 
-        chattabs.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chattab.storedlines"), AdvancedChat.configStorage.chatConfig.storedLines).setTooltip(new TranslatableText("config.advancedchat.chattab.info.storedlines")).setMin(50).setMax(1000).setSaveConsumer(newval -> {
+        chattabs.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chattab.storedlines").getString(), AdvancedChat.configStorage.chatConfig.storedLines).setTooltip(new TranslatableText("config.advancedchat.chattab.info.storedlines").getString()).setMin(50).setMax(1000).setSaveConsumer(newval -> {
             AdvancedChat.configStorage.chatConfig.storedLines = newval;
         }).setDefaultValue(200).build());
 
-        chattabs.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.chattab.createnew"), select, select[0]).setNameProvider((s -> {
+        chattabs.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.chattab.createnew").getString(), select, select[0]).setNameProvider((s -> {
             if (s.equalsIgnoreCase("1")) {
-                return new TranslatableText("config.advancedchat.click");
+                return new TranslatableText("config.advancedchat.click").getString();
             }
 
             AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
             ModMenuImpl.save();
             MinecraftClient.getInstance().openScreen(ChatTabScreen.getScreen(parentScreen));
-            return new TranslatableText("config.advancedchat.click");
+            return new TranslatableText("config.advancedchat.click").getString();
 
-        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
+        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst").getString()).build());
 
         for (ChatTab chatTab : AdvancedChat.configStorage.tabs) {
 
             ConfigCategory category;
-            if (builder.hasCategory(new LiteralText(chatTab.getName())) || chatTab.getName().equalsIgnoreCase("Main")) {
+            if (builder.hasCategory(chatTab.getName()) || chatTab.getName().equalsIgnoreCase("Main")) {
                 chatTab.setName(chatTab.getName()+"1");
                 ModMenuImpl.save();
             }
-            category = builder.getOrCreateCategory(new LiteralText(chatTab.getName()));
+            category = builder.getOrCreateCategory(chatTab.getName());
 
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.name"), chatTab.getName()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.name")).setSaveConsumer(chatTab::setName).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.name").getString(), chatTab.getName()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.name").getString()).setSaveConsumer(chatTab::setName).build());
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.findstring"), chatTab.getFindString()).setTooltip(new TranslatableText("config.advancedchat.info.findstring")).setSaveConsumer(chatTab::setFindString).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.findstring").getString(), chatTab.getFindString()).setTooltip(new TranslatableText("config.advancedchat.info.findstring").getString()).setSaveConsumer(chatTab::setFindString).build());
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.findtype"), Filter.FindType.values(), chatTab.getFindType()).setTooltip(
-                    new TranslatableText("config.advancedchat.info.findtype.literal"),
-                    new TranslatableText("config.advancedchat.info.findtype.regex"),
-                    new TranslatableText("config.advancedchat.info.findtype.upperlower")
+            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.findtype").getString(), Filter.FindType.values(), chatTab.getFindType()).setTooltip(
+                    new TranslatableText("config.advancedchat.info.findtype.literal").getString(),
+                    new TranslatableText("config.advancedchat.info.findtype.regex").getString(),
+                    new TranslatableText("config.advancedchat.info.findtype.upperlower").getString()
             ).setSaveConsumer(chatTab::setFindType).build());
 
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.chattab.forward"), chatTab.isForward()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.forward")).setSaveConsumer(chatTab::setForward).build());
+            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.chattab.forward").getString(), chatTab.isForward()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.forward").getString()).setSaveConsumer(chatTab::setForward).build());
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.startingmessage"), chatTab.getStartingMessage()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.startingmessage")).setSaveConsumer(chatTab::setStartingMessage).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.startingmessage").getString(), chatTab.getStartingMessage()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.startingmessage").getString()).setSaveConsumer(chatTab::setStartingMessage).build());
 
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.chattab.delete"), select, select[0]).setNameProvider((s -> {
+            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.chattab.delete").getString(), select, select[0]).setNameProvider((s -> {
                 if (s.equalsIgnoreCase("1")) {
-                    return new TranslatableText("config.advancedchat.click");
+                    return new TranslatableText("config.advancedchat.click").getString();
                 }
                 AdvancedChat.configStorage.tabs.remove(chatTab);
                 ModMenuImpl.save();
                 MinecraftClient.getInstance().openScreen(getScreen(parentScreen));
-                return new TranslatableText("config.advancedchat.click");
-            })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
+                return new TranslatableText("config.advancedchat.click").getString();
+            })).setTooltip(new TranslatableText("warn.advancedchat.savefirst").getString()).build());
 
         }
 

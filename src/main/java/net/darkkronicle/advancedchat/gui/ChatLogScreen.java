@@ -14,7 +14,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 package net.darkkronicle.advancedchat.gui;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ModMenuImpl;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -23,9 +22,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.util.Texts;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
@@ -64,36 +65,36 @@ public class ChatLogScreen extends Screen {
         if (tab != null) {
             tabname = tab.getName();
         }
-        ButtonWidget tabButton = new ButtonWidget(client.getWindow().getScaledWidth()-60, 10, 50, 20, new LiteralText(tabname), button -> {
+        ButtonWidget tabButton = new ButtonWidget(client.getWindow().getScaledWidth()-60, 10, 50, 20, tabname, button -> {
             ArrayList<AbstractChatTab> tabs = AdvancedChat.chatTab.getAllChatTabs();
             if (tabs.size() <= 0) {
                 return;
             }
             if (tab == null) {
                 tab = tabs.get(0);
-                button.setMessage(new LiteralText(tab.getName()));
+                button.setMessage(tab.getName());
                 return;
             }
             int cur = tabs.indexOf(tab) + 1;
             if (cur >= tabs.size()) {
                 tab = null;
-                button.setMessage(new LiteralText("All"));
+                button.setMessage("All");
                 return;
             }
             AbstractChatTab newtab = tabs.get(cur);
             tab = newtab;
-            button.setMessage(new LiteralText(tab.getName()));
+            button.setMessage(tab.getName());
         });
 
         searchText = "";
-        searchBox = new TextFieldWidget(client.textRenderer, (client.getWindow().getScaledWidth() / 2) - 50, 30, 100, 20, new LiteralText("Search..."));
+        searchBox = new TextFieldWidget(client.textRenderer, (client.getWindow().getScaledWidth() / 2) - 50, 30, 100, 20, "Search...");
         searchBox.setHasBorder(true);
         searchBox.setMaxLength(256);
         searchBox.setChangedListener(this::onSearchBoxChange);
 
-        ButtonWidget findButton = new ButtonWidget((client.getWindow().getScaledWidth() / 2) + 60, 30, 50, 20, new LiteralText(findType.name()), button -> {
+        ButtonWidget findButton = new ButtonWidget((client.getWindow().getScaledWidth() / 2) + 60, 30, 50, 20, findType.name(), button -> {
             findType = cycleResult(findType);
-            button.setMessage(new LiteralText(findType.name()));
+            button.setMessage(findType.name());
         });
 
         addButton(tabButton);
@@ -134,13 +135,13 @@ public class ChatLogScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(int mouseX, int mouseY, float delta) {
 //        AdvancedChat.getChatLogData().checkLast();
 //        if (AdvancedChat.getChatLogData().isChatLogTime()) {
 //            AdvancedChat.getChatLogData().reformatMessages();
 //        }
-        renderBackground(matrices);
-        drawCenteredString(matrices, client.textRenderer, "ChatLog", client.getWindow().getScaledWidth()/2, 20, ColorUtil.WHITE.color());
+        renderBackground();
+        drawCenteredString(client.textRenderer, "ChatLog", client.getWindow().getScaledWidth()/2, 20, ColorUtil.WHITE.color());
         int windowHeight = client.getWindow().getScaledHeight();
         int maxheight =  windowHeight - 90;
         List<ChatLogLine> filteredLines = AdvancedChat.getChatLogData().getFormattedMessages();
@@ -155,8 +156,8 @@ public class ChatLogScreen extends Screen {
             try {
                 filteredLines = filteredLines.stream().filter(filter -> SearchText.isMatch(filter.getText().getString(), searchText, findType)).collect(Collectors.toList());
             } catch (PatternSyntaxException e) {
-                drawStringWithShadow(matrices, client.textRenderer, "Bad search!", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
-                super.render(matrices, mouseX, mouseY, delta);
+                this.client.textRenderer.drawWithShadow("Bad search!", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
+                super.render(mouseX, mouseY, delta);
                 return;
             }
         }
@@ -181,20 +182,20 @@ public class ChatLogScreen extends Screen {
                     endLine = i + scrolledLines;
                     break;
                 }
-                drawTextWithShadow(matrices, client.textRenderer, line.getText(), 20, height + 1, textColor.color());
+                this.client.textRenderer.drawWithShadow(line.getText().asFormattedString(), 20, height + 1, textColor.color());
             }
-            drawCenteredString(matrices, client.textRenderer, startLine + "-" + endLine + "/" + filteredLines.size(), client.getWindow().getScaledWidth() / 2, 10, ColorUtil.WHITE.color());
+            drawCenteredString(client.textRenderer, startLine + "-" + endLine + "/" + filteredLines.size(), client.getWindow().getScaledWidth() / 2, 10, ColorUtil.WHITE.color());
 
         } else {
-            drawStringWithShadow(matrices, client.textRenderer, "Nothing found...", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
+            this.client.textRenderer.drawWithShadow("Nothing found...", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
         }
 
-        Style style = this.getText(mouseX, mouseY);
-        if (style != null && style.getHoverEvent() != null) {
-            this.renderTextHoverEffect(matrices, style, mouseX, mouseY);
+        Text style = this.getText(mouseX, mouseY);
+        if (style != null && style.getStyle().getHoverEvent() != null) {
+            this.renderComponentHoverEffect(style, mouseX, mouseY);
         }
 
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(mouseX, mouseY, delta);
     }
 
     @Override
@@ -215,8 +216,8 @@ public class ChatLogScreen extends Screen {
         return lineCount;
     }
 
-    public Style getText(double mouseX, double mouseY) {
-        double trueX = mouseX - 2;
+    public Text getText(double mouseX, double mouseY) {
+        double trueX = mouseX - 20;
         double trueY = (double)this.client.getWindow().getScaledHeight() - mouseY - 20;
 //      trueX = MathHelper.floor(trueX);
 //      trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));
@@ -226,8 +227,14 @@ public class ChatLogScreen extends Screen {
                 if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
                     int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
                     if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getFormattedMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
+                        int k = 0;
                         ChatLogLine chatHudLine = AdvancedChat.getChatLogData().getFormattedMessages().get(lineNum);
-                        return this.client.textRenderer.getTextHandler().trimToWidth(chatHudLine.getText(), (int)trueX - 20);
+                        for (Text text : chatHudLine.getText()) {
+                            k += this.client.textRenderer.getStringWidth(Texts.getRenderChatMessage(((LiteralText)text).getRawString(), false));
+                            if (k >= trueX) {
+                                return text;
+                            }
+                        }
                     }
                 }
             }
@@ -240,8 +247,8 @@ public class ChatLogScreen extends Screen {
         if (button == 0) {
             AdvancedChatHud chatHud = AdvancedChat.getAdvancedChatHud();
 
-            Style style = chatHud.getText(mouseX, mouseY);
-            if (style != null && this.handleTextClick(style)) {
+            Text style = chatHud.getText(mouseX, mouseY);
+            if (style != null && this.handleComponentClicked(style)) {
                 return true;
             }
         }

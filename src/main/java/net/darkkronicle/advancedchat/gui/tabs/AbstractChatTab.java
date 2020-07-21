@@ -22,8 +22,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHudLine;
-import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.client.util.Texts;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 import java.time.LocalTime;
@@ -54,10 +54,9 @@ public abstract class AbstractChatTab {
 
     /**
      * If the inputted message should be put into the chat tab.
-     * @param stringRenderable Object to search.
      * @return True if it should be added.
      */
-    public abstract boolean shouldAdd(StringRenderable stringRenderable);
+    public abstract boolean shouldAdd(Text text);
 
     /**
      * Method to reformat the messages if Chat size changes or something.
@@ -79,12 +78,12 @@ public abstract class AbstractChatTab {
      * @param timestamp Amount of ticks when it was created.
      * @param bl Add to messages
      */
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl) {
+    public void addMessage(Text stringRenderable, int messageId, int timestamp, boolean bl) {
         addMessage(stringRenderable, messageId, timestamp, bl, LocalTime.now());
     }
 
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl, LocalTime time) {
-        if (!shouldAdd(stringRenderable)) {
+    public void addMessage(Text text1, int messageId, int timestamp, boolean bl, LocalTime time) {
+        if (!shouldAdd(text1)) {
             return;
         }
 
@@ -92,12 +91,12 @@ public abstract class AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-        StringRenderable logged = stringRenderable;
+        Text logged = text1;
         AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
 
         for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
             AdvancedChatLine chatLine = messages.get(i);
-            if (stringRenderable.getString().equals(chatLine.getText().getString())) {
+            if (text1.getString().equals(chatLine.getText().getString())) {
                 for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
                     AdvancedChatLine visibleLine = visibleMessages.get(j);
                     if (visibleLine.getUuid().equals(chatLine.getUuid())) {
@@ -112,15 +111,15 @@ public abstract class AbstractChatTab {
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
-            SplitText text = new SplitText(stringRenderable);
+            SplitText text = new SplitText(text1);
             text.addTime(format, time);
-            stringRenderable = text.getStringRenderable();
+            text1 = text.getText();
         }
         int width = MathHelper.floor((double)hud.getWidth() / hud.getChatScale());
-        List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, this.client.textRenderer);
+        List<Text> list = Texts.wrapLines(text1, width, client.textRenderer, false, false);
 
-        StringRenderable stringRenderable2;
-        for (StringRenderable renderable : list) {
+        Text stringRenderable2;
+        for (Text renderable : list) {
             // TODO Make chat stacking based on full message, not just line.
             stringRenderable2 = renderable;
 

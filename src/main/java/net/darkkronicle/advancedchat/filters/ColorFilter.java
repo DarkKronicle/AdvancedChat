@@ -20,7 +20,7 @@ import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.util.Optional;
 
@@ -41,17 +41,17 @@ public class ColorFilter extends AbstractFilter {
 
     // Doesn't change anything in text. Only happens after it goes through other filters.
     @Override
-    public Optional<StringRenderable> filter(StringRenderable text) {
+    public Optional<Text> filter(Text text) {
         return Optional.empty();
     }
 
     // if returned null it won't do anything, but if not null then it will have the default color.
     // Probably not perfect to use null, may come back later.
-    public ColorUtil.SimpleColor getBackgroundColor(StringRenderable text) {
+    public Optional<ColorUtil.SimpleColor> getBackgroundColor(Text text) {
         SplitText splitText = new SplitText(text);
         if (SearchText.isMatch(splitText.getFullMessage(), filterString, findType)) {
-            return color;
+            return Optional.of(color);
         }
-        return null;
+        return Optional.empty();
     }
 }

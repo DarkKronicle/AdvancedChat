@@ -76,5 +76,15 @@
   "config.advancedchat.info.alternatelines": "Every other message has a §6darker background§r. Can help with differentiating between multiple messages",
   "category.advancedchat.keys": "§eKeybinds",
   "config.advancedchat.key.openlog": "Chat Log Keybind",
-  "config.advancedchat.info.key.openlog": "Hotkey that §6opens the chat log§r"
+  "config.advancedchat.info.key.openlog": "Hotkey that §6opens the chat log§r",
+  "config.advancedchat.xoffset": "Chat HUD X Offset",
+  "config.advancedchat.info.xoffset": "How far §6left or right§r the §6Chat HUD§r is on the screen",
+  "config.advancedchat.yoffset": "Chat HUD Y Offset",
+  "config.advancedchat.info.yoffset": "How far §6up or down§r the §6Chat HUD§r is on the screen",
+  "config.advancedchat.height": "Chat HUD Height",
+  "config.advancedchat.info.height": "Changes the §6height§r of the Chat HUD. Overrides the §6Focused Height§r setting in Vanilla Minecraft",
+  "config.advancedchat.unheight": "Unfocused Chat HUD Height",
+  "config.advancedchat.info.unheight": "Changes the §6height§r of the §6unfocused§r Chat HUD. Overrides the §6Unfocused Height§r setting in Vanilla Minecraft",
+  "config.advancedchat.width": "Chat HUD Width",
+  "config.advancedchat.info.width": "Changes the §6width§r of the Chat HUD. Overrides the §6Width§r setting in Vanilla Minecraft" 
 }

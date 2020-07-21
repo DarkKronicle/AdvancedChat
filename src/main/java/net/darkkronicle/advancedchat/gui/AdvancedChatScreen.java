@@ -23,9 +23,8 @@ import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.NarratorManager;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
@@ -35,6 +34,7 @@ public class AdvancedChatScreen extends Screen {
     protected TextFieldWidget chatField;
     private String originalChatText = "";
     private CommandSuggestor commandSuggestor;
+    private MinecraftClient client;
 
     public AdvancedChatScreen(String originalChatText) {
         super(NarratorManager.EMPTY);
@@ -49,11 +49,12 @@ public class AdvancedChatScreen extends Screen {
     }
 
     protected void init() {
+        this.client = MinecraftClient.getInstance();
         this.client.keyboard.enableRepeatEvents(true);
         this.messageHistorySize = this.client.inGameHud.getChatHud().getMessageHistory().size();
-        this.chatField = new TextFieldWidget(this.textRenderer, 4, this.height - 12, this.width - 4, 12, new TranslatableText("chat.editBox")) {
-            protected MutableText getNarrationMessage() {
-                return super.getNarrationMessage().append(AdvancedChatScreen.this.commandSuggestor.method_23958());
+        this.chatField = new TextFieldWidget(this.client.textRenderer, 4, this.height - 12, this.width - 4, 12, new TranslatableText("chat.editBox").getString()) {
+            protected String getNarrationMessage() {
+                return super.getNarrationMessage().concat(AdvancedChatScreen.this.commandSuggestor.method_23958());
             }
         };
         this.chatField.setMaxLength(256);
@@ -63,7 +64,7 @@ public class AdvancedChatScreen extends Screen {
         this.children.add(this.chatField);
 
 
-        this.commandSuggestor = new CommandSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, 10, true, -805306368);
+        this.commandSuggestor = new CommandSuggestor(this.client, this, this.chatField, this.client.textRenderer, false, false, 1, 10, true, -805306368);
         this.commandSuggestor.refresh();
         this.setInitialFocus(this.chatField);
     }
@@ -153,8 +154,8 @@ public class AdvancedChatScreen extends Screen {
             if (button == 0) {
                 AdvancedChatHud chatHud = AdvancedChat.getAdvancedChatHud();
 
-                Style style = chatHud.getText(mouseX, mouseY);
-                if (style != null && this.handleTextClick(style)) {
+                Text style = chatHud.getText(mouseX, mouseY);
+                if (style != null && this.handleComponentClicked(style)) {
                     return true;
                 }
 
@@ -206,39 +207,39 @@ public class AdvancedChatScreen extends Screen {
         }
     }
 
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(int mouseX, int mouseY, float delta) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         this.setFocused(this.chatField);
         this.chatField.setSelected(true);
-        fill(matrices, 2, this.height - 14, this.width - 2, this.height - 2, AdvancedChat.configStorage.chatConfig.hudBackground.color());
-        this.chatField.render(matrices, mouseX, mouseY, delta);
-        this.commandSuggestor.render(matrices, mouseX, mouseY);
-        Style style = hud.getText(mouseX, mouseY);
-        if (style != null && style.getHoverEvent() != null) {
-            this.renderTextHoverEffect(matrices, style, mouseX, mouseY);
+        fill(2, this.height - 14, this.width - 2, this.height - 2, AdvancedChat.configStorage.chatConfig.hudBackground.color());
+        this.chatField.render(mouseX, mouseY, delta);
+        this.commandSuggestor.render( mouseX, mouseY);
+        Text style = hud.getText(mouseX, mouseY);
+        if (style != null && style.getStyle().getHoverEvent() != null) {
+            this.renderComponentHoverEffect(style, mouseX, mouseY);
         }
-        renderChatTab(matrices, mouseX, mouseY, hud);
+        renderChatTab(mouseX, mouseY, hud);
 
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(mouseX, mouseY, delta);
     }
 
-    private void renderChatTab(MatrixStack matrices, int mouseX, int mouseY, AdvancedChatHud hud) {
+    private void renderChatTab(int mouseX, int mouseY, AdvancedChatHud hud) {
         int width = AdvancedChat.configStorage.chatConfig.width + 4;
         int height = 11;
         int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;
-        renderButton(matrices, mouseX, mouseY, AdvancedChat.configStorage.chatConfig.xOffset, y, width, height, hud.getCurrentTab().getName());
-        renderButton(matrices, mouseX, mouseY, client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, "Chat Log");
-        renderButton(matrices, (int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, "Settings");
+        renderButton(mouseX, mouseY, AdvancedChat.configStorage.chatConfig.xOffset, y, width, height, hud.getCurrentTab().getName());
+        renderButton(mouseX, mouseY, client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, "Chat Log");
+        renderButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, "Settings");
     }
 
-    private void renderButton(MatrixStack matrices, int mouseX, int mouseY, int x, int y, int width, int height, String message) {
+    private void renderButton(int mouseX, int mouseY, int x, int y, int width, int height, String message) {
         ColorUtil.SimpleColor background = AdvancedChat.configStorage.chatConfig.hudBackground;
         if (mouseY >= y && mouseY <= y + height && mouseX >= x && mouseX <= x + width) {
             background = ColorUtil.WHITE.withAlpha(background.alpha());
         }
-        fill(matrices, x, y, x + width, y + height, background.color());
-        drawCenteredString(matrices, client.textRenderer, message, (width / 2) + x, y + (height - 9), AdvancedChat.configStorage.chatConfig.emptyText.color());
+        fill(x, y, x + width, y + height, background.color());
+        drawCenteredString(client.textRenderer, message, (width / 2) + x, y + (height - 9), AdvancedChat.configStorage.chatConfig.emptyText.color());
     }
 
     private boolean isOverButton(int mouseX, int mouseY, int x, int y, int width, int height) {

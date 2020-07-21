@@ -18,7 +18,7 @@ import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -37,11 +37,11 @@ public class MainFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<StringRenderable> filter(StringRenderable text) {
+    public Optional<Text> filter(Text text) {
         // Filters through all filters.
-        StringRenderable modifiedtext = null;
+        Text modifiedtext = null;
         for (AbstractFilter filter : filters) {
-            Optional<StringRenderable> newtext = filter.filter(text);
+            Optional<Text> newtext = filter.filter(text);
             if (newtext.isPresent()) {
                 modifiedtext = newtext.get();
             }
@@ -66,11 +66,7 @@ public class MainFilter extends AbstractFilter {
                continue;
            }
            if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
-               if (filter.isReplaceTextColor()) {
-                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo(), filter.getFindType(), filter.getReplaceType(), filter.getColor()));
-               } else {
-                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo(), filter.getFindType(), filter.getReplaceType(), null));
-               }
+               filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
            }
            if (filter.getNotifyType() != Filter.NotifyType.NONE) {
                filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifyType()));

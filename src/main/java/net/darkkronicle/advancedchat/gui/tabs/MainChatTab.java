@@ -22,8 +22,8 @@ import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.client.util.Texts;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 import java.time.LocalTime;
@@ -47,31 +47,35 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     @Override
-    public boolean shouldAdd(StringRenderable stringRenderable) {
+    public boolean shouldAdd(Text stringRenderable) {
         return true;
     }
 
     @Override
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl, LocalTime time) {
+    public void addMessage(Text text1, int messageId, int timestamp, boolean bl, LocalTime time) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
-        StringRenderable unfiltered = stringRenderable;
-        Optional<StringRenderable> filtered = AdvancedChat.filter.filter(stringRenderable);
+        Text unfiltered = text1;
+        Optional<Text> filtered = AdvancedChat.filter.filter(text1);
         if (filtered.isPresent()) {
-            stringRenderable = filtered.get();
+            text1 = filtered.get();
         }
 
         ColorUtil.SimpleColor backcolor = null;
         for (ColorFilter colorFilter : AdvancedChat.filter.getColorFilters()) {
-            backcolor = colorFilter.getBackgroundColor(stringRenderable);
+            Optional<ColorUtil.SimpleColor> optcolor = colorFilter.getBackgroundColor(text1);
+            if (optcolor.isPresent()) {
+                backcolor = optcolor.get();
+                System.out.println("AAAAAAAA");
+            }
         }
         // Goes through chat tabs
         boolean dontforward = false;
         ArrayList<AbstractChatTab> added = new ArrayList<>();
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
-                if (tab.shouldAdd(stringRenderable)) {
-                    tab.addMessage(stringRenderable, messageId, timestamp, bl);
+                if (tab.shouldAdd(text1)) {
+                    tab.addMessage(text1, messageId, timestamp, bl);
                     added.add(tab);
                     if (!tab.isForward()) {
                         dontforward = true;
@@ -87,7 +91,7 @@ public class MainChatTab extends AbstractChatTab {
         if (dontforward) {
             return;
         }
-        if (!shouldAdd(stringRenderable)) {
+        if (!shouldAdd(text1)) {
             return;
         }
 
@@ -96,12 +100,12 @@ public class MainChatTab extends AbstractChatTab {
         }
 
 
-        StringRenderable logged = stringRenderable;
+        Text logged = text1;
         AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
 
         for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
             AdvancedChatLine chatLine = messages.get(i);
-            if (stringRenderable.getString().equals(chatLine.getText().getString())) {
+            if (text1.getString().equals(chatLine.getText().getString())) {
                 for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
                     AdvancedChatLine visibleLine = visibleMessages.get(j);
                     if (visibleLine.getUuid().equals(chatLine.getUuid())) {
@@ -115,15 +119,15 @@ public class MainChatTab extends AbstractChatTab {
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
-            SplitText text = new SplitText(stringRenderable);
+            SplitText text = new SplitText(text1);
             text.addTime(format, time);
-            stringRenderable = text.getStringRenderable();
+            text1 = text.getText();
         }
         int width = MathHelper.floor((double)hud.getWidth() / hud.getChatScale());
-        List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, client.textRenderer);
+        List<Text> list = Texts.wrapLines(text1, width, client.textRenderer, false, false);
 
-        StringRenderable stringRenderable2;
-        for (StringRenderable renderable : list) {
+        Text stringRenderable2;
+        for (Text renderable : list) {
             stringRenderable2 = renderable;
             for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < visibleMessages.size(); i++) {
                 AdvancedChatLine chatLine = visibleMessages.get(i);

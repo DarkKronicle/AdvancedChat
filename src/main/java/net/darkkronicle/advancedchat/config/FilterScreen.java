@@ -17,7 +17,6 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
@@ -46,18 +45,18 @@ public class FilterScreen {
 
         String[] select = {"1", "2"};
 
-        ConfigCategory filters = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.filters"));
+        ConfigCategory filters = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.filters").getString());
 
-        filters.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.createnew"), select, select[0]).setNameProvider((s -> {
+        filters.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.createnew").getString(), select, select[0]).setNameProvider((s -> {
             if (s.equalsIgnoreCase("1")) {
-                return new TranslatableText("config.advancedchat.click");
+                return new TranslatableText("config.advancedchat.click").getString();
             }
             AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
             ModMenuImpl.save();
             MinecraftClient.getInstance().openScreen(FilterScreen.getScreen(parentScreen));
-            return new TranslatableText("config.advancedchat.click");
+            return new TranslatableText("config.advancedchat.click").getString();
 
-        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
+        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst").getString()).build());
 
 
 
@@ -65,63 +64,59 @@ public class FilterScreen {
         for (Filter filter : AdvancedChat.configStorage.filters) {
 
             ConfigCategory category;
-            if (builder.hasCategory(new LiteralText(filter.getName()))) {
+            if (builder.hasCategory(filter.getName())) {
                 // If there is a name conflict, it renames it to the name + 1;
                 filter.setName(filter.getName()+"1");
                 ModMenuImpl.save();
             }
 
-            category = builder.getOrCreateCategory(new LiteralText(filter.getName()));
+            category = builder.getOrCreateCategory(filter.getName());
 
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.name"), filter.getName()).setTooltip(new TranslatableText("config.advancedchat.filter.info.name")).setSaveConsumer(filter::setName).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.name").getString(), filter.getName()).setTooltip(new TranslatableText("config.advancedchat.filter.info.name").getString()).setSaveConsumer(filter::setName).build());
 
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.active"), filter.isActive()).setTooltip(new TranslatableText("config.advancedchat.filter.info.active")).setSaveConsumer(filter::setActive).build());
+            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.active").getString(), filter.isActive()).setTooltip(new TranslatableText("config.advancedchat.filter.info.active").getString()).setSaveConsumer(filter::setActive).build());
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.findstring"), filter.getFindString()).setTooltip(new TranslatableText("config.advancedchat.info.findstring")).setSaveConsumer(filter::setFindString).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.findstring").getString(), filter.getFindString()).setTooltip(new TranslatableText("config.advancedchat.info.findstring").getString()).setSaveConsumer(filter::setFindString).build());
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.findtype"), Filter.FindType.values(), filter.getFindType()).setTooltip(
-                    new TranslatableText("config.advancedchat.info.findtype.literal"),
-                    new TranslatableText("config.advancedchat.info.findtype.regex"),
-                    new TranslatableText("config.advancedchat.info.findtype.upperlower")
+            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.findtype").getString(), Filter.FindType.values(), filter.getFindType()).setTooltip(
+                    new TranslatableText("config.advancedchat.info.findtype.literal").getString(),
+                    new TranslatableText("config.advancedchat.info.findtype.regex").getString(),
+                    new TranslatableText("config.advancedchat.info.findtype.upperlower").getString()
             ).setSaveConsumer(filter::setFindType).build());
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.replacetype"), Filter.ReplaceType.values(), filter.getReplaceType()).setTooltip(
-                    new TranslatableText("config.advancedchat.filter.info.replacetype.none"),
-                    new TranslatableText("config.advancedchat.filter.info.replacetype.onlymatch"),
-                    new TranslatableText("config.advancedchat.filter.info.replacetype.fullline")
+            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.replacetype").getString(), Filter.ReplaceType.values(), filter.getReplaceType()).setTooltip(
+                    new TranslatableText("config.advancedchat.filter.info.replacetype.none").getString(),
+                    new TranslatableText("config.advancedchat.filter.info.replacetype.onlymatch").getString(),
+                    new TranslatableText("config.advancedchat.filter.info.replacetype.fullline").getString()
             ).setSaveConsumer(filter::setReplaceType).build());
 
-            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.replaceto"), filter.getReplaceTo()).setTooltip(new TranslatableText("config.advancedchat.filter.info.replaceto")).setSaveConsumer(val -> filter.setReplaceTo(val)).build());
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.replaceto").getString(), filter.getReplaceTo()).setTooltip(new TranslatableText("config.advancedchat.filter.info.replaceto").getString()).setSaveConsumer(val -> filter.setReplaceTo(val)).build());
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifytype"), Filter.NotifyType.values(), filter.getNotifyType()).setTooltip(
-                    new TranslatableText("config.advancedchat.filter.info.notifytype.none"),
-                    new TranslatableText("config.advancedchat.filter.info.notifytype.sound")
+            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifytype").getString(), Filter.NotifyType.values(), filter.getNotifyType()).setTooltip(
+                    new TranslatableText("config.advancedchat.filter.info.notifytype.none").getString(),
+                    new TranslatableText("config.advancedchat.filter.info.notifytype.sound").getString()
             ).setSaveConsumer(filter::setNotifyType).build());
 
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacetextcolor"), filter.isReplaceTextColor()).setTooltip(
-                    new TranslatableText("config.advancedchat.filter.info.replacetextcolor")
-            ).setSaveConsumer(filter::setReplaceTextColor).build());
-
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacebackground"), filter.isReplaceBackgroundColor()).setTooltip(
-                    new TranslatableText("config.advancedchat.filter.info.replacebackground")
+            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacebackground").getString(), filter.isReplaceBackgroundColor()).setTooltip(
+                    new TranslatableText("config.advancedchat.filter.info.replacebackground").getString()
             ).setSaveConsumer(filter::setReplaceBackgroundColor).build());
 
-            category.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.filter.color"), filter.getColor().color()).setSaveConsumer(newval -> {
+            category.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.filter.color").getString(), filter.getColor().color()).setSaveConsumer(newval -> {
                 filter.setColor(new ColorUtil.SimpleColor(newval));
-            }).setTooltip(new TranslatableText("config.advancedchat.filter.info.color")).build());
+            }).setTooltip(new TranslatableText("config.advancedchat.filter.info.color").getString()).build());
 
 
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.delete"), select, select[0]).setNameProvider((s -> {
+            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.delete").getString(), select, select[0]).setNameProvider((s -> {
                 if (s.equalsIgnoreCase("1")) {
-                    return new TranslatableText("config.advancedchat.click");
+                    return new TranslatableText("config.advancedchat.click").getString();
                 }
                 AdvancedChat.configStorage.filters.remove(filter);
                 ModMenuImpl.save();
                 MinecraftClient.getInstance().openScreen(getScreen(parentScreen));
-                return new TranslatableText("config.advancedchat.click");
-            })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
+                return new TranslatableText("config.advancedchat.click").getString();
+            })).setTooltip(new TranslatableText("warn.advancedchat.savefirst").getString()).build());
 
         }
 
