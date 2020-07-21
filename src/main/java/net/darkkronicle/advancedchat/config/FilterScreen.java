@@ -17,6 +17,7 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
@@ -51,7 +52,7 @@ public class FilterScreen {
             if (s.equalsIgnoreCase("1")) {
                 return new TranslatableText("config.advancedchat.click").getString();
             }
-            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+            AdvancedChat.configStorage.filters.add(Filter.getNewFilter());
             ModMenuImpl.save();
             MinecraftClient.getInstance().openScreen(FilterScreen.getScreen(parentScreen));
             return new TranslatableText("config.advancedchat.click").getString();
@@ -59,16 +60,15 @@ public class FilterScreen {
         })).setTooltip(new TranslatableText("warn.advancedchat.savefirst").getString()).build());
 
 
-
         // Goes through each filter that is saved. Saves it to a /storage/Filter.class
         for (Filter filter : AdvancedChat.configStorage.filters) {
 
             ConfigCategory category;
-            if (builder.hasCategory(filter.getName())) {
-                // If there is a name conflict, it renames it to the name + 1;
-                filter.setName(filter.getName()+"1");
-                ModMenuImpl.save();
-            }
+//            if (builder.hasCategory(filter.getName())) {
+//                // If there is a name conflict, it renames it to the name + 1;
+//                filter.setName(filter.getName()+"1");
+//                ModMenuImpl.save();
+//            }
 
             category = builder.getOrCreateCategory(filter.getName());
 

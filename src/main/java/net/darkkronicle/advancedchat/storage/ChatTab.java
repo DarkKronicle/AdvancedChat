@@ -15,10 +15,20 @@ package net.darkkronicle.advancedchat.storage;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.With;
+import net.darkkronicle.advancedchat.AdvancedChat;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.hud.ChatHud;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Environment(EnvType.CLIENT)
 @AllArgsConstructor
 @Data
 public class ChatTab {
+    @With
     private String name;
 
     private String findString;
@@ -31,5 +41,21 @@ public class ChatTab {
 
     public final static ChatTab DEFAULT = new ChatTab("Default", "Name", Filter.FindType.LITERAL,  "", true);
 
+    public static ChatTab getNewTab() {
+        ChatTab toadd = ChatTab.DEFAULT;
+        boolean changed = true;
+        int i = 0;
+        while (changed && i < 20) {
+            changed = false;
+            i++;
+            for (ChatTab tab : AdvancedChat.configStorage.tabs) {
+                if (toadd.getName().equals(tab.getName())) {
+                    toadd.withName(toadd.getName() + "1");
+                    changed = true;
+                }
+            }
+        }
+        return toadd;
+    }
 
 }

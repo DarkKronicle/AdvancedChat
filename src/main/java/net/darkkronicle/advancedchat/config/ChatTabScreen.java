@@ -60,14 +60,13 @@ public class ChatTabScreen {
             return new TranslatableText("config.advancedchat.click").getString();
 
         })).setTooltip(new TranslatableText("warn.advancedchat.savefirst").getString()).build());
-
         for (ChatTab chatTab : AdvancedChat.configStorage.tabs) {
 
             ConfigCategory category;
-            if (builder.hasCategory(chatTab.getName()) || chatTab.getName().equalsIgnoreCase("Main")) {
-                chatTab.setName(chatTab.getName()+"1");
-                ModMenuImpl.save();
-            }
+//            if (builder.hasCategory(chatTab.getName()) || chatTab.getName().equalsIgnoreCase("Main")) {
+//                chatTab.setName(chatTab.getName()+"1");
+//                ModMenuImpl.save();
+//            }
             category = builder.getOrCreateCategory(chatTab.getName());
 
 

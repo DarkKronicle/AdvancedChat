@@ -16,12 +16,15 @@ package net.darkkronicle.advancedchat.storage;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.With;
+import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Style;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Filter Storage
@@ -36,6 +39,7 @@ public class Filter {
     /**
      * Name is only cosmetic. Shows up when editing filters. Way to distinguish filters for the player.
       */
+    @With
     private String name;
 
     /**
@@ -135,6 +139,23 @@ public class Filter {
         NONE,
         @SerializedName("sound")
         SOUND
+    }
+
+    public static Filter getNewFilter() {
+        Filter toadd = Filter.DEFAULT;
+        boolean changed = true;
+        int i = 0;
+        while (changed && i < 20) {
+            changed = false;
+            i++;
+            for (Filter filter : AdvancedChat.configStorage.filters) {
+                if (filter.getName().equals(toadd.getName())) {
+                    toadd = toadd.withName(toadd.getName() + "1");
+                    changed = true;
+                }
+            }
+        }
+        return toadd;
     }
 
 }
