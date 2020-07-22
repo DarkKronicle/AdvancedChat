@@ -64,11 +64,11 @@ public class FilterScreen {
         for (Filter filter : AdvancedChat.configStorage.filters) {
 
             ConfigCategory category;
-//            if (builder.hasCategory(filter.getName())) {
-//                // If there is a name conflict, it renames it to the name + 1;
-//                filter.setName(filter.getName()+"1");
-//                ModMenuImpl.save();
-//            }
+            if (builder.hasCategory(filter.getName())) {
+                // If there is a name conflict, it renames it to the name + 1;
+                filter.setName(filter.getName()+"1");
+                ModMenuImpl.save();
+            }
 
             category = builder.getOrCreateCategory(filter.getName());
 

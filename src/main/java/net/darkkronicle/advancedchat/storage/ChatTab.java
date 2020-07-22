@@ -39,10 +39,12 @@ public class ChatTab {
 
     private boolean forward;
 
-    public final static ChatTab DEFAULT = new ChatTab("Default", "Name", Filter.FindType.LITERAL,  "", true);
+    public static ChatTab getDefault() {
+        return new ChatTab("Default", "Name", Filter.FindType.LITERAL, "", true);
+    }
 
     public static ChatTab getNewTab() {
-        ChatTab toadd = ChatTab.DEFAULT;
+        ChatTab toadd = ChatTab.getDefault();
         boolean changed = true;
         int i = 0;
         while (changed && i < 20) {

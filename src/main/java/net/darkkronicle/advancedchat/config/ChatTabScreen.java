@@ -54,7 +54,7 @@ public class ChatTabScreen {
                 return new TranslatableText("config.advancedchat.click").getString();
             }
 
-            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+            AdvancedChat.configStorage.tabs.add(ChatTab.getNewTab());
             ModMenuImpl.save();
             MinecraftClient.getInstance().openScreen(ChatTabScreen.getScreen(parentScreen));
             return new TranslatableText("config.advancedchat.click").getString();
@@ -63,10 +63,10 @@ public class ChatTabScreen {
         for (ChatTab chatTab : AdvancedChat.configStorage.tabs) {
 
             ConfigCategory category;
-//            if (builder.hasCategory(chatTab.getName()) || chatTab.getName().equalsIgnoreCase("Main")) {
-//                chatTab.setName(chatTab.getName()+"1");
-//                ModMenuImpl.save();
-//            }
+            if (builder.hasCategory(chatTab.getName()) || chatTab.getName().equalsIgnoreCase("Main")) {
+                chatTab.setName(chatTab.getName()+"1");
+                ModMenuImpl.save();
+            }
             category = builder.getOrCreateCategory(chatTab.getName());
 
 
