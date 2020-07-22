@@ -54,7 +54,7 @@ public class ChatTabScreen {
                 return new TranslatableText("config.advancedchat.click");
             }
 
-            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+            AdvancedChat.configStorage.tabs.add(ChatTab.getDefault());
             ModMenuImpl.save();
             MinecraftClient.getInstance().openScreen(ChatTabScreen.getScreen(parentScreen));
             return new TranslatableText("config.advancedchat.click");

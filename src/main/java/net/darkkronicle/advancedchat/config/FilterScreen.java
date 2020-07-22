@@ -52,7 +52,7 @@ public class FilterScreen {
             if (s.equalsIgnoreCase("1")) {
                 return new TranslatableText("config.advancedchat.click");
             }
-            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+            AdvancedChat.configStorage.filters.add(Filter.getDefault());
             ModMenuImpl.save();
             MinecraftClient.getInstance().openScreen(FilterScreen.getScreen(parentScreen));
             return new TranslatableText("config.advancedchat.click");

@@ -81,7 +81,9 @@ public class Filter {
     /**
      * The default filter. Used for new filters.
      */
-    public static final Filter DEFAULT = new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH,"AWESOME!", NotifyType.NONE, false, false, ColorUtil.BLACK);
+    public static Filter getDefault() {
+        return new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH,"AWESOME!", NotifyType.NONE, false, false, ColorUtil.BLACK);
+    }
 
     /**
      * In case the config.json has a missing value this will prevent NPE's from happening when ever the filter is accessed.

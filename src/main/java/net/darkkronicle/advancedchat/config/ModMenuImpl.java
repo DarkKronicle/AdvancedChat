@@ -112,7 +112,7 @@ public class ModMenuImpl implements ModMenuApi {
             if (s.equalsIgnoreCase("1")) {
                 return new TranslatableText("config.advancedchat.click");
             }
-            AdvancedChat.configStorage.filters.add(Filter.DEFAULT);
+            AdvancedChat.configStorage.filters.add(Filter.getDefault());
             save();
             MinecraftClient.getInstance().openScreen(FilterScreen.getScreen(parent));
             return new TranslatableText("config.advancedchat.click");
@@ -140,7 +140,7 @@ public class ModMenuImpl implements ModMenuApi {
                 return new TranslatableText("config.advancedchat.click");
             }
 
-            AdvancedChat.configStorage.tabs.add(ChatTab.DEFAULT);
+            AdvancedChat.configStorage.tabs.add(ChatTab.getDefault());
             save();
             MinecraftClient.getInstance().openScreen(ChatTabScreen.getScreen(parent));
             return new TranslatableText("config.advancedchat.click");

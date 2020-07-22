@@ -216,7 +216,7 @@ public class SplitText {
     }
 
     public void addTime(DateTimeFormatter format, LocalTime time) {
-        String replaceFormat = AdvancedChat.configStorage.replaceFormat;
+        String replaceFormat = AdvancedChat.configStorage.replaceFormat.replaceAll("&", "§");
         ColorUtil.SimpleColor color = AdvancedChat.configStorage.timeColor;
         Style style = Style.EMPTY;
         TextColor textColor = TextColor.fromRgb(color.color());

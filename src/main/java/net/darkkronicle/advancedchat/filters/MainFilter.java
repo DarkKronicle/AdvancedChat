@@ -67,9 +67,9 @@ public class MainFilter extends AbstractFilter {
            }
            if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
                if (filter.isReplaceTextColor()) {
-                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo(), filter.getFindType(), filter.getReplaceType(), filter.getColor()));
+                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), filter.getColor()));
                } else {
-                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo(), filter.getFindType(), filter.getReplaceType(), null));
+                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
                }
            }
            if (filter.getNotifyType() != Filter.NotifyType.NONE) {

@@ -220,8 +220,10 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public void clear(boolean clearHistory) {
-        currentTab.visibleMessages.clear();
-        currentTab.messages.clear();
+        for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
+            tab.visibleMessages.clear();
+            tab.messages.clear();
+        }
         if (clearHistory) {
             this.messageHistory.clear();
         }

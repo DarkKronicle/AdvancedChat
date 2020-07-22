@@ -16,25 +16,45 @@ package net.darkkronicle.advancedchat.gui;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.experimental.NonFinal;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.StringRenderable;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Data
-@Value
 public class ChatLogLine {
-    StringRenderable text;
-    int id;
-    AbstractChatTab[] tab;
-    @NonFinal
-    LocalTime time = LocalTime.now();
+    private StringRenderable text;
+    private int id;
+    private AbstractChatTab[] tab;
+    private LocalTime time = LocalTime.now();
+    private UUID uuid;
 
+    public ChatLogLine(StringRenderable text, int id, AbstractChatTab... tab) {
+        this.tab = tab;
+        this.id = id;
+        this.text = text;
+        this.uuid = UUID.randomUUID();
+    }
+
+    public ChatLogLine(StringRenderable text, int id, LocalTime time, UUID uuid, AbstractChatTab... tab) {
+        this.tab = tab;
+        this.id = id;
+        this.text = text;
+        this.uuid = uuid;
+        this.time = time;
+    }
+
+    public ChatLogLine(StringRenderable text, int id, AbstractChatTab[] tab, LocalTime time) {
+        this.text = text;
+        this.tab = tab;
+        this.id = id;
+        this.time = time;
+        this.uuid = UUID.randomUUID();
+    }
 }

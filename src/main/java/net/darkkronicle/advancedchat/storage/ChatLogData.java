@@ -69,7 +69,7 @@ public class ChatLogData {
         List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, client.textRenderer);
 
         StringRenderable stringRenderable2;
-        for(Iterator var8 = list.iterator(); var8.hasNext(); this.formattedMessages.add(0, new ChatLogLine(stringRenderable2, id, tab, time))) {
+        for(Iterator var8 = list.iterator(); var8.hasNext(); this.formattedMessages.add(0, new ChatLogLine(stringRenderable2, id, tab, time, line.getUuid()))) {
             stringRenderable2 = (StringRenderable)var8.next();
         }
 
