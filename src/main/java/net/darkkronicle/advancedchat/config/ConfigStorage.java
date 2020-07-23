@@ -35,6 +35,8 @@ public class ConfigStorage {
 
     public boolean alternatelines = false;
 
+    public Background background = Background.RANDOM;
+
     public ChatConfig chatConfig = new ChatConfig();
     public static class ChatConfig {
         public int height = 171;
@@ -47,6 +49,8 @@ public class ConfigStorage {
         public ColorUtil.SimpleColor hudBackground = ColorUtil.BLACK.withAlpha(100);
         public ColorUtil.SimpleColor emptyText = ColorUtil.WHITE;
         public boolean showTime = false;
+
+        public int sideChars = 3;
 
     }
 
@@ -62,6 +66,12 @@ public class ConfigStorage {
         VANILLA,
         ALWAYS,
         FOCUSONLY
+    }
+
+    public enum Background {
+        RANDOM,
+        TRANSPARENT,
+        VANILLA
     }
 
 }

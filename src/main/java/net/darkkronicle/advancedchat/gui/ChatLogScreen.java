@@ -95,7 +95,7 @@ public class ChatLogScreen extends Screen {
         searchBox.setMaxLength(256);
         searchBox.setChangedListener(this::onSearchBoxChange);
 
-        searchFull = new CheckboxWidget((client.getWindow().getScaledWidth() / 2) + 60, 70, 20, 20, new LiteralText("Search Full Messages"), true);
+        searchFull = new CheckboxWidget((client.getWindow().getScaledWidth() / 2) + 120, 30, 20, 20, new LiteralText("Search Full Messages"), true);
 
         ButtonWidget findButton = new ButtonWidget((client.getWindow().getScaledWidth() / 2) + 60, 30, 50, 20, new LiteralText(findType.name()), button -> {
             findType = cycleResult(findType);

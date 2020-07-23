@@ -21,9 +21,9 @@ dependencies {
 
     modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modApi "me.shedaniel.cloth:config-2:4.5.6"
+    modApi "me.shedaniel.cloth:config-2:4.6.0"
 
-    include "me.shedaniel.cloth:config-2:4.5.6"
+    include "me.shedaniel.cloth:config-2:4.6.0"
 
     modImplementation "io.github.prospector:modmenu:1.12.2+build.17"
 

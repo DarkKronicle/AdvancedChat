@@ -44,6 +44,7 @@ public class MainFilter extends AbstractFilter {
             Optional<StringRenderable> newtext = filter.filter(text);
             if (newtext.isPresent()) {
                 modifiedtext = newtext.get();
+                text = modifiedtext;
             }
         }
         if (modifiedtext != null) {

@@ -41,6 +41,15 @@ public class ModMenuImpl implements ModMenuApi {
     public static final String[] TEXTURES = {"minecraft:textures/block/cobblestone.png", "minecraft:textures/block/oak_planks.png", "minecraft:textures/block/blue_wool.png",
             "minecraft:textures/block/yellow_wool.png", "minecraft:textures/block/pink_concrete.png", "minecraft:textures/block/blue_concrete.png", "minecraft:textures/block/gray_terracotta.png"};
 
+    public static void setBackground(ConfigBuilder builder) {
+        ConfigStorage.Background background = AdvancedChat.configStorage.background;
+        if (background == ConfigStorage.Background.RANDOM) {
+            Random random = new Random();
+            builder.setDefaultBackgroundTexture(new Identifier(TEXTURES[random.nextInt(TEXTURES.length)]));
+        } else if (background == ConfigStorage.Background.TRANSPARENT) {
+            builder.setTransparentBackground(true);
+        }
+    }
 
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
@@ -58,11 +67,10 @@ public class ModMenuImpl implements ModMenuApi {
     }
 
     public static Screen getScreen(Screen parent) {
-        Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
-                setParentScreen(parent)
-                .setDefaultBackgroundTexture(new Identifier(TEXTURES[random.nextInt(TEXTURES.length)]));
+                setParentScreen(parent);
         builder.setSavingRunnable(ModMenuImpl::save);
+        setBackground(builder);
 
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();
@@ -92,6 +100,13 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.timeColor = ColorUtil.intToColor(newval);
 
         }).setDefaultValue(ColorUtil.WHITE.color()).build());
+
+        general.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.background"), ConfigStorage.Background.values(), AdvancedChat.configStorage.background).setTooltip(
+                new TranslatableText("config.advancedchat.info.background"),
+                new TranslatableText("config.advancedchat.info.background.random"),
+                new TranslatableText("config.advancedchat.info.background.transparent"),
+                new TranslatableText("config.advancedchat.info.background.vanilla")
+        ).setDefaultValue(ConfigStorage.Background.RANDOM).setSaveConsumer(val -> AdvancedChat.configStorage.background = val).build());
 
         // Filters category. Used for configuring general filter options as well as opening the FilterScreen and creating new.
         ConfigCategory filters = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.filters"));
@@ -195,6 +210,8 @@ public class ModMenuImpl implements ModMenuApi {
         chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.height"), AdvancedChat.configStorage.chatConfig.height).setTooltip(new TranslatableText("config.advancedchat.info.height")).setMin(100).setMax(700).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatConfig.height = val;
         }).setDefaultValue(171).build());
+
+        chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.tabchar"), AdvancedChat.configStorage.chatConfig.sideChars, 1, 10).setTooltip(new TranslatableText("config.advancedchat.info.tabchar"), new TranslatableText("config.advancedchat.info.tabchar2")).setSaveConsumer(val -> AdvancedChat.configStorage.chatConfig.sideChars = val).build());
 
         ConfigCategory chatlog = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chatlog"));
 

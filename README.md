@@ -49,6 +49,12 @@ A Minecraft mod designed to give the client more customizability over the vanill
 
 This isn't all the features, so try it out for yourself!
 
+## What do all the branches and versioning mean?
+
+- v2 - *Master branch, all work goes to here.*
+- v2-1.15 - *Back port of the main branch. For features to be added, it gets added to v2 first.*
+- v1 - *First version of AdvancedChat. Old and bad code.*
+
 ## Credits and other
 
 Code & Mastermind: DarkKronicle

@@ -16,7 +16,8 @@ package net.darkkronicle.advancedchat.storage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@AllArgsConstructor
+import java.util.List;
+
 @Data
 public class ChatTab {
     private String name;
@@ -29,8 +30,39 @@ public class ChatTab {
 
     private boolean forward;
 
+    private String abreviation;
+
     public static ChatTab getDefault() {
-        return new ChatTab("Default", "Name", Filter.FindType.LITERAL,  "", true);
+        return new ChatTab("Default", "Name", Filter.FindType.LITERAL,  "", true, "Dft");
     }
 
+    public ChatTab(String name, String findString, Filter.FindType findType, String startingMessage, boolean forward, String abreviation) {
+        this.name = name;
+        this.findString = findString;
+        this.findType = findType;
+        this.startingMessage = startingMessage;
+        this.forward = forward;
+        this.abreviation = abreviation;
+    }
+
+    public static void checkForErrors(List<ChatTab> tabs) {
+        for (ChatTab tab : tabs) {
+            if (tab.name == null) {
+                tab.name = "Default";
+            }
+            if (tab.findString == null) {
+                tab.findString = "Name";
+            }
+            if (tab.findType == null) {
+                tab.findType = Filter.FindType.LITERAL;
+            }
+            if (tab.startingMessage == null) {
+                tab.startingMessage = "";
+            }
+            if (tab.abreviation == null) {
+                tab.abreviation = "Dft";
+            }
+        }
+
+    }
 }

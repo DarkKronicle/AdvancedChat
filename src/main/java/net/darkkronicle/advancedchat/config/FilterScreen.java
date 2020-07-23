@@ -35,11 +35,10 @@ public class FilterScreen {
 
     // Screen for configuring filters.
     public static Screen getScreen(Screen parentScreen) {
-        Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
-                setParentScreen(parentScreen)
-                .setDefaultBackgroundTexture(new Identifier(ModMenuImpl.TEXTURES[random.nextInt(ModMenuImpl.TEXTURES.length)]));
+                setParentScreen(parentScreen);
         builder.setSavingRunnable(ModMenuImpl::save);
+        ModMenuImpl.setBackground(builder);
 
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();

@@ -25,18 +25,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 
-import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class ChatTabScreen {
     public static Screen getScreen(Screen parentScreen) {
-        Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
-                setParentScreen(parentScreen)
-                .setDefaultBackgroundTexture(new Identifier(ModMenuImpl.TEXTURES[random.nextInt(ModMenuImpl.TEXTURES.length)]));
+                setParentScreen(parentScreen);
         builder.setSavingRunnable(ModMenuImpl::save);
+        ModMenuImpl.setBackground(builder);
 
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();
@@ -72,6 +69,8 @@ public class ChatTabScreen {
 
 
             category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.name"), chatTab.getName()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.name")).setSaveConsumer(chatTab::setName).build());
+
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.abreviation"), chatTab.getAbreviation()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.abreviation")).setSaveConsumer(chatTab::setAbreviation).build());
 
             category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.findstring"), chatTab.getFindString()).setTooltip(new TranslatableText("config.advancedchat.info.findstring")).setSaveConsumer(chatTab::setFindString).build());
 

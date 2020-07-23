@@ -36,8 +36,8 @@ public class CustomChatTab extends AbstractChatTab {
     private String startingMessage;
 
 
-    public CustomChatTab(String name, Filter.FindType findType, String findString, boolean forward, String startingMessage) {
-        super(name);
+    public CustomChatTab(String name, String abreviation, Filter.FindType findType, String findString, boolean forward, String startingMessage) {
+        super(name, abreviation);
         this.name = name;
         this.findType = findType;
         this.findString = findString;
