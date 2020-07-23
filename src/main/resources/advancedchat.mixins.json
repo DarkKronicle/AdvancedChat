@@ -8,7 +8,8 @@
     "MixinChatHud",
     "MixinChatScreen",
     "MixinInGameHud",
-    "MixinKeyboard"
+    "MixinKeyboard",
+    "MixinMinecraftClient"
   ],
   "injectors": {
     "defaultRequire": 1

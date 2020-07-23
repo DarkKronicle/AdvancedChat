@@ -13,6 +13,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 package net.darkkronicle.advancedchat.config;
 
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -28,6 +29,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
@@ -93,22 +95,36 @@ public class FilterScreen {
 
             category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.replaceto"), filter.getReplaceTo()).setTooltip(new TranslatableText("config.advancedchat.filter.info.replaceto")).setSaveConsumer(val -> filter.setReplaceTo(val)).build());
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifytype"), Filter.NotifyType.values(), filter.getNotifyType()).setTooltip(
-                    new TranslatableText("config.advancedchat.filter.info.notifytype.none"),
-                    new TranslatableText("config.advancedchat.filter.info.notifytype.sound")
-            ).setSaveConsumer(filter::setNotifyType).build());
+            ArrayList<AbstractConfigListEntry> sounds = new ArrayList<>();
 
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacetextcolor"), filter.isReplaceTextColor()).setTooltip(
+            sounds.add(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifysound"), Filter.NotifySounds.values(), filter.getNotifySound()).setTooltip(
+                    new TranslatableText("config.advancedchat.filter.info.notifysound")
+            ).setSaveConsumer(filter::setNotifySound).build());
+
+            sounds.add(entry.startFloatField(new TranslatableText("config.advancedchat.filter.soundpitch"), filter.getSoundPitch()).setTooltip(new TranslatableText("config.advancedchat.filter.info.soundpitch")).setDefaultValue(1).setSaveConsumer(filter::setSoundPitch).setMin(0.5F).setMax(3).build());
+
+            sounds.add(entry.startFloatField(new TranslatableText("config.advancedchat.filter.soundvolume"), filter.getSoundVol()).setTooltip(new TranslatableText("config.advancedchat.filter.info.soundvolume")).setDefaultValue(1).setMin(0.5F).setMax(5).setSaveConsumer(filter::setSoundVol).build());
+
+
+            category.addEntry(entry.startSubCategory(new TranslatableText("config.advancedchat.subcategory.filter.sound"), sounds).build());
+
+
+            ArrayList<AbstractConfigListEntry> color = new ArrayList<>();
+
+            color.add(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacetextcolor"), filter.isReplaceTextColor()).setTooltip(
                     new TranslatableText("config.advancedchat.filter.info.replacetextcolor")
             ).setSaveConsumer(filter::setReplaceTextColor).build());
 
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacebackground"), filter.isReplaceBackgroundColor()).setTooltip(
+            color.add(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacebackground"), filter.isReplaceBackgroundColor()).setTooltip(
                     new TranslatableText("config.advancedchat.filter.info.replacebackground")
             ).setSaveConsumer(filter::setReplaceBackgroundColor).build());
 
-            category.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.filter.color"), filter.getColor().color()).setSaveConsumer(newval -> {
+            color.add(entry.startAlphaColorField(new TranslatableText("config.advancedchat.filter.color"), filter.getColor().color()).setSaveConsumer(newval -> {
                 filter.setColor(new ColorUtil.SimpleColor(newval));
             }).setTooltip(new TranslatableText("config.advancedchat.filter.info.color")).build());
+
+            category.addEntry(entry.startSubCategory(new TranslatableText("config.advancedchat.subcategory.filter.color"), color).build());
+
 
 
 

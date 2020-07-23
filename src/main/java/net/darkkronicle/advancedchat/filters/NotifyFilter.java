@@ -15,12 +15,10 @@ package net.darkkronicle.advancedchat.filters;
 
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.SearchText;
-import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.StringRenderable;
 
 import java.util.Optional;
@@ -28,19 +26,23 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class NotifyFilter extends AbstractFilter {
 
-    private Filter.NotifyType notifyType;
+    private Filter.NotifySounds notifySound;
+    private float volume;
+    private float pitch;
 
-    public NotifyFilter(String toFind, Filter.FindType findType, Filter.NotifyType notifyType) {
-        this.notifyType = notifyType;
+    public NotifyFilter(String toFind, Filter.FindType findType, Filter.NotifySounds notifySound, float volume, float pitch) {
+        this.notifySound = notifySound;
         super.filterString = toFind;
         super.findType = findType;
+        this.volume = volume;
+        this.pitch = pitch;
     }
 
     @Override
     public Optional<StringRenderable> filter(StringRenderable text) {
-        if (notifyType == Filter.NotifyType.SOUND) {
+        if (notifySound != Filter.NotifySounds.NONE) {
             if (SearchText.isMatch(text.getString(), filterString, findType)) {
-                MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ENTITY_ARROW_HIT_PLAYER, 1));
+                MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(notifySound.getEvent(), pitch, volume));
             }
         }
         return Optional.empty();

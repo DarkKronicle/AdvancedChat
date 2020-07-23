@@ -73,8 +73,8 @@ public class MainFilter extends AbstractFilter {
                    filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
                }
            }
-           if (filter.getNotifyType() != Filter.NotifyType.NONE) {
-               filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifyType()));
+           if (filter.getNotifySound() != Filter.NotifySounds.NONE) {
+               filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifySound(), filter.getSoundVol(), filter.getSoundPitch()));
            }
            if (filter.isReplaceBackgroundColor()) {
                 colorFilters.add(new ColorFilter(filter.getFindString(), filter.getFindType(), filter.getColor()));
