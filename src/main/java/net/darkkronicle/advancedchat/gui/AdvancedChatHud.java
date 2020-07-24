@@ -73,12 +73,15 @@ public class AdvancedChatHud extends DrawableHelper {
 
         // Declare useful variables
         Window window = this.client.getWindow();
-        int windowHeight = window.getScaledHeight();
+        int windowHeight = MathHelper.ceil(window.getScaledHeight() / chatScale);
         int actualWidth = MathHelper.ceil((double) getWidth() / this.getChatScale());
+        int actualHeight = MathHelper.ceil((double) getHeight() / this.getChatScale());
+
         int xoffset = AdvancedChat.configStorage.chatConfig.xOffset;
-        int bottomScreenOffset = AdvancedChat.configStorage.chatConfig.yOffset;
+        int bottomScreenOffset = MathHelper.ceil(AdvancedChat.configStorage.chatConfig.yOffset / chatScale);
         int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
-        int maxSize = getHeight();
+        int maxSize = actualHeight;
+
         int fadestart = 200;
         int fadestop = 240;
 
@@ -218,8 +221,10 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public void clear(boolean clearHistory) {
-        currentTab.visibleMessages.clear();
-        currentTab.messages.clear();
+        for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
+            tab.visibleMessages.clear();
+            tab.messages.clear();
+        }
         if (clearHistory) {
             this.messageHistory.clear();
         }
@@ -320,7 +325,7 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public double getChatScale() {
-        return 1;
+        return AdvancedChat.configStorage.chatConfig.chatscale;
     }
 
     public static int getHeight() {

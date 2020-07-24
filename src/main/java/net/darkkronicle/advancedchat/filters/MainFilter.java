@@ -44,6 +44,7 @@ public class MainFilter extends AbstractFilter {
             Optional<Text> newtext = filter.filter(text);
             if (newtext.isPresent()) {
                 modifiedtext = newtext.get();
+                text = modifiedtext;
             }
         }
         if (modifiedtext != null) {
@@ -68,8 +69,8 @@ public class MainFilter extends AbstractFilter {
            if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
                filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
            }
-           if (filter.getNotifyType() != Filter.NotifyType.NONE) {
-               filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifyType()));
+           if (filter.getNotifySound() != Filter.NotifySounds.NONE) {
+               filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifySound(), filter.getSoundVol(), filter.getSoundPitch()));
            }
            if (filter.isReplaceBackgroundColor()) {
                 colorFilters.add(new ColorFilter(filter.getFindString(), filter.getFindType(), filter.getColor()));

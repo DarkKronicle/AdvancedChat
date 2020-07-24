@@ -43,13 +43,15 @@ public abstract class AbstractChatTab {
     public final List<AdvancedChatLine> messages = new ArrayList<>();
     public final List<AdvancedChatLine> visibleMessages = new ArrayList<>();
     private final String name;
+    private final String abreviation;
     private final AdvancedChatHud hud;
     private final MinecraftClient client;
 
-    public AbstractChatTab(String name) {
+    public AbstractChatTab(String name, String abreviation) {
         hud = AdvancedChat.getAdvancedChatHud();
         client = MinecraftClient.getInstance();
         this.name = name;
+        this.abreviation = abreviation;
     }
 
     /**

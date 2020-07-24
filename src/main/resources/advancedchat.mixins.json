@@ -7,7 +7,10 @@
   "client": [
     "MixinChatHud",
     "MixinChatScreen",
-    "MixinInGameHud"
+    "MixinInGameHud",
+    "MixinKeyboard",
+    "MixinMinecraftClient",
+    "MixinSleepingChatScreen"
   ],
   "injectors": {
     "defaultRequire": 1

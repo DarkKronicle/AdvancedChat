@@ -21,6 +21,7 @@ import net.darkkronicle.advancedchat.util.SearchText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Texts;
 import net.minecraft.client.util.math.MatrixStack;
@@ -33,6 +34,7 @@ import net.minecraft.util.math.MathHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,8 @@ public class ChatLogScreen extends Screen {
     private AbstractChatTab tab = null;
 
     private int scrolledLines = 0;
+
+    private CheckboxWidget searchFull;
 
     private TextFieldWidget searchBox;
     private String searchText;
@@ -92,6 +96,8 @@ public class ChatLogScreen extends Screen {
         searchBox.setMaxLength(256);
         searchBox.setChangedListener(this::onSearchBoxChange);
 
+        searchFull = new CheckboxWidget((client.getWindow().getScaledWidth() / 2) + 120, 30, 20, 20, "Search Full Messages", true);
+
         ButtonWidget findButton = new ButtonWidget((client.getWindow().getScaledWidth() / 2) + 60, 30, 50, 20, findType.name(), button -> {
             findType = cycleResult(findType);
             button.setMessage(findType.name());
@@ -99,6 +105,7 @@ public class ChatLogScreen extends Screen {
 
         addButton(tabButton);
         addButton(searchBox);
+        addButton(searchFull);
         addButton(findButton);
     }
 
@@ -154,7 +161,17 @@ public class ChatLogScreen extends Screen {
         }
         if (!searchText.equals("")) {
             try {
-                filteredLines = filteredLines.stream().filter(filter -> SearchText.isMatch(filter.getText().getString(), searchText, findType)).collect(Collectors.toList());
+                if (searchFull.isChecked()) {
+                    ArrayList<UUID> uuids = new ArrayList<>();
+                    filteredLines.forEach(line -> {
+                        if (SearchText.isMatch(line.getText().getString(), searchText, findType)) {
+                            uuids.add(line.getUuid());
+                        }
+                    });
+                    filteredLines = filteredLines.stream().filter(filter -> uuids.contains(filter.getUuid())).collect(Collectors.toList());
+                } else {
+                    filteredLines = filteredLines.stream().filter(filter -> SearchText.isMatch(filter.getText().getString(), searchText, findType)).collect(Collectors.toList());
+                }
             } catch (PatternSyntaxException e) {
                 this.client.textRenderer.drawWithShadow("Bad search!", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
                 super.render(mouseX, mouseY, delta);

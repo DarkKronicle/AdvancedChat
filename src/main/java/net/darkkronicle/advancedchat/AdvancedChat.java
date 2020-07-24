@@ -46,6 +46,7 @@ public class AdvancedChat implements ClientModInitializer {
     public void onInitializeClient() {
         configManager = new ConfigManager();
         Filter.checkForErrors(configStorage.filters);
+        ChatTab.checkForErrors(configStorage.tabs);
         filter = new MainFilter();
         getAdvancedChatHud();
 

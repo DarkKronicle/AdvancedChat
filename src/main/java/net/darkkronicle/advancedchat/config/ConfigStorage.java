@@ -29,6 +29,9 @@ public class ConfigStorage {
     public String replaceFormat = "&9[%TIME%] &r";
 
     public Visibility visibility = Visibility.VANILLA;
+    public Background background = Background.RANDOM;
+
+    public boolean clearOnDisconnect = true;
 
     public int chatStack = 0;
 
@@ -43,9 +46,13 @@ public class ConfigStorage {
         public int xOffset = 0;
         public int storedLines = 200;
 
+        public float chatscale = 1;
+
         public ColorUtil.SimpleColor hudBackground = ColorUtil.BLACK.withAlpha(100);
         public ColorUtil.SimpleColor emptyText = ColorUtil.WHITE;
         public boolean showTime = false;
+
+        public int sideChars = 3;
 
     }
 
@@ -61,6 +68,12 @@ public class ConfigStorage {
         VANILLA,
         ALWAYS,
         FOCUSONLY
+    }
+
+    public enum Background {
+        RANDOM,
+        TRANSPARENT,
+        VANILLA
     }
 
 }

@@ -15,6 +15,7 @@ package net.darkkronicle.advancedchat.gui;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.ModMenuImpl;
+import net.darkkronicle.advancedchat.gui.elements.CleanButton;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.CustomChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -23,7 +24,7 @@ import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.NarratorManager;
-import net.minecraft.text.Style;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
@@ -61,8 +62,58 @@ public class AdvancedChatScreen extends Screen {
         this.chatField.setHasBorder(false);
         this.chatField.setText(this.originalChatText);
         this.chatField.setChangedListener(this::onChatFieldUpdate);
+
+        AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
+
+        int width = AdvancedChat.configStorage.chatConfig.width + 4;
+        int height = 11;
+        int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
+        int y = client.getWindow().getScaledHeight() - bottomOffset;
+        ColorUtil.SimpleColor baseColor = AdvancedChat.configStorage.chatConfig.hudBackground;
+        CleanButton tabButton = new CleanButton(AdvancedChat.configStorage.chatConfig.xOffset, y, width, height, baseColor, new LiteralText(hud.getCurrentTab().getName()), button -> {
+            hud.cycleTab();
+            button.setText(new LiteralText(hud.getCurrentTab().getName()));
+        });
+
+        CleanButton chatLogButton = new CleanButton(client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Chat Log"), button -> client.openScreen(new ChatLogScreen()));
+        CleanButton settingsButton = new CleanButton(client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Settings"), button -> client.openScreen(ModMenuImpl.getScreen(this)));
+
+        this.addButton(chatLogButton);
+        this.addButton(settingsButton);
+        this.addButton(tabButton);
+
+
         this.children.add(this.chatField);
 
+        int xadd = width + 2;
+        int yadd = client.getWindow().getScaledHeight() - 11 - AdvancedChat.configStorage.chatConfig.yOffset;
+        int orgYadd = yadd;
+        int tabchar = AdvancedChat.configStorage.chatConfig.sideChars;
+        int bwidth = tabchar * 10 + 2;
+        int relativeHeight = 13;
+        for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
+            if (relativeHeight >= AdvancedChat.configStorage.chatConfig.height) {
+                xadd = xadd + bwidth + 2;
+                yadd = orgYadd;
+                relativeHeight = 13;
+            }
+            String abrev;
+            if (tab.getAbreviation().equals("") || tab.getAbreviation() == null) {
+                abrev = tab.getName();
+            } else {
+                abrev = tab.getAbreviation();
+            }
+            if (abrev.length() >= tabchar) {
+                abrev = abrev.substring(0, tabchar);
+            }
+            CleanButton buttonTab = new CleanButton(xadd, yadd, bwidth, 11, baseColor, new LiteralText(abrev), button -> {
+                hud.setCurrentTab(tab);
+                tabButton.setText(new LiteralText(tab.getName()));
+            });
+            yadd = yadd - 13;
+            addButton(buttonTab);
+            relativeHeight = relativeHeight + 13;
+        }
 
         this.commandSuggestor = new CommandSuggestor(this.client, this, this.chatField, this.client.textRenderer, false, false, 1, 10, true, -805306368);
         this.commandSuggestor.refresh();
@@ -161,17 +212,6 @@ public class AdvancedChatScreen extends Screen {
 
                 int height = 11;
                 int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
-                int y = client.getWindow().getScaledHeight() - bottomOffset;
-                int width = AdvancedChat.configStorage.chatConfig.width + 4;
-                if (isOverButton((int) mouseX + AdvancedChat.configStorage.chatConfig.xOffset, (int) mouseY, 0, y, width, height)) {
-                    chatHud.cycleTab();
-                }
-                if (isOverButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 52, client.getWindow().getScaledHeight() - 27, 50, 11)) {
-                    client.openScreen(new ChatLogScreen());
-                }
-                if (isOverButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11)) {
-                    client.openScreen(ModMenuImpl.getScreen(this));
-                }
             }
 
             return this.chatField.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
@@ -218,36 +258,10 @@ public class AdvancedChatScreen extends Screen {
         if (style != null && style.getStyle().getHoverEvent() != null) {
             this.renderComponentHoverEffect(style, mouseX, mouseY);
         }
-        renderChatTab(mouseX, mouseY, hud);
 
         super.render(mouseX, mouseY, delta);
     }
 
-    private void renderChatTab(int mouseX, int mouseY, AdvancedChatHud hud) {
-        int width = AdvancedChat.configStorage.chatConfig.width + 4;
-        int height = 11;
-        int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
-        int y = client.getWindow().getScaledHeight() - bottomOffset;
-        renderButton(mouseX, mouseY, AdvancedChat.configStorage.chatConfig.xOffset, y, width, height, hud.getCurrentTab().getName());
-        renderButton(mouseX, mouseY, client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, "Chat Log");
-        renderButton((int) mouseX, (int) mouseY, client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, "Settings");
-    }
-
-    private void renderButton(int mouseX, int mouseY, int x, int y, int width, int height, String message) {
-        ColorUtil.SimpleColor background = AdvancedChat.configStorage.chatConfig.hudBackground;
-        if (mouseY >= y && mouseY <= y + height && mouseX >= x && mouseX <= x + width) {
-            background = ColorUtil.WHITE.withAlpha(background.alpha());
-        }
-        fill(x, y, x + width, y + height, background.color());
-        drawCenteredString(client.textRenderer, message, (width / 2) + x, y + (height - 9), AdvancedChat.configStorage.chatConfig.emptyText.color());
-    }
-
-    private boolean isOverButton(int mouseX, int mouseY, int x, int y, int width, int height) {
-        if (mouseY >= y && mouseY <= y + height && mouseX >= x && mouseX <= x + width) {
-            return true;
-        }
-        return false;
-    }
 
 
     public boolean isPauseScreen() {

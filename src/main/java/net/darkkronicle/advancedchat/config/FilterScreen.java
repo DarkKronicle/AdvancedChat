@@ -13,33 +13,31 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 package net.darkkronicle.advancedchat.config;
 
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 
-import java.util.Random;
+import java.util.ArrayList;
+
 
 @Environment(EnvType.CLIENT)
 public class FilterScreen {
 
     // Screen for configuring filters.
     public static Screen getScreen(Screen parentScreen) {
-        Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
-                setParentScreen(parentScreen)
-                .setDefaultBackgroundTexture(new Identifier(ModMenuImpl.TEXTURES[random.nextInt(ModMenuImpl.TEXTURES.length)]));
+                setParentScreen(parentScreen);
         builder.setSavingRunnable(ModMenuImpl::save);
+        ModMenuImpl.setBackground(builder);
 
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();
@@ -93,19 +91,30 @@ public class FilterScreen {
 
             category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.filter.replaceto").getString(), filter.getReplaceTo()).setTooltip(new TranslatableText("config.advancedchat.filter.info.replaceto").getString()).setSaveConsumer(val -> filter.setReplaceTo(val)).build());
 
-            category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifytype").getString(), Filter.NotifyType.values(), filter.getNotifyType()).setTooltip(
-                    new TranslatableText("config.advancedchat.filter.info.notifytype.none").getString(),
-                    new TranslatableText("config.advancedchat.filter.info.notifytype.sound").getString()
-            ).setSaveConsumer(filter::setNotifyType).build());
+            ArrayList<AbstractConfigListEntry> sounds = new ArrayList<>();
 
-            category.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacebackground").getString(), filter.isReplaceBackgroundColor()).setTooltip(
+            sounds.add(entry.startSelector(new TranslatableText("config.advancedchat.filter.notifysound").getString(), Filter.NotifySounds.values(), filter.getNotifySound()).setTooltip(
+                    new TranslatableText("config.advancedchat.filter.info.notifysound").getString()
+            ).setSaveConsumer(filter::setNotifySound).build());
+
+            sounds.add(entry.startFloatField(new TranslatableText("config.advancedchat.filter.soundpitch").getString(), filter.getSoundPitch()).setTooltip(new TranslatableText("config.advancedchat.filter.info.soundpitch").getString()).setDefaultValue(1).setSaveConsumer(filter::setSoundPitch).setMin(0.5F).setMax(3).build());
+
+            sounds.add(entry.startFloatField(new TranslatableText("config.advancedchat.filter.soundvolume").getString(), filter.getSoundVol()).setTooltip(new TranslatableText("config.advancedchat.filter.info.soundvolume").getString()).setDefaultValue(1).setMin(0.5F).setMax(5).setSaveConsumer(filter::setSoundVol).build());
+
+
+            category.addEntry(entry.startSubCategory(new TranslatableText("config.advancedchat.subcategory.filter.sound").getString(), sounds).build());
+
+            ArrayList<AbstractConfigListEntry> color = new ArrayList<>();
+
+            color.add(entry.startBooleanToggle(new TranslatableText("config.advancedchat.filter.replacebackground").getString(), filter.isReplaceBackgroundColor()).setTooltip(
                     new TranslatableText("config.advancedchat.filter.info.replacebackground").getString()
             ).setSaveConsumer(filter::setReplaceBackgroundColor).build());
 
-            category.addEntry(entry.startAlphaColorField(new TranslatableText("config.advancedchat.filter.color").getString(), filter.getColor().color()).setSaveConsumer(newval -> {
+            color.add(entry.startAlphaColorField(new TranslatableText("config.advancedchat.filter.color").getString(), filter.getColor().color()).setSaveConsumer(newval -> {
                 filter.setColor(new ColorUtil.SimpleColor(newval));
             }).setTooltip(new TranslatableText("config.advancedchat.filter.info.color").getString()).build());
 
+            category.addEntry(entry.startSubCategory(new TranslatableText("config.advancedchat.subcategory.filter.color").getString(), color).build());
 
 
             category.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.filter.delete").getString(), select, select[0]).setNameProvider((s -> {

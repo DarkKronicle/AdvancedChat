@@ -42,7 +42,7 @@ public class MainChatTab extends AbstractChatTab {
     private ArrayList<CustomChatTab> customChatTabs = new ArrayList<>();
 
     public MainChatTab() {
-        super("Main");
+        super("Main", "Main");
         setUpTabs();
     }
 
@@ -59,6 +59,10 @@ public class MainChatTab extends AbstractChatTab {
         Optional<Text> filtered = AdvancedChat.filter.filter(text1);
         if (filtered.isPresent()) {
             text1 = filtered.get();
+        }
+
+        if (text1.getString().length() <= 0) {
+            return;
         }
 
         ColorUtil.SimpleColor backcolor = null;
@@ -161,7 +165,7 @@ public class MainChatTab extends AbstractChatTab {
         allChatTabs = new ArrayList<>();
         allChatTabs.add(this);
         for (ChatTab tab : AdvancedChat.configStorage.tabs) {
-            CustomChatTab customTab = new CustomChatTab(tab.getName(), tab.getFindType(), tab.getFindString(), tab.isForward(), tab.getStartingMessage());
+            CustomChatTab customTab = new CustomChatTab(tab.getName(), tab.getAbreviation(), tab.getFindType(), tab.getFindString(), tab.isForward(), tab.getStartingMessage());
             customChatTabs.add(customTab);
             allChatTabs.add(customTab);
         }

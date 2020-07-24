@@ -15,6 +15,7 @@ package net.darkkronicle.advancedchat.config;
 
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -31,6 +32,7 @@ import net.minecraft.util.Identifier;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
@@ -41,6 +43,15 @@ public class ModMenuImpl implements ModMenuApi {
     public static final String[] TEXTURES = {"minecraft:textures/block/cobblestone.png", "minecraft:textures/block/oak_planks.png", "minecraft:textures/block/blue_wool.png",
             "minecraft:textures/block/yellow_wool.png", "minecraft:textures/block/pink_concrete.png", "minecraft:textures/block/blue_concrete.png", "minecraft:textures/block/gray_terracotta.png"};
 
+    public static void setBackground(ConfigBuilder builder) {
+        ConfigStorage.Background background = AdvancedChat.configStorage.background;
+        if (background == ConfigStorage.Background.RANDOM) {
+            Random random = new Random();
+            builder.setDefaultBackgroundTexture(new Identifier(TEXTURES[random.nextInt(TEXTURES.length)]));
+        } else if (background == ConfigStorage.Background.TRANSPARENT) {
+            builder.setTransparentBackground(true);
+        }
+    }
 
     @Override
     public String getModId() {
@@ -63,11 +74,10 @@ public class ModMenuImpl implements ModMenuApi {
     }
 
     public static Screen getScreen(Screen parent) {
-        Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
-                setParentScreen(parent)
-                .setDefaultBackgroundTexture(new Identifier(TEXTURES[random.nextInt(TEXTURES.length)]));
+                setParentScreen(parent);
         builder.setSavingRunnable(ModMenuImpl::save);
+        ModMenuImpl.setBackground(builder);
 
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();
@@ -176,25 +186,47 @@ public class ModMenuImpl implements ModMenuApi {
 
         }).setDefaultValue(ColorUtil.WHITE.color()).build());
 
+        general.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.background").getString(), ConfigStorage.Background.values(), AdvancedChat.configStorage.background).setTooltip(
+                new TranslatableText("config.advancedchat.info.background").getString(),
+                new TranslatableText("config.advancedchat.info.background.random").getString(),
+                new TranslatableText("config.advancedchat.info.background.transparent").getString(),
+                new TranslatableText("config.advancedchat.info.background.vanilla").getString()
+        ).setDefaultValue(ConfigStorage.Background.RANDOM).setSaveConsumer(val -> AdvancedChat.configStorage.background = val).build());
+
+        general.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.clearondisconnect").getString(), AdvancedChat.configStorage.clearOnDisconnect).setTooltip(new TranslatableText("config.advancedchat.info.clearondisconnect").getString(), new TranslatableText("config.advancedchat.info.clearondisconnect2").getString()).setSaveConsumer(val -> AdvancedChat.configStorage.clearOnDisconnect = val).setDefaultValue(true).build());
+
+
         chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.chatstack").getString(), AdvancedChat.configStorage.chatStack).setTooltip(new TranslatableText("config.advancedchat.info.chatstack").getString()).setDefaultValue(0).setMin(0).setMax(20).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatStack = val;
         }).build());
 
-        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.xoffset").getString(), AdvancedChat.configStorage.chatConfig.xOffset).setTooltip(new TranslatableText("config.advancedchat.info.xoffset").getString()).setMin(0).setMax(500).setSaveConsumer(val -> {
+
+        ArrayList<AbstractConfigListEntry> positioning = new ArrayList<>();
+
+        positioning.add(entry.startIntField(new TranslatableText("config.advancedchat.xoffset").getString(), AdvancedChat.configStorage.chatConfig.xOffset).setTooltip(new TranslatableText("config.advancedchat.info.xoffset").getString()).setMin(0).setMax(500).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatConfig.xOffset = val;
         }).setDefaultValue(0).build());
 
-        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.yoffset").getString(), AdvancedChat.configStorage.chatConfig.yOffset).setTooltip(new TranslatableText("config.advancedchat.info.yoffset").getString()).setMin(10).setMax(1000).setSaveConsumer(val -> {
+        positioning.add(entry.startIntField(new TranslatableText("config.advancedchat.yoffset").getString(), AdvancedChat.configStorage.chatConfig.yOffset).setTooltip(new TranslatableText("config.advancedchat.info.yoffset").getString()).setMin(10).setMax(1000).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatConfig.yOffset = val;
         }).setDefaultValue(30).build());
 
-        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.width").getString(), AdvancedChat.configStorage.chatConfig.width).setTooltip(new TranslatableText("config.advancedchat.info.width").getString()).setMin(100).setMax(1000).setSaveConsumer(val -> {
+        positioning.add(entry.startIntField(new TranslatableText("config.advancedchat.width").getString(), AdvancedChat.configStorage.chatConfig.width).setTooltip(new TranslatableText("config.advancedchat.info.width").getString()).setMin(100).setMax(1000).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatConfig.width = val;
         }).setDefaultValue(280).build());
 
-        chathud.addEntry(entry.startIntField(new TranslatableText("config.advancedchat.height").getString(), AdvancedChat.configStorage.chatConfig.height).setTooltip(new TranslatableText("config.advancedchat.info.height").getString()).setMin(100).setMax(700).setSaveConsumer(val -> {
+        positioning.add(entry.startIntField(new TranslatableText("config.advancedchat.height").getString(), AdvancedChat.configStorage.chatConfig.height).setTooltip(new TranslatableText("config.advancedchat.info.height").getString()).setMin(100).setMax(700).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatConfig.height = val;
         }).setDefaultValue(171).build());
+
+        chathud.addEntry(entry.startSubCategory(new TranslatableText("config.advancedchat.subcategory.positioning").getString(), positioning).build());
+
+
+
+        chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.tabchar").getString(), AdvancedChat.configStorage.chatConfig.sideChars, 1, 10).setTooltip(new TranslatableText("config.advancedchat.info.tabchar").getString(), new TranslatableText("config.advancedchat.info.tabchar2").getString()).setSaveConsumer(val -> AdvancedChat.configStorage.chatConfig.sideChars = val).build());
+
+        chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.chatscale").getString(), (int) (AdvancedChat.configStorage.chatConfig.chatscale * (float) 100), 20, 100).setTooltip(new TranslatableText("config.advancedchat.info.chatscale").getString()).setSaveConsumer(val -> AdvancedChat.configStorage.chatConfig.chatscale = (float) val / 100).build());
+
 
         ConfigCategory chatlog = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chatlog").getString());
 

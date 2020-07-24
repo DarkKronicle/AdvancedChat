@@ -32,11 +32,10 @@ import java.util.Random;
 @Environment(EnvType.CLIENT)
 public class ChatTabScreen {
     public static Screen getScreen(Screen parentScreen) {
-        Random random = new Random();
         ConfigBuilder builder = ConfigBuilder.create().
-                setParentScreen(parentScreen)
-                .setDefaultBackgroundTexture(new Identifier(ModMenuImpl.TEXTURES[random.nextInt(ModMenuImpl.TEXTURES.length)]));
+                setParentScreen(parentScreen);
         builder.setSavingRunnable(ModMenuImpl::save);
+        ModMenuImpl.setBackground(builder);
 
         builder.alwaysShowTabs();
         ConfigEntryBuilder entry = builder.entryBuilder();
@@ -71,6 +70,9 @@ public class ChatTabScreen {
 
 
             category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.name").getString(), chatTab.getName()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.name").getString()).setSaveConsumer(chatTab::setName).build());
+
+            category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.chattab.abreviation").getString(), chatTab.getAbreviation()).setTooltip(new TranslatableText("config.advancedchat.chattab.info.abreviation").getString()).setSaveConsumer(chatTab::setAbreviation).build());
+
 
             category.addEntry(entry.startStrField(new TranslatableText("config.advancedchat.findstring").getString(), chatTab.getFindString()).setTooltip(new TranslatableText("config.advancedchat.info.findstring").getString()).setSaveConsumer(chatTab::setFindString).build());
 
