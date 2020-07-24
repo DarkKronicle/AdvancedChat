@@ -61,6 +61,9 @@ public class MainChatTab extends AbstractChatTab {
             stringRenderable = filtered.get();
         }
 
+        if (stringRenderable.getString().length() <= 0) {
+            return;
+        }
         ColorUtil.SimpleColor backcolor = null;
         for (ColorFilter colorFilter : AdvancedChat.filter.getColorFilters()) {
             backcolor = colorFilter.getBackgroundColor(stringRenderable);

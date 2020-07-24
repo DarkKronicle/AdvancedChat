@@ -3,6 +3,7 @@
   "package": "net.darkkronicle.advancedchat.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "MixinSleepingChatScreen"
   ],
   "client": [
     "MixinChatHud",
