@@ -23,7 +23,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 import java.time.LocalTime;
@@ -56,10 +57,11 @@ public abstract class AbstractChatTab {
 
     /**
      * If the inputted message should be put into the chat tab.
-     * @param stringRenderable Object to search.
+     *
+     * @param Text Object to search.
      * @return True if it should be added.
      */
-    public abstract boolean shouldAdd(StringRenderable stringRenderable);
+    public abstract boolean shouldAdd(Text Text);
 
     /**
      * Method to reformat the messages if Chat size changes or something.
@@ -67,7 +69,7 @@ public abstract class AbstractChatTab {
     public void reset() {
         this.visibleMessages.clear();
 
-        for(int i = this.messages.size() - 1; i >= 0; --i) {
+        for (int i = this.messages.size() - 1; i >= 0; --i) {
             AdvancedChatLine chatHudLine = this.messages.get(i);
             this.addMessage(chatHudLine.getText(), chatHudLine.getId(), chatHudLine.getCreationTick(), true);
         }
@@ -76,17 +78,18 @@ public abstract class AbstractChatTab {
 
     /**
      * Used for adding messages into the tab.
-     * @param stringRenderable StringRenderable to add.
+     *
+     * @param Text      Text to add.
      * @param messageId ID of message.
      * @param timestamp Amount of ticks when it was created.
-     * @param bl Add to messages
+     * @param bl        Add to messages
      */
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl) {
-        addMessage(stringRenderable, messageId, timestamp, bl, LocalTime.now());
+    public void addMessage(Text Text, int messageId, int timestamp, boolean bl) {
+        addMessage(Text, messageId, timestamp, bl, LocalTime.now());
     }
 
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl, LocalTime time) {
-        if (!shouldAdd(stringRenderable)) {
+    public void addMessage(Text Text, int messageId, int timestamp, boolean bl, LocalTime time) {
+        if (!shouldAdd(Text)) {
             return;
         }
 
@@ -94,12 +97,11 @@ public abstract class AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-        StringRenderable logged = stringRenderable;
-        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
+        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, Text, messageId, time);
 
         for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
             AdvancedChatLine chatLine = messages.get(i);
-            if (stringRenderable.getString().equals(chatLine.getText().getString())) {
+            if (Text.getString().equals(chatLine.getText().getString())) {
                 for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
                     AdvancedChatLine visibleLine = visibleMessages.get(j);
                     if (visibleLine.getUuid().equals(chatLine.getUuid())) {
@@ -114,31 +116,31 @@ public abstract class AbstractChatTab {
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
-            SplitText text = new SplitText(stringRenderable);
+            SplitText text = new SplitText(Text);
             text.addTime(format, time);
-            stringRenderable = text.getStringRenderable();
         }
-        int width = MathHelper.floor((double)hud.getWidth() / hud.getChatScale());
-        List<StringRenderable> list = ChatMessages.breakRenderedChatMessageLines(stringRenderable, width, this.client.textRenderer);
+        int width = MathHelper.floor((double) hud.getWidth() / hud.getChatScale());
+        List<OrderedText> list = ChatMessages.breakRenderedChatMessageLines(Text, width, this.client.textRenderer);
 
-        StringRenderable stringRenderable2;
-        for (StringRenderable renderable : list) {
-            // TODO Make chat stacking based on full message, not just line.
-            stringRenderable2 = renderable;
+        // OrderedText stringRenderable2;
+        // for (OrderedText renderable : list) {
+        //     // TODO Make chat stacking based on full message, not just line.
+        //     stringRenderable2 = renderable;
+        //
+        // }
 
-            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, stringRenderable2, messageId, time, logLine.getUuid()));
-            hud.messageAddedToTab(this);
-        }
+        this.visibleMessages.add(0, new AdvancedChatLine(timestamp, Text, messageId, time, logLine.getUuid()));
+        hud.messageAddedToTab(this);
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
-        while(this.visibleMessages.size() > visibleMessagesMaxSize) {
+        while (this.visibleMessages.size() > visibleMessagesMaxSize) {
             this.visibleMessages.remove(this.visibleMessages.size() - 1);
         }
 
         if (!bl) {
             this.messages.add(0, logLine);
 
-            while(this.messages.size() > visibleMessagesMaxSize) {
+            while (this.messages.size() > visibleMessagesMaxSize) {
                 this.messages.remove(this.messages.size() - 1);
             }
         }
@@ -148,8 +150,8 @@ public abstract class AbstractChatTab {
         Iterator iterator = this.visibleMessages.iterator();
 
         ChatHudLine chatHudLine2;
-        while(iterator.hasNext()) {
-            chatHudLine2 = (ChatHudLine)iterator.next();
+        while (iterator.hasNext()) {
+            chatHudLine2 = (ChatHudLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
             }
@@ -157,8 +159,8 @@ public abstract class AbstractChatTab {
 
         iterator = this.messages.iterator();
 
-        while(iterator.hasNext()) {
-            chatHudLine2 = (ChatHudLine)iterator.next();
+        while (iterator.hasNext()) {
+            chatHudLine2 = (ChatHudLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
                 break;

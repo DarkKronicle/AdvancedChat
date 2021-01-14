@@ -19,7 +19,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.util.Optional;
 
@@ -39,7 +39,7 @@ public class NotifyFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<StringRenderable> filter(StringRenderable text) {
+    public Optional<Text> filter(Text text) {
         if (notifySound != Filter.NotifySounds.NONE) {
             if (SearchText.isMatch(text.getString(), filterString, findType)) {
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(notifySound.getEvent(), pitch, volume));

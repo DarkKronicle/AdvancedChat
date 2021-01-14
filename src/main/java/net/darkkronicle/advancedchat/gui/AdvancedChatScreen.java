@@ -51,7 +51,7 @@ public class AdvancedChatScreen extends Screen {
     }
 
     protected void init() {
-        this.client.keyboard.enableRepeatEvents(true);
+        this.client.keyboard.setRepeatEvents(true);
         this.messageHistorySize = this.client.inGameHud.getChatHud().getMessageHistory().size();
         this.chatField = new TextFieldWidget(this.textRenderer, 4, this.height - 12, this.width - 4, 12, new TranslatableText("chat.editBox")) {
             protected MutableText getNarrationMessage() {
@@ -128,7 +128,7 @@ public class AdvancedChatScreen extends Screen {
     }
 
     public void removed() {
-        this.client.keyboard.enableRepeatEvents(false);
+        this.client.keyboard.setRepeatEvents(false);
         AdvancedChat.getAdvancedChatHud().resetScroll();
     }
 

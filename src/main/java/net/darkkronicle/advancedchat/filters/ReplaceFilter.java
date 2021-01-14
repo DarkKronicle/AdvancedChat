@@ -20,7 +20,7 @@ import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
 
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Filter used for replacing matches in a StringRenderable
+ * Filter used for replacing matches in a Text
  */
 @Environment(EnvType.CLIENT)
 public class ReplaceFilter extends AbstractFilter {
@@ -46,7 +46,7 @@ public class ReplaceFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<StringRenderable> filter(StringRenderable text) {
+    public Optional<Text> filter(Text text) {
         // Grabs SplitText for easy mutability.
         SplitText splitText = new SplitText(text);
         if (type == Filter.ReplaceType.ONLYMATCH) {
@@ -56,7 +56,7 @@ public class ReplaceFilter extends AbstractFilter {
             }
             List<SearchText.StringMatch> matches = omatches.get();
             splitText.replaceStrings(matches, replaceTo, color);
-            return Optional.of(splitText.getStringRenderable());
+            return Optional.of(splitText.getText());
 
         } else if (type == Filter.ReplaceType.FULLMESSAGE) {
             if (SearchText.isMatch(splitText.getFullMessage(), super.filterString, findType)) {
@@ -67,7 +67,7 @@ public class ReplaceFilter extends AbstractFilter {
                     original = original.withColor(textColor);
                     toReplace = toReplace.withStyle(original);
                 }
-                return Optional.of(SplitText.getStringRenderableFromText(toReplace));
+                return Optional.of(SplitText.getTextFromText(toReplace));
 
             }
         }

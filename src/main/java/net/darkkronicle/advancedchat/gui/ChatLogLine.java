@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -29,20 +29,20 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class ChatLogLine {
-    private StringRenderable text;
+    private Text text;
     private int id;
     private AbstractChatTab[] tab;
     private LocalTime time = LocalTime.now();
     private UUID uuid;
 
-    public ChatLogLine(StringRenderable text, int id, AbstractChatTab... tab) {
+    public ChatLogLine(Text text, int id, AbstractChatTab... tab) {
         this.tab = tab;
         this.id = id;
         this.text = text;
         this.uuid = UUID.randomUUID();
     }
 
-    public ChatLogLine(StringRenderable text, int id, LocalTime time, UUID uuid, AbstractChatTab... tab) {
+    public ChatLogLine(Text text, int id, LocalTime time, UUID uuid, AbstractChatTab... tab) {
         this.tab = tab;
         this.id = id;
         this.text = text;
@@ -50,7 +50,7 @@ public class ChatLogLine {
         this.time = time;
     }
 
-    public ChatLogLine(StringRenderable text, int id, AbstractChatTab[] tab, LocalTime time) {
+    public ChatLogLine(Text text, int id, AbstractChatTab[] tab, LocalTime time) {
         this.text = text;
         this.tab = tab;
         this.id = id;

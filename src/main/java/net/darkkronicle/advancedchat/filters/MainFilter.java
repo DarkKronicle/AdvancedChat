@@ -18,7 +18,7 @@ import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -37,11 +37,12 @@ public class MainFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<StringRenderable> filter(StringRenderable text) {
+    public Optional<Text> filter(Text text) {
         // Filters through all filters.
-        StringRenderable modifiedtext = null;
+
+        Text modifiedtext = null;
         for (AbstractFilter filter : filters) {
-            Optional<StringRenderable> newtext = filter.filter(text);
+            Optional<Text> newtext = filter.filter(text);
             if (newtext.isPresent()) {
                 modifiedtext = newtext.get();
                 text = modifiedtext;

@@ -244,7 +244,7 @@ public class ChatLogScreen extends Screen {
                     int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
                     if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getFormattedMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
                         ChatLogLine chatHudLine = AdvancedChat.getChatLogData().getFormattedMessages().get(lineNum);
-                        return this.client.textRenderer.getTextHandler().trimToWidth(chatHudLine.getText(), (int)trueX - 20);
+                        return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX - 20);
                     }
                 }
             }

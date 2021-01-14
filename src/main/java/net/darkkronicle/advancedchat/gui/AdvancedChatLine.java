@@ -17,7 +17,8 @@ import lombok.Data;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
+import net.minecraft.text.Text;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -26,22 +27,22 @@ import java.util.UUID;
 @Data
 public class AdvancedChatLine {
     private int creationTick;
-    private StringRenderable text;
+    private Text text;
     private int id;
     private LocalTime time;
     private ColorUtil.SimpleColor background;
     private int stacks;
     private UUID uuid;
 
-    public AdvancedChatLine(int creationTick, StringRenderable text, int id, LocalTime localTime) {
+    public AdvancedChatLine(int creationTick, Text text, int id, LocalTime localTime) {
         this(creationTick, text, id, localTime, null, 0);
     }
 
-    public AdvancedChatLine(int creationTick, StringRenderable text, int id, LocalTime localTime, ColorUtil.SimpleColor background, int stacks) {
+    public AdvancedChatLine(int creationTick, Text text, int id, LocalTime localTime, ColorUtil.SimpleColor background, int stacks) {
         this(creationTick, text, id, localTime, background, stacks, UUID.randomUUID());
     }
 
-    public AdvancedChatLine(int creationTick, StringRenderable text, int id, LocalTime time, ColorUtil.SimpleColor background, int stacks, UUID uuid) {
+    public AdvancedChatLine(int creationTick, Text text, int id, LocalTime time, ColorUtil.SimpleColor background, int stacks, UUID uuid) {
         this.creationTick = creationTick;
         this.text = text;
         this.id = id;
@@ -51,7 +52,7 @@ public class AdvancedChatLine {
         this.uuid = uuid;
     }
 
-    public AdvancedChatLine(int creationTick, StringRenderable text, int id, LocalTime time, UUID uuid) {
+    public AdvancedChatLine(int creationTick, Text text, int id, LocalTime time, UUID uuid) {
         this(creationTick, text, id, time, null, 0, uuid);
     }
 }
