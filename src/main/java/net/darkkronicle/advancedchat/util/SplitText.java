@@ -75,12 +75,9 @@ public class SplitText {
      */
     public Text getText() {
         LiteralText t = new LiteralText("");
-
-        // FIXME: Text foreground not working!
         for (SimpleText text : getSiblings()) {
             t.append(new LiteralText(text.getMessage()).setStyle(text.getStyle()));
         }
-
         return t;
     }
 
