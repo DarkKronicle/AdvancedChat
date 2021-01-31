@@ -14,18 +14,23 @@ group = project.maven_group
 minecraft {
 }
 
+repositories {
+    jcenter()
+}
+
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+    minecraft "com.mojang:minecraft:1.16.3"
+    mappings "net.fabricmc:yarn:1.16.3+build.47:v2"
+    modImplementation "net.fabricmc:fabric-loader:0.11.0"
 
-    modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    //Fabric api
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.29.3+1.16"
 
-    modApi "me.shedaniel.cloth:config-2:4.6.0"
+    modApi("me.shedaniel.cloth:config-2:4.8.3") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
-    include "me.shedaniel.cloth:config-2:4.6.0"
-
-    modImplementation "io.github.prospector:modmenu:1.12.2+build.17"
+    modImplementation "io.github.prospector:modmenu:1.15.0+build.1"
 
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
 

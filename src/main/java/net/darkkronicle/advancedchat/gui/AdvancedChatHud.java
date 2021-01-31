@@ -29,7 +29,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.options.ChatVisibility;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -153,15 +153,16 @@ public class AdvancedChatHud extends DrawableHelper {
                             fadebackground = backgroundColor;
                         }
                         fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                        StringRenderable newString = line.getText();
+                        Text newString = (Text)line.getText();
                         if (line.getStacks() > 0) {
                             SplitText toPrint = new SplitText(line.getText());
                             Style style = Style.EMPTY;
                             TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
                             style = style.withColor(color);
                             toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
-                            newString = toPrint.getStringRenderable();
+                            newString = (Text)toPrint.getText();
                         }
+
                         drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
                         finalheight = height;
                     } else {
@@ -177,14 +178,14 @@ public class AdvancedChatHud extends DrawableHelper {
 
                             ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, timeAlive, fadestart, fadestop);
                             fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                            StringRenderable newString = line.getText();
+                            Text newString = line.getText();
                             if (line.getStacks() > 0) {
                                 SplitText toPrint = new SplitText(line.getText());
                                 Style style = Style.EMPTY;
                                 TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
                                 style = style.withColor(color);
                                 toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
-                                newString = toPrint.getStringRenderable();
+                                newString = toPrint.getText();
                             }
                             drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
                         }
@@ -241,8 +242,8 @@ public class AdvancedChatHud extends DrawableHelper {
         LOGGER.info("[CHAT] {}", message.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
     }
 
-    public void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl) {
-        AdvancedChat.chatTab.addMessage(stringRenderable, messageId, timestamp, bl);
+    public void addMessage(Text Text, int messageId, int timestamp, boolean bl) {
+        AdvancedChat.chatTab.addMessage(Text, messageId, timestamp, bl);
 
     }
 
@@ -312,7 +313,7 @@ public class AdvancedChatHud extends DrawableHelper {
                         int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
                         if (lineNum >= 0 && lineNum < currentTab.visibleMessages.size() && lineNum <= getVisibleLineCount() + scrolledLines) {
                             AdvancedChatLine chatHudLine = currentTab.visibleMessages.get(lineNum);
-                            return this.client.textRenderer.getTextHandler().trimToWidth(chatHudLine.getText(), (int)trueX);
+                            return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX);
                         }
                     }
                 }

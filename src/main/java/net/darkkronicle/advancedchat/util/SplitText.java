@@ -17,11 +17,7 @@ import net.darkkronicle.advancedchat.AdvancedChat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.TextCollector;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.StringRenderable;
-import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 
 import java.time.LocalTime;
@@ -31,8 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A helper class that can take a StringRenderable, break it up, and put it back together.
- * This breaks up the StringRenderable into different {@link SimpleText}.
+ * A helper class that can take a Text, break it up, and put it back together.
+ * This breaks up the Text into different {@link SimpleText}.
  * This allows for easy editing of text and can modify it in {@link net.darkkronicle.advancedchat.filters.ReplaceFilter}
  */
 @Environment(EnvType.CLIENT)
@@ -41,12 +37,12 @@ public class SplitText {
     private ArrayList<SimpleText> siblings = new ArrayList<>();
 
     /**
-     * Takes a stringRenderable and splits it into a list of {@link SimpleText}.
+     * Takes a Text and splits it into a list of {@link SimpleText}.
      *
-     * @param stringRenderable StringRenderable to split into different {@link SimpleText}
+     * @param Text Text to split into different {@link SimpleText}
      */
-    public SplitText(StringRenderable stringRenderable) {
-        stringRenderable.visit((style, string) -> {
+    public SplitText(Text Text) {
+        Text.visit((style, string) -> {
             siblings.add(new SimpleText(string, style));
             return Optional.empty();
         }, Style.EMPTY);
@@ -71,18 +67,18 @@ public class SplitText {
     }
 
     /**
-     * Links stored SimpleText into a StringRenderable that is then returned.
+     * Links stored SimpleText into a Text that is then returned.
      * After mutating text in here it can be brought back to a minecraft friendly
      * object.
      *
-     * @return StringRenderable that is composed of all the {@link SimpleText}
+     * @return Text that is composed of all the {@link SimpleText}
      */
-    public StringRenderable getStringRenderable() {
-        TextCollector textCollector = new TextCollector();
+    public Text getText() {
+        LiteralText t = new LiteralText("");
         for (SimpleText text : getSiblings()) {
-            textCollector.add(StringRenderable.styled(text.getMessage(), text.getStyle()));
+            t.append(new LiteralText(text.getMessage()).setStyle(text.getStyle()));
         }
-        return textCollector.getCombined();
+        return t;
     }
 
     /**
@@ -209,10 +205,10 @@ public class SplitText {
         return siblings;
     }
 
-    public static StringRenderable getStringRenderableFromText(SimpleText text) {
+    public static Text getTextFromText(SimpleText text) {
         TextCollector textCollector = new TextCollector();
-        textCollector.add(StringRenderable.styled(text.getMessage(), text.getStyle()));
-        return textCollector.getCombined();
+        textCollector.add(StringVisitable.styled(text.getMessage(), text.getStyle()));
+        return (Text) textCollector.getCombined();
     }
 
     public void addTime(DateTimeFormatter format, LocalTime time) {

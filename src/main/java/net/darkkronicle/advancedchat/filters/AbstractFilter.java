@@ -16,7 +16,7 @@ package net.darkkronicle.advancedchat.filters;
 import lombok.Getter;
 import lombok.Setter;
 import net.darkkronicle.advancedchat.storage.Filter;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
 
 import java.util.Optional;
 
@@ -55,9 +55,9 @@ public abstract class AbstractFilter {
      * Called whenever text needed to be filtered comes through. It gets returned
      * in an {@link Optional}. If the optional is empty then it will use the original filtered text.
      * If the optional contains something it will override the old text.
-     * @param text StringRenderable to be filtered.
+     * @param text Text to be filtered.
      * @return An {@link Optional} that if not empty will override the filtered text.
      */
-    public abstract Optional<StringRenderable> filter(StringRenderable text);
+    public abstract Optional<Text> filter(Text text);
 
 }

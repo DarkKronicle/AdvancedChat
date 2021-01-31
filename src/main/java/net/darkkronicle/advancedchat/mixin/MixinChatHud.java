@@ -18,7 +18,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.Text;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,9 +35,9 @@ public class MixinChatHud {
         ci.cancel();
     }
 
-    @Inject(method = "addMessage(Lnet/minecraft/text/StringRenderable;IIZ)V", at = @At("HEAD"), cancellable = true)
-    private void addMessage(StringRenderable stringRenderable, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
-        AdvancedChat.getAdvancedChatHud().addMessage(stringRenderable, messageId, timestamp, bl);
+    @Inject(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At("HEAD"), cancellable = true)
+    private void addMessage(Text Text, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
+        AdvancedChat.getAdvancedChatHud().addMessage(Text, messageId, timestamp, bl);
         ci.cancel();
     }
 
