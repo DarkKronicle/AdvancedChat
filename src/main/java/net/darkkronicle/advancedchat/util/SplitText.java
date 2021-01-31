@@ -74,11 +74,14 @@ public class SplitText {
      * @return Text that is composed of all the {@link SimpleText}
      */
     public Text getText() {
-        TextCollector textCollector = new TextCollector();
+        LiteralText t = new LiteralText("");
+
+        // FIXME: Text foreground not working!
         for (SimpleText text : getSiblings()) {
-            textCollector.add(StringVisitable.styled(text.getMessage(), text.getStyle()));
+            t.append(new LiteralText(text.getMessage()).setStyle(text.getStyle()));
         }
-        return (Text) textCollector.getCombined();
+
+        return t;
     }
 
     /**
