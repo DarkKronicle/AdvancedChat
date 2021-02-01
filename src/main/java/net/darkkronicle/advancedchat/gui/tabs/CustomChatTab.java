@@ -47,8 +47,8 @@ public class CustomChatTab extends AbstractChatTab {
 
 
     @Override
-    public boolean shouldAdd(Text Text) {
-        SplitText text = new SplitText(Text);
-        return SearchText.isMatch(text.getFullMessage(), findString, findType);
+    public boolean shouldAdd(Text text) {
+        SplitText newText = new SplitText(text);
+        return SearchText.isMatch(newText.getFullMessage(), findString, findType);
     }
 }
