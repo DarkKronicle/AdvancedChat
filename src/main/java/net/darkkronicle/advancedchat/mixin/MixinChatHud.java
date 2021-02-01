@@ -36,8 +36,8 @@ public class MixinChatHud {
     }
 
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At("HEAD"), cancellable = true)
-    private void addMessage(Text Text, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
-        AdvancedChat.getAdvancedChatHud().addMessage(Text, messageId, timestamp, bl);
+    private void addMessage(Text text, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
+        AdvancedChat.getAdvancedChatHud().addMessage(text, messageId, timestamp, bl);
         ci.cancel();
     }
 

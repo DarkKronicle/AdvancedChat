@@ -23,9 +23,7 @@ import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Language;
+import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
 
 import java.time.LocalTime;
@@ -33,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Main chat tab that manages other chat tabs.
@@ -49,34 +48,34 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     @Override
-    public boolean shouldAdd(Text Text) {
+    public boolean shouldAdd(Text text) {
         return true;
     }
 
     @Override
-    public void addMessage(Text Text, int messageId, int timestamp, boolean bl, LocalTime time) {
+    public void addMessage(Text text, int messageId, int timestamp, boolean bl, LocalTime time) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
-        Text unfiltered = Text;
-        Optional<Text> filtered = AdvancedChat.filter.filter(Text);
+        Text unfiltered = text;
+        Optional<Text> filtered = AdvancedChat.filter.filter(text);
         if (filtered.isPresent()) {
-            Text = filtered.get();
+            text = filtered.get();
         }
 
-        if (Text.getString().length() <= 0) {
+        if (text.getString().length() <= 0) {
             return;
         }
         ColorUtil.SimpleColor backcolor = null;
         for (ColorFilter colorFilter : AdvancedChat.filter.getColorFilters()) {
-            backcolor = colorFilter.getBackgroundColor(Text);
+            backcolor = colorFilter.getBackgroundColor(text);
         }
         // Goes through chat tabs
         boolean dontforward = false;
         ArrayList<AbstractChatTab> added = new ArrayList<>();
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
-                if (tab.shouldAdd(Text)) {
-                    tab.addMessage(Text, messageId, timestamp, bl);
+                if (tab.shouldAdd(text)) {
+                    tab.addMessage(text, messageId, timestamp, bl);
                     added.add(tab);
                     if (!tab.isForward()) {
                         dontforward = true;
@@ -92,7 +91,7 @@ public class MainChatTab extends AbstractChatTab {
         if (dontforward) {
             return;
         }
-        if (!shouldAdd(Text)) {
+        if (!shouldAdd(text)) {
             return;
         }
 
@@ -101,12 +100,12 @@ public class MainChatTab extends AbstractChatTab {
         }
 
 
-        Text logged = Text;
+        Text logged = text;
         AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
 
         for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
             AdvancedChatLine chatLine = messages.get(i);
-            if (Text.getString().equals(chatLine.getText().getString())) {
+            if (text.getString().equals(chatLine.getText().getString())) {
                 for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
                     AdvancedChatLine visibleLine = visibleMessages.get(j);
                     if (visibleLine.getUuid().equals(chatLine.getUuid())) {
@@ -120,19 +119,50 @@ public class MainChatTab extends AbstractChatTab {
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
-            SplitText text = new SplitText(Text);
-            text.addTime(format, time);
-            Text = text.getText();
+            SplitText split = new SplitText(text);
+            split.addTime(format, time);
+            text = split.getText();
         }
 
         for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < visibleMessages.size(); i++) {
             AdvancedChatLine chatLine = visibleMessages.get(i);
-            if (Text.getString().equals(chatLine.getText().getString())) {
+            if (text.getString().equals(chatLine.getText().getString())) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
                 return;
             }
         }
-        this.visibleMessages.add(0, new AdvancedChatLine(timestamp, Text, messageId, time, backcolor, 0, logLine.getUuid()));
+
+        // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
+        int width = MathHelper.floor(client.options.chatWidth * 280.0D - 5 );
+
+        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, width, client.textRenderer)) {
+            MutableText newLine = new LiteralText("");
+
+            AtomicReference <Style> oldStyle = new AtomicReference<>(null);
+            AtomicReference<String> s = new AtomicReference<>("");
+
+            breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
+                if (oldStyle.get() == null) {
+                    oldStyle.set(style);
+                }
+
+                if (oldStyle.get() != style) {
+                    newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
+                    oldStyle.set(style);
+                    s.set("");
+                }
+
+                s.set(s.get() + (char) codePoint);
+                return true;
+            });
+
+            if (!s.get().isEmpty()) {
+                newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
+            }
+
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, backcolor, 0, logLine.getUuid()));
+        }
+
         hud.messageAddedToTab(this);
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;

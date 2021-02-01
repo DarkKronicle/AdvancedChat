@@ -39,10 +39,10 @@ public class SplitText {
     /**
      * Takes a Text and splits it into a list of {@link SimpleText}.
      *
-     * @param Text Text to split into different {@link SimpleText}
+     * @param Text text to split into different {@link SimpleText}
      */
-    public SplitText(Text Text) {
-        Text.visit((style, string) -> {
+    public SplitText(Text text) {
+        text.visit((style, string) -> {
             siblings.add(new SimpleText(string, style));
             return Optional.empty();
         }, Style.EMPTY);

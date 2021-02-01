@@ -42,12 +42,12 @@ public class ChatLogData {
     private boolean chatLogTime = AdvancedChat.configStorage.chatLogConfig.showTime;
     private boolean chatHudTime = AdvancedChat.configStorage.chatConfig.showTime;
 
-    public void addMessage(Text Text, AbstractChatTab... tab) {
-        addMessage(Text, 0, LocalTime.now(), tab);
+    public void addMessage(Text text, AbstractChatTab... tab) {
+        addMessage(text, 0, LocalTime.now(), tab);
     }
 
-    public void addMessage(Text Text, int id, LocalTime time, AbstractChatTab... tab) {
-        Text original = Text;
+    public void addMessage(Text text, int id, LocalTime time, AbstractChatTab... tab) {
+        Text original = text;
         MinecraftClient client = MinecraftClient.getInstance();
         if (lastWidth == 0 && lastHeight == 0) {
             lastWidth = client.getWindow().getScaledWidth();
@@ -57,15 +57,15 @@ public class ChatLogData {
         boolean showtime = AdvancedChat.configStorage.chatLogConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
-            SplitText text = new SplitText(Text);
-            text.addTime(format, time);
-            Text = text.getText();
+            SplitText split = new SplitText(text);
+            split.addTime(format, time);
+            text = split.getText();
         }
 
         ChatLogLine line = new ChatLogLine(original, id, tab, time);
 
         rawMessages.add(line);
-        this.formattedMessages.add(0, new ChatLogLine(Text, id, tab, time, line.getUuid()));
+        this.formattedMessages.add(0, new ChatLogLine(text, id, tab, time, line.getUuid()));
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatLogConfig.storedLines;
         while(this.rawMessages.size() > visibleMessagesMaxSize) {

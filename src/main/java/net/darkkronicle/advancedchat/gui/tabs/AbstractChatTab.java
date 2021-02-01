@@ -23,8 +23,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
 
 import java.time.LocalTime;
@@ -32,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base ChatTab that allows for custom chat tabs in AdvancedChatHud.
@@ -61,7 +61,7 @@ public abstract class AbstractChatTab {
      * @param Text Object to search.
      * @return True if it should be added.
      */
-    public abstract boolean shouldAdd(Text Text);
+    public abstract boolean shouldAdd(Text text);
 
     /**
      * Method to reformat the messages if Chat size changes or something.
@@ -84,12 +84,12 @@ public abstract class AbstractChatTab {
      * @param timestamp Amount of ticks when it was created.
      * @param bl        Add to messages
      */
-    public void addMessage(Text Text, int messageId, int timestamp, boolean bl) {
-        addMessage(Text, messageId, timestamp, bl, LocalTime.now());
+    public void addMessage(Text text, int messageId, int timestamp, boolean bl) {
+        addMessage(text, messageId, timestamp, bl, LocalTime.now());
     }
 
-    public void addMessage(Text Text, int messageId, int timestamp, boolean bl, LocalTime time) {
-        if (!shouldAdd(Text)) {
+    public void addMessage(Text text, int messageId, int timestamp, boolean bl, LocalTime time) {
+        if (!shouldAdd(text)) {
             return;
         }
 
@@ -97,11 +97,11 @@ public abstract class AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, Text, messageId, time);
+        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, text, messageId, time);
 
         for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
             AdvancedChatLine chatLine = messages.get(i);
-            if (Text.getString().equals(chatLine.getText().getString())) {
+            if (text.getString().equals(chatLine.getText().getString())) {
                 for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
                     AdvancedChatLine visibleLine = visibleMessages.get(j);
                     if (visibleLine.getUuid().equals(chatLine.getUuid())) {
@@ -116,20 +116,42 @@ public abstract class AbstractChatTab {
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
-            SplitText text = new SplitText(Text);
-            text.addTime(format, time);
+            SplitText split = new SplitText(text);
+            split.addTime(format, time);
+            text = split.getText();
         }
-        int width = MathHelper.floor((double) hud.getWidth() / hud.getChatScale());
-        List<OrderedText> list = ChatMessages.breakRenderedChatMessageLines(Text, width, this.client.textRenderer);
 
-        // OrderedText stringRenderable2;
-        // for (OrderedText renderable : list) {
-        //     // TODO Make chat stacking based on full message, not just line.
-        //     stringRenderable2 = renderable;
-        //
-        // }
+        // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
+        int width = MathHelper.floor(client.options.chatWidth * 280.0D - 5 );
 
-        this.visibleMessages.add(0, new AdvancedChatLine(timestamp, Text, messageId, time, logLine.getUuid()));
+        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, width, client.textRenderer)) {
+            MutableText newLine = new LiteralText("");
+
+            AtomicReference<Style> oldStyle = new AtomicReference<>(null);
+            AtomicReference<String> s = new AtomicReference<>("");
+
+            breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
+                if (oldStyle.get() == null) {
+                    oldStyle.set(style);
+                }
+
+                if (oldStyle.get() != style) {
+                    newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
+                    oldStyle.set(style);
+                    s.set("");
+                }
+
+                s.set(s.get() + (char) codePoint);
+                return true;
+            });
+
+            if (!s.get().isEmpty()) {
+                newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
+            }
+
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, logLine.getUuid()));
+        }
+
         hud.messageAddedToTab(this);
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
