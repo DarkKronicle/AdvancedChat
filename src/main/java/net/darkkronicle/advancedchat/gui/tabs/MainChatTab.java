@@ -23,9 +23,7 @@ import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Language;
+import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
 
 import java.time.LocalTime;
@@ -33,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Main chat tab that manages other chat tabs.
@@ -132,7 +131,38 @@ public class MainChatTab extends AbstractChatTab {
                 return;
             }
         }
-        this.visibleMessages.add(0, new AdvancedChatLine(timestamp, Text, messageId, time, backcolor, 0, logLine.getUuid()));
+
+        // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
+        int width = MathHelper.floor(client.options.chatWidth * 280.0D - 5 );
+
+        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(Text, width, client.textRenderer)) {
+            MutableText newLine = new LiteralText("");
+
+            AtomicReference <Style> oldStyle = new AtomicReference<>(null);
+            AtomicReference<String> text = new AtomicReference<>("");
+
+            breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
+                if (oldStyle.get() == null) {
+                    oldStyle.set(style);
+                }
+
+                if (oldStyle.get() != style) {
+                    newLine.append(new LiteralText(text.get()).setStyle(oldStyle.get()));
+                    oldStyle.set(style);
+                    text.set("");
+                }
+
+                text.set(text.get() + (char) codePoint);
+                return true;
+            });
+
+            if (!text.get().isEmpty()) {
+                newLine.append(new LiteralText(text.get()).setStyle(oldStyle.get()));
+            }
+
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, backcolor, 0, logLine.getUuid()));
+        }
+
         hud.messageAddedToTab(this);
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
