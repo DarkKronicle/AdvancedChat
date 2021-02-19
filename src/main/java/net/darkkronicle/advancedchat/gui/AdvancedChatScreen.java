@@ -83,34 +83,36 @@ public class AdvancedChatScreen extends Screen {
         this.addButton(tabButton);
         this.children.add(this.chatField);
 
-        int xadd = width + 2;
-        int yadd = client.getWindow().getScaledHeight() - 11 - AdvancedChat.configStorage.chatConfig.yOffset;
-        int orgYadd = yadd;
-        int tabchar = AdvancedChat.configStorage.chatConfig.sideChars;
-        int bwidth = tabchar * 10 + 2;
-        int relativeHeight = 13;
-        for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
-            if (relativeHeight >= AdvancedChat.configStorage.chatConfig.height) {
-                xadd = xadd + bwidth + 2;
-                yadd = orgYadd;
-                relativeHeight = 13;
+        if (AdvancedChat.configStorage.chatConfig.showTabs) {
+            int xadd = width + 2;
+            int yadd = client.getWindow().getScaledHeight() - 11 - AdvancedChat.configStorage.chatConfig.yOffset;
+            int orgYadd = yadd;
+            int tabchar = AdvancedChat.configStorage.chatConfig.sideChars;
+            int bwidth = tabchar * 10 + 2;
+            int relativeHeight = 13;
+            for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
+                if (relativeHeight >= AdvancedChat.configStorage.chatConfig.height) {
+                    xadd = xadd + bwidth + 2;
+                    yadd = orgYadd;
+                    relativeHeight = 13;
+                }
+                String abrev;
+                if (tab.getAbreviation().equals("") || tab.getAbreviation() == null) {
+                    abrev = tab.getName();
+                } else {
+                    abrev = tab.getAbreviation();
+                }
+                if (abrev.length() >= tabchar) {
+                    abrev = abrev.substring(0, tabchar);
+                }
+                CleanButton buttonTab = new CleanButton(xadd, yadd, bwidth, 11, baseColor, new LiteralText(abrev), button -> {
+                    hud.setCurrentTab(tab);
+                    tabButton.setText(new LiteralText(tab.getName()));
+                });
+                yadd = yadd - 13;
+                addButton(buttonTab);
+                relativeHeight = relativeHeight + 13;
             }
-            String abrev;
-            if (tab.getAbreviation().equals("") || tab.getAbreviation() == null) {
-                abrev = tab.getName();
-            } else {
-                abrev = tab.getAbreviation();
-            }
-            if (abrev.length() >= tabchar) {
-                abrev = abrev.substring(0, tabchar);
-            }
-            CleanButton buttonTab = new CleanButton(xadd, yadd, bwidth, 11, baseColor, new LiteralText(abrev), button -> {
-                hud.setCurrentTab(tab);
-                tabButton.setText(new LiteralText(tab.getName()));
-            });
-            yadd = yadd - 13;
-            addButton(buttonTab);
-            relativeHeight = relativeHeight + 13;
         }
 
 

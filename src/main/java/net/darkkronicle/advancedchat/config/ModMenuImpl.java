@@ -199,6 +199,11 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.chatStack = val;
         }).build());
 
+        chathud.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.showtabs"), AdvancedChat.configStorage.chatConfig.showTabs).setTooltip(new TranslatableText("config.advancedchat.info.showtabs")).setDefaultValue(true).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.showTabs = val;
+        }).build());
+
+
         ArrayList<AbstractConfigListEntry> positioning = new ArrayList<>();
 
         positioning.add(entry.startIntField(new TranslatableText("config.advancedchat.xoffset"), AdvancedChat.configStorage.chatConfig.xOffset).setTooltip(new TranslatableText("config.advancedchat.info.xoffset")).setMin(0).setMax(500).setSaveConsumer(val -> {

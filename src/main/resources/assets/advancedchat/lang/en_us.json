@@ -107,5 +107,7 @@
   "config.advancedchat.info.clearondisconnect2": "Chat messages are §6not kept§r upon §6quitting the game§r, regardless of this setting",
   "config.advancedchat.subcategory.positioning": "Chat HUD Position Settings",
   "config.advancedchat.subcategory.filter.sound": "Sound Settings",
-  "config.advancedchat.subcategory.filter.color": "Chat Color Settings"
+  "config.advancedchat.subcategory.filter.color": "Chat Color Settings",
+  "config.advancedchat.showtabs": "Show Chat Tabs",
+  "config.advancedchat.info.showtabs": "Show's §6Chat Tabs§r in a list to the side of the §6Chat HUD§r"
 }

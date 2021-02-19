@@ -68,6 +68,9 @@ public class MainChatTab extends AbstractChatTab {
         ColorUtil.SimpleColor backcolor = null;
         for (ColorFilter colorFilter : AdvancedChat.filter.getColorFilters()) {
             backcolor = colorFilter.getBackgroundColor(text);
+            if (backcolor != null) {
+                break;
+            }
         }
         // Goes through chat tabs
         boolean dontforward = false;
@@ -133,7 +136,7 @@ public class MainChatTab extends AbstractChatTab {
         }
 
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
-        int width = MathHelper.floor(client.options.chatWidth * 280.0D - 5 );
+        int width = MathHelper.floor(AdvancedChatHud.getWidth() - 5 );
 
         for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, width, client.textRenderer)) {
             MutableText newLine = new LiteralText("");

@@ -59,6 +59,8 @@ This isn't all the features, so try it out for yourself!
 
 Code & Mastermind: DarkKronicle
 
+Update to 1.16.3: Imichaelis
+
 Logo & Proofreading: Chronos22Gamer
 
 If you notice any bugs, please report to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)

@@ -46,6 +46,7 @@ public class ConfigStorage {
     public static class ChatConfig {
         public int height = 171;
         public int width =  280;
+        public boolean showTabs = true;
         public int lineSpace = 9;
         public int yOffset = 30;
         public int xOffset = 0;

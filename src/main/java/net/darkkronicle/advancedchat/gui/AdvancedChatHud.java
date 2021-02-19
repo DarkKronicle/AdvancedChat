@@ -288,7 +288,7 @@ public class AdvancedChatHud extends DrawableHelper {
         if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden() && !this.queuedMessages.isEmpty()) {
             double f = d - 2.0D;
             double g = (double)this.client.getWindow().getScaledHeight() - e - 40.0D;
-            if (f <= (double)MathHelper.floor((double)this.getWidth() / this.getChatScale()) && g < 0.0D && g > (double)MathHelper.floor(-9.0D * this.getChatScale())) {
+            if (f <= (double)MathHelper.floor((double) this.getWidth() / this.getChatScale()) && g < 0.0D && g > (double)MathHelper.floor(-9.0D * this.getChatScale())) {
                 this.addMessage((Text)this.queuedMessages.remove());
                 this.lastTimeCheck = System.currentTimeMillis();
                 return true;

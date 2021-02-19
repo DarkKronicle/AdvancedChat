@@ -122,7 +122,7 @@ public abstract class AbstractChatTab {
         }
 
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
-        int width = MathHelper.floor(client.options.chatWidth * 280.0D - 5 );
+        int width = MathHelper.floor(AdvancedChatHud.getWidth() - 5);
 
         for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, width, client.textRenderer)) {
             MutableText newLine = new LiteralText("");
