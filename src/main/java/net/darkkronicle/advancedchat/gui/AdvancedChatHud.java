@@ -302,9 +302,10 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public Style getText(double mouseX, double mouseY) {
         if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden()) {
-            double trueX = mouseX - 2 - AdvancedChat.configStorage.chatConfig.xOffset;
-            double trueY = (double)this.client.getWindow().getScaledHeight() - mouseY - AdvancedChat.configStorage.chatConfig.yOffset;
-//            trueX = MathHelper.floor(trueX);
+            double relX = mouseX - 2 - AdvancedChat.configStorage.chatConfig.xOffset;
+            double relY = (double)this.client.getWindow().getScaledHeight() - mouseY - AdvancedChat.configStorage.chatConfig.yOffset;
+            double trueX = relX / getChatScale();
+            double trueY = relY / getChatScale();
 //            trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));
             if (trueX >= 0.0D && trueY >= 0.0D) {
                 int numOfMessages = Math.min(this.getVisibleLineCount(), currentTab.visibleMessages.size());
@@ -335,7 +336,15 @@ public class AdvancedChatHud extends DrawableHelper {
         return AdvancedChat.configStorage.chatConfig.width;
     }
 
-    public double getChatScale() {
+    public static int getScaledWidth() {
+        return (int) Math.ceil(getWidth() / getChatScale());
+    }
+
+    public static int getScaledHeight() {
+        return (int) Math.ceil(getHeight() / getChatScale());
+    }
+
+    public static double getChatScale() {
         return AdvancedChat.configStorage.chatConfig.chatscale;
     }
 
@@ -344,7 +353,7 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public int getVisibleLineCount() {
-        return AdvancedChatHud.getHeight() / AdvancedChat.configStorage.chatConfig.lineSpace;
+        return AdvancedChatHud.getScaledHeight() / AdvancedChat.configStorage.chatConfig.lineSpace;
     }
 
     private long getChatDelayMS() {

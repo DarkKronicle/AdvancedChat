@@ -17,6 +17,7 @@ import net.darkkronicle.advancedchat.config.ConfigManager;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
+import net.darkkronicle.advancedchat.gui.AdvancedSleepingChatScreen;
 import net.darkkronicle.advancedchat.gui.ChatLogScreen;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.storage.ChatLogData;
@@ -58,9 +59,13 @@ public class AdvancedChat implements ClientModInitializer {
                 "category.advancedchat.keys"
         );
         KeyBindingHelper.registerKeyBinding(keyBinding);
+        MinecraftClient client = MinecraftClient.getInstance();
         ClientTickEvents.START_CLIENT_TICK.register(s -> {
             if (keyBinding.wasPressed()) {
                 s.openScreen(new ChatLogScreen());
+            }
+            if (client.currentScreen instanceof AdvancedSleepingChatScreen && !client.player.isSleeping()) {
+                client.openScreen(null);
             }
         });
     }

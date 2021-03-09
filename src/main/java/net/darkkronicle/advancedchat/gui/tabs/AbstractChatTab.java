@@ -58,7 +58,7 @@ public abstract class AbstractChatTab {
     /**
      * If the inputted message should be put into the chat tab.
      *
-     * @param Text Object to search.
+     * @param text Object to search.
      * @return True if it should be added.
      */
     public abstract boolean shouldAdd(Text text);
@@ -79,7 +79,7 @@ public abstract class AbstractChatTab {
     /**
      * Used for adding messages into the tab.
      *
-     * @param Text      Text to add.
+     * @param text      Text to add.
      * @param messageId ID of message.
      * @param timestamp Amount of ticks when it was created.
      * @param bl        Add to messages
@@ -122,32 +122,9 @@ public abstract class AbstractChatTab {
         }
 
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
-        int width = MathHelper.floor(AdvancedChatHud.getWidth() - 5);
+        int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5);
 
-        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, width, client.textRenderer)) {
-            MutableText newLine = new LiteralText("");
-
-            AtomicReference<Style> oldStyle = new AtomicReference<>(null);
-            AtomicReference<String> s = new AtomicReference<>("");
-
-            breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
-                if (oldStyle.get() == null) {
-                    oldStyle.set(style);
-                }
-
-                if (oldStyle.get() != style) {
-                    newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
-                    oldStyle.set(style);
-                    s.set("");
-                }
-
-                s.set(s.get() + (char) codePoint);
-                return true;
-            });
-
-            if (!s.get().isEmpty()) {
-                newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
-            }
+        for (MutableText newLine : MainChatTab.wrapText(client.textRenderer, width, text)) {
 
             this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, logLine.getUuid()));
         }

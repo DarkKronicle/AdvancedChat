@@ -22,6 +22,7 @@ import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.ChatMessages;
 import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
@@ -136,9 +137,31 @@ public class MainChatTab extends AbstractChatTab {
         }
 
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
-        int width = MathHelper.floor(AdvancedChatHud.getWidth() - 5 );
+        int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5 );
 
-        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, width, client.textRenderer)) {
+        for (MutableText newLine : wrapText(client.textRenderer, width, text)) {
+            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, backcolor, 0, logLine.getUuid()));
+        }
+
+        hud.messageAddedToTab(this);
+
+        int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
+        while(this.visibleMessages.size() > visibleMessagesMaxSize) {
+            this.visibleMessages.remove(this.visibleMessages.size() - 1);
+        }
+
+        if (!bl) {
+            this.messages.add(0, logLine);
+
+            while(this.messages.size() > visibleMessagesMaxSize) {
+                this.messages.remove(this.messages.size() - 1);
+            }
+        }
+    }
+
+    public static List<MutableText> wrapText(TextRenderer textRenderer, int scaledWidth, Text text) {
+        ArrayList<MutableText> lines = new ArrayList<>();
+        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, scaledWidth, textRenderer)) {
             MutableText newLine = new LiteralText("");
 
             AtomicReference <Style> oldStyle = new AtomicReference<>(null);
@@ -162,24 +185,9 @@ public class MainChatTab extends AbstractChatTab {
             if (!s.get().isEmpty()) {
                 newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
             }
-
-            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, backcolor, 0, logLine.getUuid()));
+            lines.add(newLine);
         }
-
-        hud.messageAddedToTab(this);
-
-        int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
-        while(this.visibleMessages.size() > visibleMessagesMaxSize) {
-            this.visibleMessages.remove(this.visibleMessages.size() - 1);
-        }
-
-        if (!bl) {
-            this.messages.add(0, logLine);
-
-            while(this.messages.size() > visibleMessagesMaxSize) {
-                this.messages.remove(this.messages.size() - 1);
-            }
-        }
+        return lines;
     }
 
     /**
