@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -39,13 +40,21 @@ public class SplitText {
     /**
      * Takes a Text and splits it into a list of {@link SimpleText}.
      *
-     * @param Text text to split into different {@link SimpleText}
+     * @param text text to split into different {@link SimpleText}
      */
     public SplitText(Text text) {
         text.visit((style, string) -> {
             siblings.add(new SimpleText(string, style));
             return Optional.empty();
         }, Style.EMPTY);
+    }
+
+    public SplitText(SimpleText base) {
+        siblings.add(base);
+    }
+
+    public SplitText(List<SimpleText> siblings) {
+        this.siblings.addAll(siblings);
     }
 
 
@@ -81,30 +90,68 @@ public class SplitText {
         return t;
     }
 
-    /**
-     * Complex method used to split up the split text in this class and replace matches to a string.
-     *
-     * @param matches List of {@link net.darkkronicle.advancedchat.util.SearchText.StringMatch} to replace.
-     * @param replace String to replace the matches to.
-     */
-    public void replaceStrings(List<SearchText.StringMatch> matches, String replace) {
-        replaceStrings(matches, replace, null);
+    public SplitText truncate(SearchText.StringMatch match) {
+        ArrayList<SimpleText> newSiblings = new ArrayList<>();
+        boolean start = false;
+        // Total number of chars went through. Used to find where the match end and beginning is.
+        int totalchar = 0;
+        for (SimpleText text : getSiblings()) {
+            if (text.getMessage() == null || text.getMessage().length() <= 0) {
+                continue;
+            }
+
+            int length = text.getMessage().length();
+
+            // Checks to see if current text contains the match.start.
+            if (totalchar + length > match.start) {
+                if (totalchar + length >= match.end) {
+                    if (!start) {
+                        newSiblings.add(text.withMessage(text.getMessage().substring(match.start - totalchar, match.end - totalchar)));
+                    } else {
+                        newSiblings.add(text.withMessage(text.getMessage().substring(0, match.end - totalchar)));
+                    }
+                    return new SplitText(newSiblings);
+                } else {
+                    if (!start) {
+                        newSiblings.add(text.withMessage(text.getMessage().substring(match.start - totalchar)));
+                        start = true;
+                    } else {
+                        newSiblings.add(text);
+                    }
+                }
+            }
+
+            totalchar = totalchar + length;
+
+        }
+
+        // At the end we take the siblings created in this method and override the old ones.
+        return null;
+    }
+
+    public interface StringInsert {
+        SplitText getText(SimpleText current, SearchText.StringMatch match);
     }
 
     /**
      * Complex method used to split up the split text in this class and replace matches to a string.
      *
-     * @param matches List of {@link net.darkkronicle.advancedchat.util.SearchText.StringMatch} to replace.
-     * @param replace {@link SimpleText} to replace the matches to.
+     * @param matches Map containing a match and a SplitText provider
      */
-    public void replaceStrings(List<SearchText.StringMatch> matches, String replace, ColorUtil.SimpleColor color) {
+    public void replaceStrings(Map<SearchText.StringMatch, StringInsert> matches) {
+        // If there's no matches nothing should get replaced.
+        if (matches.size() == 0) {
+            return;
+        }
         // List of new SimpleText to form a new SplitText.
         ArrayList<SimpleText> newSiblings = new ArrayList<>();
         // int used to remember where the match stopped before.
         int stopped = 0;
         // What match this is currently on.
         int matchnum = 0;
-        for (SearchText.StringMatch match : matches) {
+        for (Map.Entry<SearchText.StringMatch, StringInsert> entry : matches.entrySet()) {
+            SearchText.StringMatch match = entry.getKey();
+            StringInsert insert = entry.getValue();
             matchnum++;
             // Text that includes the start of the match.
             SimpleText startedText = null;
@@ -140,15 +187,10 @@ public class SplitText {
                         togo = stopped - totalchar;
                     }
                     // Splits the text from the beginning to the match. Used to easily edit the Style.
-                    newSiblings.add(text.withMessage(text.getMessage().substring(togo, startedInt)));
-                    if (color == null) {
-                        newSiblings.add(text.withMessage(replace));
-                    } else {
-                        Style original = text.getStyle();
-                        TextColor textColor = TextColor.fromRgb(color.color());
-                        original = original.withColor(textColor);
-                        newSiblings.add(text.withStyle(original).withMessage(replace));
-                    }
+                    int one = Math.min(togo, startedInt);
+                    int two = Math.max(startedInt, togo);
+                    newSiblings.add(text.withMessage(text.getMessage().substring(one, two)));
+                    newSiblings.addAll(insert.getText(text.withMessage(text.getMessage().substring(two)), match).getSiblings());
                     started = true;
                     modified = true;
                 }

@@ -148,9 +148,9 @@ public abstract class AbstractChatTab {
     public void removeMessage(int messageId) {
         Iterator iterator = this.visibleMessages.iterator();
 
-        ChatHudLine chatHudLine2;
+        AdvancedChatLine chatHudLine2;
         while (iterator.hasNext()) {
-            chatHudLine2 = (ChatHudLine) iterator.next();
+            chatHudLine2 = (AdvancedChatLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
             }
@@ -159,7 +159,7 @@ public abstract class AbstractChatTab {
         iterator = this.messages.iterator();
 
         while (iterator.hasNext()) {
-            chatHudLine2 = (ChatHudLine) iterator.next();
+            chatHudLine2 = (AdvancedChatLine) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
                 break;

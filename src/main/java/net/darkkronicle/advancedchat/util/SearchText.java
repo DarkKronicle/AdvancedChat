@@ -51,6 +51,8 @@ public class SearchText {
             Pattern pattern = Pattern.compile(toMatch);
             Matcher matcher = pattern.matcher(input);
             return matcher.find();
+        } else if (type == Filter.FindType.ALL) {
+            return true;
         }
         return false;
     }
@@ -101,6 +103,8 @@ public class SearchText {
                     break;
                 }
             }
+        } else if (type == Filter.FindType.ALL) {
+            matches.add(new StringMatch(input, 0, input.length()));
         }
         if (matches.size() != 0) {
             return Optional.of(matches);

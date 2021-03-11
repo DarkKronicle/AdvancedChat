@@ -73,6 +73,11 @@ public class ColorUtil {
         return color;
     }
 
+    public SimpleColor fade(SimpleColor color, float percent) {
+        float alpha = (float) color.alpha();
+        return color.withAlpha((int) Math.floor((alpha * percent)));
+    }
+
     // Standard quick reference colors
     public final SimpleColor WHITE = new SimpleColor(255, 255, 255, 255);
     public final SimpleColor BLACK = new SimpleColor(0, 0, 0, 255);

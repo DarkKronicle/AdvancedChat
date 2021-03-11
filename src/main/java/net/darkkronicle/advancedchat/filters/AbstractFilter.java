@@ -18,6 +18,7 @@ import lombok.Setter;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 /**

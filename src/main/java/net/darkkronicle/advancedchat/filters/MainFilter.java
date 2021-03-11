@@ -21,6 +21,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 // Filter that handles all other filters.
@@ -64,22 +65,51 @@ public class MainFilter extends AbstractFilter {
        colorFilters = new ArrayList<>();
        for (Filter filter : AdvancedChat.configStorage.filters) {
            // If it replaces anything.
-           if (!filter.isActive()) {
-               continue;
-           }
-           if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
-               if (filter.isReplaceTextColor()) {
-                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), filter.getColor()));
-               } else {
-                   filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
-               }
-           }
-           if (filter.getNotifySound() != Filter.NotifySounds.NONE) {
-               filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifySound(), filter.getSoundVol(), filter.getSoundPitch()));
-           }
-           if (filter.isReplaceBackgroundColor()) {
-                colorFilters.add(new ColorFilter(filter.getFindString(), filter.getFindType(), filter.getColor()));
-           }
+            List<AbstractFilter> afilter = createFilter(filter);
+            if (afilter != null) {
+                for (AbstractFilter f : afilter) {
+                    if (f instanceof ColorFilter) {
+                        colorFilters.add((ColorFilter) f);
+                    } else {
+                        filters.add(f);
+                    }
+                }
+            }
+
        }
+    }
+
+    public static List<AbstractFilter> createFilter(Filter filter) {
+        if (!filter.isActive()) {
+            return null;
+        }
+        ArrayList<AbstractFilter> filters = new ArrayList<>();
+        if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
+            if (filter.getReplaceType() == Filter.ReplaceType.CHILDREN) {
+                ReplaceFilter f = new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), filter.getColor());
+                if (filter.getChildren() != null) {
+                    for (Filter child : filter.getChildren()) {
+                        List<AbstractFilter> childf = createFilter(child);
+                        if (childf != null) {
+                            for (AbstractFilter childfilter : childf) {
+                                f.addChild(childfilter);
+                            }
+                        }
+                    }
+                }
+                filters.add(f);
+            } else if (filter.isReplaceTextColor()) {
+                filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), filter.getColor()));
+            } else {
+                filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
+            }
+        }
+        if (filter.getNotifySound() != Filter.NotifySounds.NONE) {
+            filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifySound(), filter.getSoundVol(), filter.getSoundPitch()));
+        }
+        if (filter.isReplaceBackgroundColor()) {
+            filters.add(new ColorFilter(filter.getFindString(), filter.getFindType(), filter.getColor()));
+        }
+        return filters;
     }
 }

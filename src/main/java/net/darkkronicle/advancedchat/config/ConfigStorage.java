@@ -14,6 +14,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 package net.darkkronicle.advancedchat.config;
 
 import lombok.Getter;
+import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -52,6 +53,9 @@ public class ConfigStorage {
         public int xOffset = 0;
         public int storedLines = 200;
         public float chatscale = 1;
+        public int fadeTime = 40;
+        public int fadeStart = 100;
+        public EasingMethod.EasingMethodImpl fadeType = EasingMethod.EasingMethodImpl.LINEAR;
 
         public ColorUtil.SimpleColor hudBackground = ColorUtil.BLACK.withAlpha(100);
         public ColorUtil.SimpleColor emptyText = ColorUtil.WHITE;

@@ -21,6 +21,7 @@ import lombok.experimental.Accessors;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
 
 /*
 Class that allows for easy mutable objects that are like minecraft Text.
@@ -45,5 +46,13 @@ public class SimpleText {
         return new SimpleText(this);
     }
 
+    public static SimpleText withColor(String string, ColorUtil.SimpleColor color) {
+        TextColor textColor = TextColor.fromRgb(color.color());
+        return SimpleText.withStyle(string, Style.EMPTY.withColor(textColor));
+    }
+
+    public static SimpleText withStyle(String string, Style base) {
+        return new SimpleText(string, base);
+    }
 
 }

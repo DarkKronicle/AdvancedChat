@@ -17,6 +17,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import lombok.Getter;
 import lombok.Setter;
+import me.shedaniel.clothconfig2.impl.EasingMethod;
+import me.shedaniel.clothconfig2.impl.EasingMethods;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
@@ -66,7 +68,7 @@ public class AdvancedChatHud extends DrawableHelper {
 //            }
 //        }
 
-        double chatScale = this.getChatScale();
+        double chatScale = getChatScale();
         // Set up rendering
         matrices.push();
         matrices.scale((float) chatScale, (float) chatScale, 1);
@@ -75,14 +77,15 @@ public class AdvancedChatHud extends DrawableHelper {
         Window window = this.client.getWindow();
       //  int windowHeight = (int) (window.getScaledHeight() * (1 + ((float) 2 - (chatScale * (float) 2))));
         int windowHeight = MathHelper.ceil(window.getScaledHeight() / chatScale);
-        int actualWidth = MathHelper.ceil((double) getWidth() / this.getChatScale());
-        int actualHeight = MathHelper.ceil((double) getHeight() / this.getChatScale());
+        int actualWidth = MathHelper.ceil((double) getWidth() / getChatScale());
+        int actualHeight = MathHelper.ceil((double) getHeight() / getChatScale());
         int xoffset = AdvancedChat.configStorage.chatConfig.xOffset;
         int bottomScreenOffset = MathHelper.ceil(AdvancedChat.configStorage.chatConfig.yOffset / chatScale);
         int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
         int maxSize = actualHeight;
-        int fadestart = 200;
-        int fadestop = 240;
+        int fadestart = AdvancedChat.configStorage.chatConfig.fadeStart;
+        int fadestop = fadestart + AdvancedChat.configStorage.chatConfig.fadeTime;
+        EasingMethod ease = AdvancedChat.configStorage.chatConfig.fadeType;
 
         // Check that tab is set...
         if (currentTab == null) {
@@ -153,14 +156,14 @@ public class AdvancedChatHud extends DrawableHelper {
                             fadebackground = backgroundColor;
                         }
                         fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                        Text newString = (Text)line.getText();
+                        Text newString = line.getText();
                         if (line.getStacks() > 0) {
                             SplitText toPrint = new SplitText(line.getText());
                             Style style = Style.EMPTY;
                             TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
                             style = style.withColor(color);
                             toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
-                            newString = (Text)toPrint.getText();
+                            newString = toPrint.getText();
                         }
 
                         drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
@@ -168,15 +171,20 @@ public class AdvancedChatHud extends DrawableHelper {
                     } else {
                         int timeAlive = tick - line.getCreationTick();
                         if (timeAlive < fadestop) {
+                            float perc = (float) Math.min(1, 1 - ease.apply((double) (timeAlive - fadestart) / (double) (fadestop - fadestart)));
                             ColorUtil.SimpleColor fadebackground;
                             // Fade background and text.
                             if (line.getBackground() != null) {
-                                fadebackground = ColorUtil.fade(line.getBackground(), timeAlive, fadestart, fadestop);
+                                fadebackground = ColorUtil.fade(line.getBackground(), perc);
                             } else {
-                                fadebackground = ColorUtil.fade(backgroundColor, timeAlive, fadestart, fadestop);
+                                fadebackground = ColorUtil.fade(backgroundColor, perc);
                             }
-
-                            ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, timeAlive, fadestart, fadestop);
+                            ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, perc);
+                            // If alpha is super low it renders it at 255?
+                            // Thanks minecraft -_-
+                            if (fadetext.alpha() <= 5) {
+                                continue;
+                            }
                             fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
                             Text newString = line.getText();
                             if (line.getStacks() > 0) {

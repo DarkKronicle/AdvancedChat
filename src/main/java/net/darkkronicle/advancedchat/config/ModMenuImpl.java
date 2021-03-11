@@ -19,7 +19,9 @@ import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
+import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.gui.SharingScreen;
 import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -138,6 +140,15 @@ public class ModMenuImpl implements ModMenuApi {
 
         })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
 
+        filters.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.button.import"), select, select[0]).setNameProvider((s -> {
+            if (s.equalsIgnoreCase("1")) {
+                return new TranslatableText("config.advancedchat.click");
+            }
+            MinecraftClient.getInstance().openScreen(new SharingScreen());
+            return new TranslatableText("config.advancedchat.click");
+
+        })).setTooltip(new TranslatableText("warn.advancedchat.savefirst")).build());
+
 
         ConfigCategory chattabs = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chattabs"));
 
@@ -201,6 +212,18 @@ public class ModMenuImpl implements ModMenuApi {
 
         chathud.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.showtabs"), AdvancedChat.configStorage.chatConfig.showTabs).setTooltip(new TranslatableText("config.advancedchat.info.showtabs")).setDefaultValue(true).setSaveConsumer(val -> {
             AdvancedChat.configStorage.chatConfig.showTabs = val;
+        }).build());
+
+        chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.fadestart"), AdvancedChat.configStorage.chatConfig.fadeStart, 20, 400).setTooltip(new TranslatableText("config.advancedchat.info.fadestart")).setDefaultValue(100).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.fadeStart = val;
+        }).build());
+
+        chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.fadetime"), AdvancedChat.configStorage.chatConfig.fadeTime, 0, 200).setTooltip(new TranslatableText("config.advancedchat.info.fadetime")).setDefaultValue(40).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.fadeTime = val;
+        }).build());
+
+        chathud.addEntry(entry.startEnumSelector(new TranslatableText("config.advancedchat.fadestyle"), EasingMethod.EasingMethodImpl.class, AdvancedChat.configStorage.chatConfig.fadeType).setTooltip(new TranslatableText("config.advancedchat.info.fadestyle")).setDefaultValue(EasingMethod.EasingMethodImpl.LINEAR).setSaveConsumer(val -> {
+            AdvancedChat.configStorage.chatConfig.fadeType = val;
         }).build());
 
 

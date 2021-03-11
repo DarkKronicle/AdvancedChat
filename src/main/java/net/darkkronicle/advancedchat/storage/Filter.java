@@ -25,6 +25,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Filter Storage
@@ -83,11 +84,13 @@ public class Filter {
 
     private ColorUtil.SimpleColor color;
 
+    private ArrayList<Filter> children;
+
     /**
      * The default filter. Used for new filters.
      */
     public static Filter getDefault() {
-        return new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH,"AWESOME!", NotifySounds.NONE, 1, 1, false, false, ColorUtil.BLACK);
+        return new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH,"AWESOME!", NotifySounds.NONE, 1, 1, false, false, ColorUtil.BLACK, new ArrayList<>());
     }
 
     /**
@@ -127,7 +130,9 @@ public class Filter {
         @SerializedName("upperlower")
         UPPERLOWER,
         @SerializedName("regex")
-        REGEX
+        REGEX,
+        @SerializedName("all")
+        ALL
     }
 
     public enum ReplaceType {
@@ -136,7 +141,9 @@ public class Filter {
         @SerializedName("onlymatch")
         ONLYMATCH,
         @SerializedName("fullmessage")
-        FULLMESSAGE
+        FULLMESSAGE,
+        @SerializedName("children")
+        CHILDREN
     }
 
     public enum NotifySounds {
