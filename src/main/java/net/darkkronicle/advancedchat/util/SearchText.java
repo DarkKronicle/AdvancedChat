@@ -19,6 +19,8 @@ import net.darkkronicle.advancedchat.storage.Filter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +70,7 @@ public class SearchText {
      * @return An Optional containing a list of {@link StringMatch}
      */
     public static Optional<List<StringMatch>> findMatches(String input, String toMatch, Filter.FindType type) {
-        ArrayList<StringMatch> matches = new ArrayList<>();
+        Set<StringMatch> matches = new TreeSet<>();
         if (type == Filter.FindType.UPPERLOWER) {
             Pattern pattern = Pattern.compile(Pattern.quote(toMatch), Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(input);
@@ -107,7 +109,7 @@ public class SearchText {
             matches.add(new StringMatch(input, 0, input.length()));
         }
         if (matches.size() != 0) {
-            return Optional.of(matches);
+            return Optional.of(new ArrayList<>(matches));
         }
         return Optional.empty();
     }
@@ -116,10 +118,15 @@ public class SearchText {
      * Storage class that contains Matcher.match info. Used with {@link #findMatches(String, String, Filter.FindType)} and {@link #isMatch(String, String, Filter.FindType)}
      */
     @AllArgsConstructor
-    public static class StringMatch {
+    public static class StringMatch implements Comparable<StringMatch> {
         public String match;
-        public int start;
-        public int end;
+        public Integer start;
+        public Integer end;
+
+        @Override
+        public int compareTo(StringMatch o) {
+            return start.compareTo(o.start);
+        }
     }
 
 }

@@ -63,6 +63,8 @@ Update to 1.16.3: Imichaelis
 
 Logo & Proofreading: Chronos22Gamer
 
+Idea of Chat Heads: [dzwdz](https://github.com/dzwdz/chat_heads/blob/fabric-1.16.x/)
+
 If you notice any bugs, please report to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)
 
 For more help join the [Discord](https://discord.gg/WnaE3uZxDA)

@@ -125,5 +125,9 @@
   "config.advancedchat.childfilter.createnew": "Create new child filter",
   "config.advancedchat.childfiltermenu": "View child filters",
   "config.advancedchat.button.export": "Export Filter",
-  "config.advancedchat.button.import": "Import Filter"
+  "config.advancedchat.button.import": "Import Filter",
+  "config.advancedchat.linestyle": "Line Style",
+  "config.advancedchat.info.linestyle": "What the chat lines on the HUD look like",
+  "config.advancedchat.chatheads": "Chat Heads",
+  "config.advancedchat.info.chatheads": "Whether or not player heads will appear next to chat"
 }

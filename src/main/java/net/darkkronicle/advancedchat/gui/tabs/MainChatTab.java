@@ -17,12 +17,15 @@ import lombok.Getter;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.filters.ColorFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
-import net.darkkronicle.advancedchat.gui.AdvancedChatLine;
+import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
 import net.darkkronicle.advancedchat.storage.ChatTab;
+import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.ChatMessages;
 import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
@@ -54,7 +57,7 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     @Override
-    public void addMessage(Text text, int messageId, int timestamp, boolean bl, LocalTime time) {
+    public void addMessage(Text text, int messageId, int timestamp, LocalTime time) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
         Text unfiltered = text;
@@ -79,7 +82,7 @@ public class MainChatTab extends AbstractChatTab {
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
                 if (tab.shouldAdd(text)) {
-                    tab.addMessage(text, messageId, timestamp, bl);
+                    tab.addMessage(text, messageId, timestamp);
                     added.add(tab);
                     if (!tab.isForward()) {
                         dontforward = true;
@@ -103,24 +106,37 @@ public class MainChatTab extends AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-
-        Text logged = text;
-        AdvancedChatLine logLine = new AdvancedChatLine(timestamp, logged, messageId, time);
-
-        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
-            AdvancedChatLine chatLine = messages.get(i);
-            if (text.getString().equals(chatLine.getText().getString())) {
-                for (int j = 0; j < AdvancedChat.configStorage.chatStack + 15 && i < visibleMessages.size(); j++) {
-                    AdvancedChatLine visibleLine = visibleMessages.get(j);
-                    if (visibleLine.getUuid().equals(chatLine.getUuid())) {
-                        visibleLine.setStacks(visibleLine.getStacks() + 1);
-                        return;
+        PlayerListEntry playerInfo = null;
+        Optional<List<SearchText.StringMatch>> words = SearchText.findMatches(text.getString(), AdvancedChat.configStorage.chatHeadRegex, Filter.FindType.REGEX);
+        if (words.isPresent()) {
+            if (client.getNetworkHandler() != null) {
+                for (SearchText.StringMatch m : words.get()) {
+                    if (playerInfo != null) {
+                        break;
+                    }
+                    for (PlayerListEntry e : client.getNetworkHandler().getPlayerList()) {
+                        if ((e.getDisplayName() != null && m.match.equals(e.getDisplayName().getString())) || m.match.equals(e.getProfile().getName())) {
+                            playerInfo = e;
+                            break;
+                        }
                     }
                 }
+            }
+        }
 
+        // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
+        int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5 );
+
+
+        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
+            AdvancedChatMessage chatLine = messages.get(i);
+            if (text.getString().equals(chatLine.getRawText().getString())) {
+                chatLine.setStacks(chatLine.getStacks() + 1);
+                return;
             }
         }
         boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
+        Text original = text;
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
             SplitText split = new SplitText(text);
@@ -128,35 +144,17 @@ public class MainChatTab extends AbstractChatTab {
             text = split.getText();
         }
 
-        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < visibleMessages.size(); i++) {
-            AdvancedChatLine chatLine = visibleMessages.get(i);
-            if (text.getString().equals(chatLine.getText().getString())) {
-                chatLine.setStacks(chatLine.getStacks() + 1);
-                return;
-            }
-        }
+        AdvancedChatMessage line = AdvancedChatMessage.builder().originalText(original).text(text).owner(playerInfo).id(messageId).width(width).creationTick(timestamp).time(time).build();
 
-        // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
-        int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5 );
-
-        for (MutableText newLine : wrapText(client.textRenderer, width, text)) {
-            this.visibleMessages.add(0, new AdvancedChatLine(timestamp, newLine, messageId, time, backcolor, 0, logLine.getUuid()));
-        }
+        this.messages.add(0, line);
 
         hud.messageAddedToTab(this);
 
         int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
-        while(this.visibleMessages.size() > visibleMessagesMaxSize) {
-            this.visibleMessages.remove(this.visibleMessages.size() - 1);
+        while(this.messages.size() > visibleMessagesMaxSize) {
+            this.messages.remove(this.messages.size() - 1);
         }
 
-        if (!bl) {
-            this.messages.add(0, logLine);
-
-            while(this.messages.size() > visibleMessagesMaxSize) {
-                this.messages.remove(this.messages.size() - 1);
-            }
-        }
     }
 
     public static List<MutableText> wrapText(TextRenderer textRenderer, int scaledWidth, Text text) {

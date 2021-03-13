@@ -66,6 +66,9 @@ public class AdvancedChatScreen extends Screen {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
 
         int width = AdvancedChat.configStorage.chatConfig.width + 4;
+        if (AdvancedChat.configStorage.chatHeads) {
+            width += 10;
+        }
         int height = 11;
         int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;

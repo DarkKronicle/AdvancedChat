@@ -188,6 +188,10 @@ public class ModMenuImpl implements ModMenuApi {
             AdvancedChat.configStorage.alternatelines = newval;
         }).setDefaultValue(false).build());
 
+        chathud.addEntry(entry.startBooleanToggle(new TranslatableText("config.advancedchat.chatheads"), AdvancedChat.configStorage.chatHeads).setTooltip(new TranslatableText("config.advancedchat.info.chatheads")).setSaveConsumer(newval -> {
+            AdvancedChat.configStorage.chatHeads = newval;
+        }).setDefaultValue(false).build());
+
         chathud.addEntry(entry.startSelector(new TranslatableText("config.advancedchat.visibility"), ConfigStorage.Visibility.values(), AdvancedChat.configStorage.visibility).setTooltip(
                 new TranslatableText("config.advancedchat.info.visibility.vanilla"),
                 new TranslatableText("config.advancedchat.info.visibility.always"),
@@ -250,6 +254,8 @@ public class ModMenuImpl implements ModMenuApi {
         chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.tabchar"), AdvancedChat.configStorage.chatConfig.sideChars, 1, 10).setTooltip(new TranslatableText("config.advancedchat.info.tabchar"), new TranslatableText("config.advancedchat.info.tabchar2")).setSaveConsumer(val -> AdvancedChat.configStorage.chatConfig.sideChars = val).build());
 
         chathud.addEntry(entry.startIntSlider(new TranslatableText("config.advancedchat.chatscale"), (int) (AdvancedChat.configStorage.chatConfig.chatscale * (float) 100), 20, 100).setTooltip(new TranslatableText("config.advancedchat.info.chatscale")).setSaveConsumer(val -> AdvancedChat.configStorage.chatConfig.chatscale = (float) val / 100).build());
+
+        chathud.addEntry(entry.startEnumSelector(new TranslatableText("config.advancedchat.linestyle"), ConfigStorage.HudLineType.class, AdvancedChat.configStorage.chatConfig.hudLineType).setDefaultValue(ConfigStorage.HudLineType.FULL).setTooltip(new TranslatableText("config.advancedchat.info.linestyle")).setSaveConsumer(val -> AdvancedChat.configStorage.chatConfig.hudLineType = val).build());
 
         ConfigCategory chatlog = builder.getOrCreateCategory(new TranslatableText("config.advancedchat.category.chatlog"));
 

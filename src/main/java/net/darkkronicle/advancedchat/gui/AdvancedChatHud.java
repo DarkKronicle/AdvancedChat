@@ -15,10 +15,10 @@ package net.darkkronicle.advancedchat.gui;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import lombok.Setter;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
-import me.shedaniel.clothconfig2.impl.EasingMethods;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
@@ -33,13 +33,11 @@ import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -62,25 +60,22 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public void render(MatrixStack matrices, int tick) {
-//        if (AdvancedChat.getChatLogData().isChatHudTime()) {
-//            for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
-//                tab.reset();
-//            }
-//        }
 
-        double chatScale = getChatScale();
         // Set up rendering
         matrices.push();
-        matrices.scale((float) chatScale, (float) chatScale, 1);
+        matrices.scale((float) getChatScale(), (float) getChatScale(), 1);
 
         // Declare useful variables
         Window window = this.client.getWindow();
-      //  int windowHeight = (int) (window.getScaledHeight() * (1 + ((float) 2 - (chatScale * (float) 2))));
-        int windowHeight = MathHelper.ceil(window.getScaledHeight() / chatScale);
-        int actualWidth = MathHelper.ceil((double) getWidth() / getChatScale());
+        boolean heads = AdvancedChat.configStorage.chatHeads;
+        // How far heads will render
+        int headoffset = heads ? 10 : 0;
+        int windowHeight = MathHelper.ceil(window.getScaledHeight() / getChatScale());
+        int actualWidth = MathHelper.ceil((double) getWidth() / getChatScale()) + headoffset;
         int actualHeight = MathHelper.ceil((double) getHeight() / getChatScale());
-        int xoffset = AdvancedChat.configStorage.chatConfig.xOffset;
-        int bottomScreenOffset = MathHelper.ceil(AdvancedChat.configStorage.chatConfig.yOffset / chatScale);
+        int xoffset = AdvancedChat.configStorage.chatConfig.xOffset + headoffset;
+        int fillX = xoffset - headoffset;
+        int bottomScreenOffset = MathHelper.ceil(AdvancedChat.configStorage.chatConfig.yOffset / getChatScale());
         int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
         int maxSize = actualHeight;
         int fadestart = AdvancedChat.configStorage.chatConfig.fadeStart;
@@ -94,119 +89,148 @@ public class AdvancedChatHud extends DrawableHelper {
             }
             currentTab = AdvancedChat.chatTab;
         }
+
         ColorUtil.SimpleColor textColor = AdvancedChat.configStorage.chatConfig.emptyText;
         ColorUtil.SimpleColor backgroundColor = AdvancedChat.configStorage.chatConfig.hudBackground;
         ColorUtil.SimpleColor ogcolor = backgroundColor;
-        boolean chatFocused = isChatFocused();
-        if (AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.ALWAYS) {
-            chatFocused = true;
-        }
+
+        boolean chatFocused = AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.ALWAYS || isChatFocused();
         if (AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.FOCUSONLY && !chatFocused) {
             return;
         }
-        int finalheight = 0;
-        if (currentTab.visibleMessages.size() > 0) {
 
+        // How far up we went. Used to fill in the rest of the box.
+        int finalheight = 0;
+
+        int lineCount = currentTab.getLineCount();
+        if (lineCount > 0) {
+
+            // Current line number
             int lines = 0;
             boolean alternate = AdvancedChat.configStorage.alternatelines;
             boolean didAlternate = false;
-            UUID lastUuid = null;
             // Check to see if the scroll is too far.
-            if (scrolledLines >= currentTab.visibleMessages.size()) {
+            if (scrolledLines >= lineCount) {
                 scrolledLines = 0;
             }
             if (chatFocused) {
                 // Scroll bar
-                int size = currentTab.visibleMessages.size();
-                float add = (float) scrolledLines / (size - getVisibleLineCount() + 1);
+                float add = (float) scrolledLines / (lineCount - getVisibleLineCount() + 1);
                 int scrollHeight = (int) (add * maxSize);
                 fill(matrices, actualWidth + 3 + xoffset, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4 + xoffset, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
             }
 
-            for (int i = 0; i + scrolledLines < currentTab.visibleMessages.size(); i++) {
-                AdvancedChatLine line = currentTab.visibleMessages.get(i + scrolledLines);
-                lines++;
-                int relativeHeight = (lines * lineHeight);
-                int height = (windowHeight - bottomScreenOffset) - relativeHeight;
+            // Render each message
+            ArrayList<UUID> rendered = new ArrayList<>();
+            int wrong = 0;
+            for (int i = 0; i + scrolledLines < lineCount; i++) {
+                AdvancedChatMessage line = currentTab.getMessageFromLine(i + scrolledLines);
+                if (rendered.contains(line.getUuid())) {
+                    continue;
+                }
                 if (alternate) {
-                    if (lastUuid == null) {
-                        lastUuid = line.getUuid();
-                    }
-                    if (!lastUuid.equals(line.getUuid())) {
-                        if (didAlternate) {
-                            backgroundColor = ogcolor;
-                            didAlternate = false;
-                        } else {
-                            if (backgroundColor.alpha() <= 215) {
-                                backgroundColor = backgroundColor.withAlpha(backgroundColor.alpha() + 40);
-                            } else {
-                                backgroundColor = backgroundColor.withAlpha(backgroundColor.alpha() - 40);
-                            }
-                            didAlternate = true;
-                        }
-                        lastUuid = line.getUuid();
+                    didAlternate = !didAlternate;
+                }
+                if (!alternate || didAlternate) {
+                    backgroundColor = ogcolor;
+                } else {
+                    if (backgroundColor.alpha() <= 215) {
+                        backgroundColor = backgroundColor.withAlpha(backgroundColor.alpha() + 40);
+                    } else {
+                        backgroundColor = backgroundColor.withAlpha(backgroundColor.alpha() - 40);
                     }
                 }
-                if (relativeHeight <= maxSize) {
-                    if (chatFocused) {
-                        ColorUtil.SimpleColor fadebackground;
-                        if (line.getBackground() != null) {
-                            fadebackground = line.getBackground();
-                        } else {
-                            fadebackground = backgroundColor;
-                        }
-                        fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                        Text newString = line.getText();
-                        if (line.getStacks() > 0) {
-                            SplitText toPrint = new SplitText(line.getText());
-                            Style style = Style.EMPTY;
-                            TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
-                            style = style.withColor(color);
-                            toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
-                            newString = toPrint.getText();
-                        }
-
-                        drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
-                        finalheight = height;
-                    } else {
-                        int timeAlive = tick - line.getCreationTick();
-                        if (timeAlive < fadestop) {
-                            float perc = (float) Math.min(1, 1 - ease.apply((double) (timeAlive - fadestart) / (double) (fadestop - fadestart)));
+                rendered.add(line.getUuid());
+                boolean showStack = true;
+                ArrayList<AdvancedChatMessage.AdvancedChatLine> chatLines = line.getLines();
+                for (int j = chatLines.size() - 1; j >= 0; j--) {
+                    AdvancedChatMessage.AdvancedChatLine l = chatLines.get(j);
+                    lines++;
+                    int relativeHeight = (lines * lineHeight);
+                    int height = (windowHeight - bottomScreenOffset) - relativeHeight;
+                    // Only show head on the top line
+                    boolean headNow = heads && j == 0;
+                    if (relativeHeight <= maxSize) {
+                        if (chatFocused) {
                             ColorUtil.SimpleColor fadebackground;
-                            // Fade background and text.
                             if (line.getBackground() != null) {
-                                fadebackground = ColorUtil.fade(line.getBackground(), perc);
+                                fadebackground = line.getBackground();
                             } else {
-                                fadebackground = ColorUtil.fade(backgroundColor, perc);
+                                fadebackground = backgroundColor;
                             }
-                            ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, perc);
-                            // If alpha is super low it renders it at 255?
-                            // Thanks minecraft -_-
-                            if (fadetext.alpha() <= 5) {
-                                continue;
-                            }
-                            fill(matrices, xoffset, height, xoffset + actualWidth + 4, height + lineHeight, fadebackground.color());
-                            Text newString = line.getText();
-                            if (line.getStacks() > 0) {
-                                SplitText toPrint = new SplitText(line.getText());
+                            fill(matrices, fillX, height, fillX + actualWidth + 4, height + lineHeight, fadebackground.color());
+                            Text newString = l.getText();
+                            if (line.getStacks() > 0 && showStack) {
+                                wrong++;
+                                SplitText toPrint = new SplitText(newString);
                                 Style style = Style.EMPTY;
                                 TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
                                 style = style.withColor(color);
                                 toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
                                 newString = toPrint.getText();
+                                showStack = false;
                             }
-                            drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
+
+                            if (headNow && line.getOwner() != null) {
+                                client.getTextureManager().bindTexture(line.getOwner().getSkinTexture());
+                                DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
+                            }
+                            drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
+                            finalheight = height;
+                        } else {
+                            int timeAlive = tick - line.getCreationTick();
+                            if (timeAlive < fadestop) {
+                                float perc = (float) Math.min(1, 1 - ease.apply((double) (timeAlive - fadestart) / (double) (fadestop - fadestart)));
+                                ColorUtil.SimpleColor fadebackground;
+                                // Fade background and text.
+                                if (line.getBackground() != null) {
+                                    fadebackground = ColorUtil.fade(line.getBackground(), perc);
+                                } else {
+                                    fadebackground = ColorUtil.fade(backgroundColor, perc);
+                                }
+                                ColorUtil.SimpleColor fadetext = ColorUtil.fade(textColor, perc);
+                                // If alpha is super low it renders it at 255?
+                                // Thanks minecraft -_-
+                                if (fadetext.alpha() <= 5) {
+                                    continue;
+                                }
+                                if (AdvancedChat.configStorage.chatConfig.hudLineType == ConfigStorage.HudLineType.FULL) {
+                                    fill(matrices, fillX, height, fillX + actualWidth + 4, height + lineHeight, fadebackground.color());
+                                } else if (AdvancedChat.configStorage.chatConfig.hudLineType == ConfigStorage.HudLineType.COMPACT) {
+                                    int width = l.getWidth();
+                                    fill(matrices, fillX, height, fillX + width + headoffset + 2, height + lineHeight, fadebackground.color());
+                                }
+                                Text newString = l.getText();
+                                if (line.getStacks() > 0 && showStack) {
+                                    SplitText toPrint = new SplitText(newString);
+                                    Style style = Style.EMPTY;
+                                    TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
+                                    style = style.withColor(color);
+                                    toPrint.getSiblings().add(new SimpleText(" (" + line.getStacks() + ")", style));
+                                    newString = toPrint.getText();
+                                    showStack = false;
+                                }
+                                if (headNow && line.getOwner() != null) {
+                                    RenderSystem.color4f(1, 1, 1, (float) textColor.alpha() / 255);
+                                    client.getTextureManager().bindTexture(line.getOwner().getSkinTexture());
+                                    DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
+                                    RenderSystem.color4f(1, 1, 1, 1);
+                                }
+                                drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
+                            }
                         }
                     }
                 }
             }
 
+            drawCenteredString(matrices, client.textRenderer, "" + wrong, 60, 50, ColorUtil.WHITE.color());
+
         }
         if (chatFocused) {
-            if (currentTab.visibleMessages.size() > 0) {
-                fill(matrices, xoffset, finalheight, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
+            if (currentTab.messages.size() > 0) {
+                fill(matrices, fillX, finalheight, fillX + actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
             } else {
-                fill(matrices, xoffset, windowHeight - bottomScreenOffset, xoffset + actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
+                fill(matrices, fillX, windowHeight - bottomScreenOffset, fillX + actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
             }
         }
 
@@ -232,7 +256,6 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public void clear(boolean clearHistory) {
         for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
-            tab.visibleMessages.clear();
             tab.messages.clear();
         }
         if (clearHistory) {
@@ -251,7 +274,7 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public void addMessage(Text Text, int messageId, int timestamp, boolean bl) {
-        AdvancedChat.chatTab.addMessage(Text, messageId, timestamp, bl);
+        AdvancedChat.chatTab.addMessage(Text, messageId, timestamp);
 
     }
 
@@ -281,7 +304,7 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public void scroll(double amount) {
         this.scrolledLines = (int)((double)this.scrolledLines + amount);
-        int i = currentTab.visibleMessages.size();
+        int i = currentTab.messages.size();
         if (this.scrolledLines > i - this.getVisibleLineCount()) {
             this.scrolledLines = i - this.getVisibleLineCount();
         }
@@ -316,12 +339,12 @@ public class AdvancedChatHud extends DrawableHelper {
             double trueY = relY / getChatScale();
 //            trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));
             if (trueX >= 0.0D && trueY >= 0.0D) {
-                int numOfMessages = Math.min(this.getVisibleLineCount(), currentTab.visibleMessages.size());
+                int numOfMessages = Math.min(this.getVisibleLineCount(), currentTab.getLineCount());
                 if (trueX <= (double) MathHelper.floor((double) getWidth())) {
-                    if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
+                    if (trueY < (double) (9 * numOfMessages + numOfMessages)) {
                         int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
-                        if (lineNum >= 0 && lineNum < currentTab.visibleMessages.size() && lineNum <= getVisibleLineCount() + scrolledLines) {
-                            AdvancedChatLine chatHudLine = currentTab.visibleMessages.get(lineNum);
+                        if (lineNum >= 0 && lineNum < currentTab.getLineCount() && lineNum <= getVisibleLineCount() + scrolledLines) {
+                            AdvancedChatMessage.AdvancedChatLine chatHudLine = currentTab.getLine(lineNum);
                             return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX);
                         }
                     }

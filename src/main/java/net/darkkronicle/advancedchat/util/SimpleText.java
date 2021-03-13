@@ -47,8 +47,12 @@ public class SimpleText {
     }
 
     public static SimpleText withColor(String string, ColorUtil.SimpleColor color) {
+        if (color == null) {
+            return new SimpleText(string, Style.EMPTY);
+        }
+        Style style = Style.EMPTY;
         TextColor textColor = TextColor.fromRgb(color.color());
-        return SimpleText.withStyle(string, Style.EMPTY.withColor(textColor));
+        return SimpleText.withStyle(string, style.withColor(textColor));
     }
 
     public static SimpleText withStyle(String string, Style base) {

@@ -41,6 +41,10 @@ public class ConfigStorage {
 
     public boolean alternatelines = false;
 
+    public boolean chatHeads = false;
+
+    public String chatHeadRegex = "[A-z,0-9,_,§]+";
+
     public Background background = Background.RANDOM;
 
     public ChatConfig chatConfig = new ChatConfig();
@@ -63,6 +67,7 @@ public class ConfigStorage {
 
         public int sideChars = 3;
 
+        public HudLineType hudLineType = HudLineType.FULL;
     }
 
     public ChatLogConfig chatLogConfig = new ChatLogConfig();
@@ -71,6 +76,11 @@ public class ConfigStorage {
         public int storedLines = 1000;
         public boolean showTime = false;
 
+    }
+
+    public enum HudLineType {
+        FULL,
+        COMPACT
     }
 
     public enum Visibility {
