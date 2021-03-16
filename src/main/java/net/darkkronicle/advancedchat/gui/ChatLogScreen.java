@@ -14,7 +14,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 package net.darkkronicle.advancedchat.gui;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ModMenuImpl;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -53,7 +53,7 @@ public class ChatLogScreen extends Screen {
     private Filter.FindType findType = Filter.FindType.LITERAL;
 
     public ChatLogScreen() {
-        super(new TranslatableText("screen.advancedchat.chatlog"));
+        super(new TranslatableText("advancedchat.screen.chatlog"));
     }
 
     public static int getWidth() {
@@ -152,9 +152,9 @@ public class ChatLogScreen extends Screen {
         int maxheight =  windowHeight - 90;
         List<ChatLogLine> filteredLines = AdvancedChat.getChatLogData().getFormattedMessages();
         int lines = 0;
-        int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
+        int lineHeight = ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
         int bottomScreenOffset = 20;
-        ColorUtil.SimpleColor textColor = AdvancedChat.configStorage.chatConfig.emptyText;
+        ColorUtil.SimpleColor textColor = ConfigStorage.ChatScreen.EMPTY_TEXT_COLOR.config.getSimpleColor();
         if (tab != null) {
             filteredLines = filteredLines.stream().filter(filter -> Arrays.asList(filter.getTab()).contains(tab)).collect(Collectors.toList());
         }
@@ -227,7 +227,7 @@ public class ChatLogScreen extends Screen {
 
     public int getVisibleLineCount() {
         int maxHeight = client.getWindow().getScaledHeight() - 90;
-        int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
+        int lineHeight = ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
         int lineCount = (int) Math.floor((float) maxHeight / lineHeight);
         return lineCount;
     }
@@ -241,7 +241,7 @@ public class ChatLogScreen extends Screen {
             int numOfMessages = Math.min(this.getVisibleLineCount(), AdvancedChat.getChatLogData().getFormattedMessages().size());
             if (trueX <= (double) MathHelper.floor((double) getWidth())) {
                 if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
-                    int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
+                    int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double)this.scrolledLines);
                     if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getFormattedMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
                         ChatLogLine chatHudLine = AdvancedChat.getChatLogData().getFormattedMessages().get(lineNum);
                         return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX - 20);

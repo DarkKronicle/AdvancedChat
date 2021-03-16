@@ -26,11 +26,8 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -75,6 +72,9 @@ public class ReplaceFilter extends AbstractFilter {
             for (int i = 0; i < matches.size(); i++) {
                 SearchText.StringMatch match = matches.get(i);
                 SplitText current = splitText.truncate(match);
+                if (current == null) {
+                    continue;
+                }
                 for (AbstractFilter filter : children) {
                     Optional<Text> filteredtext = filter.filter(current.getText());
                     if (filteredtext.isPresent()) {
@@ -116,8 +116,18 @@ public class ReplaceFilter extends AbstractFilter {
         } else if (type == Filter.ReplaceType.FULLMESSAGE) {
             Optional<List<SearchText.StringMatch>> matches = SearchText.findMatches(splitText.getFullMessage(), super.filterString, findType);
             if (matches.isPresent()) {
-                SearchText.StringMatch match = matches.get().get(0);
-                SimpleText toReplace = new SimpleText(replaceTo.replaceAll("%MATCH%", match.match), Style.EMPTY);
+                StringBuilder match = new StringBuilder();
+                for (SearchText.StringMatch m : matches.get()) {
+                    match.append(m.match);
+                }
+                if (color == null) {
+                    for (Text t : text.getSiblings()) {
+                        if (t.getStyle().getColor() != null) {
+                            color = new ColorUtil.SimpleColor(t.getStyle().getColor().getRgb());
+                        }
+                    }
+                }
+                SimpleText toReplace = new SimpleText(replaceTo.replaceAll("%MATCH%", match.toString()), Style.EMPTY);
                 if (color != null) {
                     Style original = Style.EMPTY;
                     TextColor textColor = TextColor.fromRgb(color.color());

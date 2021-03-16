@@ -13,8 +13,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 package net.darkkronicle.advancedchat.gui;
 
+import fi.dy.masa.malilib.gui.GuiBase;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ModMenuImpl;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.config.GuiConfig;
 import net.darkkronicle.advancedchat.gui.elements.CleanButton;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.CustomChatTab;
@@ -65,36 +67,36 @@ public class AdvancedChatScreen extends Screen {
 
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
 
-        int width = AdvancedChat.configStorage.chatConfig.width + 4;
-        if (AdvancedChat.configStorage.chatHeads) {
+        int width = ConfigStorage.ChatScreen.WIDTH.config.getIntegerValue() + 4;
+        if (ConfigStorage.Chat.CHAT_HEADS.config.getBooleanValue()) {
             width += 10;
         }
         int height = 11;
-        int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
+        int bottomOffset = ConfigStorage.ChatScreen.Y.config.getIntegerValue() + ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue() + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;
-        ColorUtil.SimpleColor baseColor = AdvancedChat.configStorage.chatConfig.hudBackground;
-        CleanButton tabButton = new CleanButton(AdvancedChat.configStorage.chatConfig.xOffset, y, width, height, baseColor, new LiteralText(hud.getCurrentTab().getName()), button -> {
+        ColorUtil.SimpleColor baseColor = ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor();
+        CleanButton tabButton = new CleanButton(ConfigStorage.ChatScreen.X.config.getIntegerValue(), y, width, height, baseColor, new LiteralText(hud.getCurrentTab().getName()), button -> {
             hud.cycleTab();
             button.setText(new LiteralText(hud.getCurrentTab().getName()));
         });
 
         CleanButton chatLogButton = new CleanButton(client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Chat Log"), button -> client.openScreen(new ChatLogScreen()));
-        CleanButton settingsButton = new CleanButton(client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Settings"), button -> client.openScreen(ModMenuImpl.getScreen(this)));
+        CleanButton settingsButton = new CleanButton(client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Settings"), button -> GuiBase.openGui(new GuiConfig()));
 
         this.addButton(chatLogButton);
         this.addButton(settingsButton);
         this.addButton(tabButton);
         this.children.add(this.chatField);
 
-        if (AdvancedChat.configStorage.chatConfig.showTabs) {
+        if (ConfigStorage.ChatScreen.SHOW_TABS.config.getBooleanValue()) {
             int xadd = width + 2;
-            int yadd = client.getWindow().getScaledHeight() - 11 - AdvancedChat.configStorage.chatConfig.yOffset;
+            int yadd = client.getWindow().getScaledHeight() - 11 - ConfigStorage.ChatScreen.Y.config.getIntegerValue();
             int orgYadd = yadd;
-            int tabchar = AdvancedChat.configStorage.chatConfig.sideChars;
+            int tabchar = ConfigStorage.ChatScreen.TAB_SIDE_CHARS.config.getIntegerValue();
             int bwidth = tabchar * 10 + 2;
             int relativeHeight = 13;
             for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
-                if (relativeHeight >= AdvancedChat.configStorage.chatConfig.height) {
+                if (relativeHeight >= ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue()) {
                     xadd = xadd + bwidth + 2;
                     yadd = orgYadd;
                     relativeHeight = 13;
@@ -214,12 +216,7 @@ public class AdvancedChatScreen extends Screen {
                 if (style != null && this.handleTextClick(style)) {
                     return true;
                 }
-
-                int height = 11;
-                int bottomOffset = AdvancedChat.configStorage.chatConfig.yOffset + AdvancedChat.configStorage.chatConfig.height + 5 + height;
-
             }
-
             return this.chatField.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
         }
     }
@@ -257,7 +254,7 @@ public class AdvancedChatScreen extends Screen {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         this.setFocused(this.chatField);
         this.chatField.setSelected(true);
-        fill(matrices, 2, this.height - 14, this.width - 2, this.height - 2, AdvancedChat.configStorage.chatConfig.hudBackground.color());
+        fill(matrices, 2, this.height - 14, this.width - 2, this.height - 2, ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor().color());
         this.chatField.render(matrices, mouseX, mouseY, delta);
         this.commandSuggestor.render(matrices, mouseX, mouseY);
         Style style = hud.getText(mouseX, mouseY);

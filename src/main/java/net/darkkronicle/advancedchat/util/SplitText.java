@@ -14,6 +14,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 package net.darkkronicle.advancedchat.util;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.TextCollector;
@@ -254,8 +255,8 @@ public class SplitText {
     }
 
     public void addTime(DateTimeFormatter format, LocalTime time) {
-        String replaceFormat = AdvancedChat.configStorage.replaceFormat.replaceAll("&", "§");
-        ColorUtil.SimpleColor color = AdvancedChat.configStorage.timeColor;
+        String replaceFormat = ConfigStorage.Chat.TIME_TEXT_FORMAT.config.getStringValue().replaceAll("&", "§");
+        ColorUtil.SimpleColor color = ConfigStorage.Chat.TIME_COLOR.config.getSimpleColor();
         Style style = Style.EMPTY;
         TextColor textColor = TextColor.fromRgb(color.color());
         style = style.withColor(textColor);

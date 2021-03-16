@@ -3,7 +3,7 @@ package net.darkkronicle.advancedchat.gui;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ModMenuImpl;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SplitText;
@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
 public class SharingScreen extends Screen {
@@ -28,7 +27,7 @@ public class SharingScreen extends Screen {
     }
 
     public SharingScreen(String starting) {
-        super(new TranslatableText("config.advancedchat.screen.export"));
+        super(new TranslatableText("advancedchat.screen.export"));
         this.starting = starting;
         if (starting != null) {
             System.out.println(starting.length());
@@ -62,8 +61,7 @@ public class SharingScreen extends Screen {
                 if (filter == null) {
                     throw new NullPointerException("Filter is null!");
                 }
-                AdvancedChat.configStorage.filters.add(filter);
-                ModMenuImpl.save();
+                ConfigStorage.FILTERS.add(filter);
                 good = true;
             } catch (Exception e) {
                 bad = e.getMessage();
@@ -75,10 +73,10 @@ public class SharingScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
         if (bad != null) {
-            client.textRenderer.drawWithShadow(matrices, new SplitText(new TranslatableText("config.advancedchat.filter.export.error")).getFullMessage() + " " + bad, 10, 10, new ColorUtil.SimpleColor(204, 50, 50, 255).color());
+            client.textRenderer.drawWithShadow(matrices, new SplitText(new TranslatableText("advancedchat.error.filter.export")).getFullMessage() + " " + bad, 10, 10, new ColorUtil.SimpleColor(204, 50, 50, 255).color());
         }
         if (good) {
-            client.textRenderer.drawWithShadow(matrices, new SplitText(new TranslatableText("config.advancedchat.filter.export.good")).getFullMessage(), 10, 10, ColorUtil.WHITE.color());
+            client.textRenderer.drawWithShadow(matrices, new SplitText(new TranslatableText("advancedchat.success.filter.export")).getFullMessage(), 10, 10, ColorUtil.WHITE.color());
         }
     }
 }

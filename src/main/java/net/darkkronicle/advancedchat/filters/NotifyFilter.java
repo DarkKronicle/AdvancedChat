@@ -26,11 +26,11 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class NotifyFilter extends AbstractFilter {
 
-    private Filter.NotifySounds notifySound;
+    private Filter.NotifySound notifySound;
     private float volume;
     private float pitch;
 
-    public NotifyFilter(String toFind, Filter.FindType findType, Filter.NotifySounds notifySound, float volume, float pitch) {
+    public NotifyFilter(String toFind, Filter.FindType findType, Filter.NotifySound notifySound, float volume, float pitch) {
         this.notifySound = notifySound;
         super.filterString = toFind;
         super.findType = findType;
@@ -40,7 +40,7 @@ public class NotifyFilter extends AbstractFilter {
 
     @Override
     public Optional<Text> filter(Text text) {
-        if (notifySound != Filter.NotifySounds.NONE) {
+        if (notifySound != Filter.NotifySound.NONE) {
             if (SearchText.isMatch(text.getString(), filterString, findType)) {
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(notifySound.getEvent(), pitch, volume));
             }

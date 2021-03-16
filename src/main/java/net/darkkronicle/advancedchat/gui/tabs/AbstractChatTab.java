@@ -15,6 +15,7 @@ package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
 import net.darkkronicle.advancedchat.storage.Filter;
@@ -117,6 +118,10 @@ public abstract class AbstractChatTab {
     }
 
     public void addMessage(Text text, int messageId, int timestamp, LocalTime time) {
+        addMessage(text, messageId, timestamp, time, null);
+    }
+
+    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, PlayerListEntry playerInfo) {
         if (!shouldAdd(text)) {
             return;
         }
@@ -125,7 +130,7 @@ public abstract class AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
+        for (int i = 0; i < ConfigStorage.Chat.CHAT_STACK.config.getIntegerValue() && i < messages.size(); i++) {
             AdvancedChatMessage chatLine = messages.get(i);
             if (text.getString().equals(chatLine.getRawText().getString())) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
@@ -133,31 +138,13 @@ public abstract class AbstractChatTab {
             }
         }
 
-        boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
+        boolean showtime = ConfigStorage.Chat.SHOW_TIME.config.getBooleanValue();
         Text original = text;
         if (showtime) {
             SplitText split = new SplitText(text);
-            DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.Chat.TIME_FORMAT.config.getStringValue());
             split.addTime(format, time);
             text = split.getText();
-        }
-
-        PlayerListEntry playerInfo = null;
-        Optional<List<SearchText.StringMatch>> words = SearchText.findMatches(text.getString(), AdvancedChat.configStorage.chatHeadRegex, Filter.FindType.REGEX);
-        if (words.isPresent()) {
-            if (client.getNetworkHandler() != null) {
-                for (SearchText.StringMatch m : words.get()) {
-                    if (playerInfo != null) {
-                        break;
-                    }
-                    for (PlayerListEntry e : client.getNetworkHandler().getPlayerList()) {
-                        if (m.match.equals(e.getDisplayName().getString())) {
-                            playerInfo = e;
-                            break;
-                        }
-                    }
-                }
-            }
         }
 
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
@@ -168,7 +155,7 @@ public abstract class AbstractChatTab {
 
         hud.messageAddedToTab(this);
 
-        int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
+        int visibleMessagesMaxSize = ConfigStorage.Chat.STORED_LINES.config.getIntegerValue();
         while (this.messages.size() > visibleMessagesMaxSize) {
             this.messages.remove(this.messages.size() - 1);
         }

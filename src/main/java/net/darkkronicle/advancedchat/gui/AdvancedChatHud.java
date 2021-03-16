@@ -24,6 +24,7 @@ import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
@@ -31,6 +32,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.options.ChatVisibility;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
@@ -67,20 +69,23 @@ public class AdvancedChatHud extends DrawableHelper {
 
         // Declare useful variables
         Window window = this.client.getWindow();
-        boolean heads = AdvancedChat.configStorage.chatHeads;
+        boolean heads = ConfigStorage.Chat.CHAT_HEADS.config.getBooleanValue();
         // How far heads will render
         int headoffset = heads ? 10 : 0;
+        // Width shouldn't be affected of chat scale
         int windowHeight = MathHelper.ceil(window.getScaledHeight() / getChatScale());
         int actualWidth = MathHelper.ceil((double) getWidth() / getChatScale()) + headoffset;
         int actualHeight = MathHelper.ceil((double) getHeight() / getChatScale());
-        int xoffset = AdvancedChat.configStorage.chatConfig.xOffset + headoffset;
+        // Where text will start
+        int xoffset = ConfigStorage.ChatScreen.X.config.getIntegerValue() + headoffset;
+        // Where the background will be drawn
         int fillX = xoffset - headoffset;
-        int bottomScreenOffset = MathHelper.ceil(AdvancedChat.configStorage.chatConfig.yOffset / getChatScale());
-        int lineHeight = AdvancedChat.configStorage.chatConfig.lineSpace;
+        int bottomScreenOffset = MathHelper.ceil(ConfigStorage.ChatScreen.Y.config.getIntegerValue() / getChatScale());
+        int lineHeight = ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
         int maxSize = actualHeight;
-        int fadestart = AdvancedChat.configStorage.chatConfig.fadeStart;
-        int fadestop = fadestart + AdvancedChat.configStorage.chatConfig.fadeTime;
-        EasingMethod ease = AdvancedChat.configStorage.chatConfig.fadeType;
+        int fadestart = ConfigStorage.ChatScreen.FADE_START.config.getIntegerValue();
+        int fadestop = fadestart + ConfigStorage.ChatScreen.FADE_TIME.config.getIntegerValue();
+        EasingMethod ease = ConfigStorage.Easing.fromEasingString(ConfigStorage.ChatScreen.FADE_TYPE.config.getStringValue());
 
         // Check that tab is set...
         if (currentTab == null) {
@@ -90,14 +95,17 @@ public class AdvancedChatHud extends DrawableHelper {
             currentTab = AdvancedChat.chatTab;
         }
 
-        ColorUtil.SimpleColor textColor = AdvancedChat.configStorage.chatConfig.emptyText;
-        ColorUtil.SimpleColor backgroundColor = AdvancedChat.configStorage.chatConfig.hudBackground;
+        ColorUtil.SimpleColor textColor = ConfigStorage.ChatScreen.EMPTY_TEXT_COLOR.config.getSimpleColor();
+        ColorUtil.SimpleColor backgroundColor = ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor();
         ColorUtil.SimpleColor ogcolor = backgroundColor;
 
-        boolean chatFocused = AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.ALWAYS || isChatFocused();
-        if (AdvancedChat.configStorage.visibility == ConfigStorage.Visibility.FOCUSONLY && !chatFocused) {
+        ConfigStorage.Visibility visibility = ConfigStorage.Visibility.fromVisibilityString(ConfigStorage.ChatScreen.VISIBILITY.config.getStringValue());
+        boolean chatFocused = visibility == ConfigStorage.Visibility.ALWAYS || isChatFocused();
+        if (visibility == ConfigStorage.Visibility.FOCUSONLY && !chatFocused) {
             return;
         }
+
+        ConfigStorage.HudLineType hudLineType = ConfigStorage.HudLineType.fromHudLineTypeString(ConfigStorage.ChatScreen.HUD_LINE_TYPE.config.getStringValue());
 
         // How far up we went. Used to fill in the rest of the box.
         int finalheight = 0;
@@ -107,7 +115,7 @@ public class AdvancedChatHud extends DrawableHelper {
 
             // Current line number
             int lines = 0;
-            boolean alternate = AdvancedChat.configStorage.alternatelines;
+            boolean alternate = ConfigStorage.ChatScreen.ALTERNATE_LINES.config.getBooleanValue();
             boolean didAlternate = false;
             // Check to see if the scroll is too far.
             if (scrolledLines >= lineCount) {
@@ -122,7 +130,6 @@ public class AdvancedChatHud extends DrawableHelper {
 
             // Render each message
             ArrayList<UUID> rendered = new ArrayList<>();
-            int wrong = 0;
             for (int i = 0; i + scrolledLines < lineCount; i++) {
                 AdvancedChatMessage line = currentTab.getMessageFromLine(i + scrolledLines);
                 if (rendered.contains(line.getUuid())) {
@@ -161,7 +168,6 @@ public class AdvancedChatHud extends DrawableHelper {
                             fill(matrices, fillX, height, fillX + actualWidth + 4, height + lineHeight, fadebackground.color());
                             Text newString = l.getText();
                             if (line.getStacks() > 0 && showStack) {
-                                wrong++;
                                 SplitText toPrint = new SplitText(newString);
                                 Style style = Style.EMPTY;
                                 TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
@@ -194,9 +200,9 @@ public class AdvancedChatHud extends DrawableHelper {
                                 if (fadetext.alpha() <= 5) {
                                     continue;
                                 }
-                                if (AdvancedChat.configStorage.chatConfig.hudLineType == ConfigStorage.HudLineType.FULL) {
+                                if (hudLineType == ConfigStorage.HudLineType.FULL) {
                                     fill(matrices, fillX, height, fillX + actualWidth + 4, height + lineHeight, fadebackground.color());
-                                } else if (AdvancedChat.configStorage.chatConfig.hudLineType == ConfigStorage.HudLineType.COMPACT) {
+                                } else if (hudLineType == ConfigStorage.HudLineType.COMPACT) {
                                     int width = l.getWidth();
                                     fill(matrices, fillX, height, fillX + width + headoffset + 2, height + lineHeight, fadebackground.color());
                                 }
@@ -222,8 +228,6 @@ public class AdvancedChatHud extends DrawableHelper {
                     }
                 }
             }
-
-            drawCenteredString(matrices, client.textRenderer, "" + wrong, 60, 50, ColorUtil.WHITE.color());
 
         }
         if (chatFocused) {
@@ -333,16 +337,16 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public Style getText(double mouseX, double mouseY) {
         if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden()) {
-            double relX = mouseX - 2 - AdvancedChat.configStorage.chatConfig.xOffset;
-            double relY = (double)this.client.getWindow().getScaledHeight() - mouseY - AdvancedChat.configStorage.chatConfig.yOffset;
+            double relX = mouseX - 2 - ConfigStorage.ChatScreen.X.config.getIntegerValue();
+            // TODO Heads bench
+            double relY = (double)this.client.getWindow().getScaledHeight() - mouseY - ConfigStorage.ChatScreen.Y.config.getIntegerValue();
             double trueX = relX / getChatScale();
             double trueY = relY / getChatScale();
-//            trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));
             if (trueX >= 0.0D && trueY >= 0.0D) {
                 int numOfMessages = Math.min(this.getVisibleLineCount(), currentTab.getLineCount());
                 if (trueX <= (double) MathHelper.floor((double) getWidth())) {
                     if (trueY < (double) (9 * numOfMessages + numOfMessages)) {
-                        int lineNum = (int)(trueY / AdvancedChat.configStorage.chatConfig.lineSpace + (double)this.scrolledLines);
+                        int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double) this.scrolledLines);
                         if (lineNum >= 0 && lineNum < currentTab.getLineCount() && lineNum <= getVisibleLineCount() + scrolledLines) {
                             AdvancedChatMessage.AdvancedChatLine chatHudLine = currentTab.getLine(lineNum);
                             return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX);
@@ -364,7 +368,7 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public static int getWidth() {
-        return AdvancedChat.configStorage.chatConfig.width;
+        return ConfigStorage.ChatScreen.WIDTH.config.getIntegerValue();
     }
 
     public static int getScaledWidth() {
@@ -376,15 +380,15 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public static double getChatScale() {
-        return AdvancedChat.configStorage.chatConfig.chatscale;
+        return ConfigStorage.ChatScreen.CHAT_SCALE.config.getDoubleValue();
     }
 
     public static int getHeight() {
-        return AdvancedChat.configStorage.chatConfig.height;
+        return ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue();
     }
 
     public int getVisibleLineCount() {
-        return AdvancedChatHud.getScaledHeight() / AdvancedChat.configStorage.chatConfig.lineSpace;
+        return AdvancedChatHud.getScaledHeight() / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
     }
 
     private long getChatDelayMS() {

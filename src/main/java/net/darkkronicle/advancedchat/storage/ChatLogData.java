@@ -15,22 +15,19 @@ package net.darkkronicle.advancedchat.storage;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.ChatLogLine;
-import net.darkkronicle.advancedchat.gui.ChatLogScreen;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.ChatMessages;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
 @Data
@@ -39,8 +36,8 @@ public class ChatLogData {
     private ArrayList<ChatLogLine> formattedMessages = new ArrayList<>();
     private int lastWidth = 0;
     private int lastHeight = 0;
-    private boolean chatLogTime = AdvancedChat.configStorage.chatLogConfig.showTime;
-    private boolean chatHudTime = AdvancedChat.configStorage.chatConfig.showTime;
+    private boolean chatLogTime = ConfigStorage.ChatLogConfig.SHOW_TIME.config.getBooleanValue();
+    private boolean chatHudTime = ConfigStorage.Chat.SHOW_TIME.config.getBooleanValue();
 
     public void addMessage(Text text, AbstractChatTab... tab) {
         addMessage(text, 0, LocalTime.now(), tab);
@@ -54,9 +51,9 @@ public class ChatLogData {
             lastHeight = client.getWindow().getScaledHeight();
         }
 
-        boolean showtime = AdvancedChat.configStorage.chatLogConfig.showTime;
+        boolean showtime = ConfigStorage.ChatLogConfig.SHOW_TIME.config.getBooleanValue();
         if (showtime) {
-            DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.Chat.TIME_FORMAT.config.getStringValue());
             SplitText split = new SplitText(text);
             split.addTime(format, time);
             text = split.getText();
@@ -67,7 +64,7 @@ public class ChatLogData {
         rawMessages.add(line);
         this.formattedMessages.add(0, new ChatLogLine(text, id, tab, time, line.getUuid()));
 
-        int visibleMessagesMaxSize = AdvancedChat.configStorage.chatLogConfig.storedLines;
+        int visibleMessagesMaxSize = ConfigStorage.Chat.STORED_LINES.config.getIntegerValue();
         while(this.rawMessages.size() > visibleMessagesMaxSize) {
             this.rawMessages.remove(this.rawMessages.size() - 1);
         }
@@ -100,19 +97,4 @@ public class ChatLogData {
 
     }
 
-    public boolean isChatHudTime() {
-        if (chatHudTime != AdvancedChat.configStorage.chatConfig.showTime) {
-            chatHudTime = AdvancedChat.configStorage.chatConfig.showTime;
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isChatLogTime() {
-        if (chatLogTime != AdvancedChat.configStorage.chatLogConfig.showTime) {
-            chatLogTime = AdvancedChat.configStorage.chatLogConfig.showTime;
-            return true;
-        }
-        return false;
-    }
 }

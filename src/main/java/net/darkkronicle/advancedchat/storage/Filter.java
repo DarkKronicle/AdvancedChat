@@ -13,20 +13,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 package net.darkkronicle.advancedchat.storage;
 
-import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
+import fi.dy.masa.malilib.config.IConfigOptionListEntry;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
+import fi.dy.masa.malilib.config.options.ConfigOptionList;
+import fi.dy.masa.malilib.config.options.ConfigString;
+import fi.dy.masa.malilib.util.StringUtils;
 import lombok.Data;
-import lombok.Getter;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.util.ColorUtil;
-import net.darkkronicle.advancedchat.util.SimpleText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Style;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /** Filter Storage
  * This class is used to store data for filters. Each filter is based off of this class. These are stored in an ArrayList for later usage.
@@ -34,30 +34,41 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 @Data
-@AllArgsConstructor
 public class Filter {
+
+    private static String translate(String key) {
+        return StringUtils.translate("advancedchat.config.filter." + key);
+    }
 
     /**
      * Name is only cosmetic. Shows up when editing filters. Way to distinguish filters for the player.
       */
-    private String name;
+    private ConfigStorage.SaveableConfig<ConfigString> name = ConfigStorage.SaveableConfig.fromConfig("name",
+            new ConfigString(translate("name"), "Default", translate("info.name")));
 
     /**
      * Whether or not it should be used to filter chat messages currently.
      */
-    private boolean active;
+    private ConfigStorage.SaveableConfig<ConfigBoolean> active = ConfigStorage.SaveableConfig.fromConfig("active",
+            new ConfigBoolean(translate("active"), false, translate("info.active")));
 
     /**
      * The Expression to find a match. The way it is interpreted is defined by findType.
      */
-    private String findString;
+    private ConfigStorage.SaveableConfig<ConfigString> findString = ConfigStorage.SaveableConfig.fromConfig("findString",
+            new ConfigString(translate("findstring"), "Hello", translate("info.findstring")));
 
     /** How findString is used.
      * LITERAL checks just for a match character to character.
      * UPPERLOWER is like literal, but ignore case.
      * REGEX interprets findString as a regular expression.
      */
-    private FindType findType;
+    private ConfigStorage.SaveableConfig<ConfigOptionList> findType = ConfigStorage.SaveableConfig.fromConfig("findType",
+            new ConfigOptionList(translate("findtype"), FindType.LITERAL, translate("info.findtype")));
+
+    public FindType getFind() {
+        return FindType.fromFindType(findType.config.getStringValue());
+    }
 
     /**
      * How the found string is modified.
@@ -74,7 +85,7 @@ public class Filter {
     /** How the filter notifies the client of a found string.
      * SOUND plays a sound when the filter is triggered.
      */
-    private NotifySounds notifySound;
+    private NotifySound notifySound;
     private float soundPitch;
     private float soundVol;
 
@@ -86,83 +97,169 @@ public class Filter {
 
     private ArrayList<Filter> children;
 
-    /**
-     * The default filter. Used for new filters.
-     */
-    public static Filter getDefault() {
-        return new Filter("Default", false, "Cool", FindType.LITERAL, ReplaceType.ONLYMATCH,"AWESOME!", NotifySounds.NONE, 1, 1, false, false, ColorUtil.BLACK, new ArrayList<>());
-    }
 
-    /**
-     * In case the config.json has a missing value this will prevent NPE's from happening when ever the filter is accessed.
-     * @param filters Filters to input.
-     */
-    public static void checkForErrors(List<Filter> filters) {
-        for (Filter filter : filters) {
-            if (filter.name == null) {
-                filter.name = "Default";
+    public enum FindType implements IConfigOptionListEntry {
+        LITERAL("literal"),
+        UPPERLOWER("upperlower"),
+        REGEX("regex"),
+        ALL("all")
+        ;
+        public final String configString;
+
+        private static String translate(String key) {
+            return StringUtils.translate("advancedchat.config.findtype." + key);
+        }
+
+        FindType(String configString) {
+            this.configString = configString   ;
+        }
+
+        @Override
+        public String getStringValue() {
+            return configString;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return translate(configString);
+        }
+
+        @Override
+        public IConfigOptionListEntry cycle(boolean forward) {
+            int id = this.ordinal();
+            if (forward) {
+                id++;
+            } else {
+                id--;
             }
-            if (filter.findString == null) {
-                filter.findString = "Cool";
+            return values()[id % values().length];
+        }
+
+        @Override
+        public IConfigOptionListEntry fromString(String value) {
+            return fromFindType(value);
+        }
+
+        public static FindType fromFindType(String findtype) {
+            for (FindType r : FindType.values()) {
+                if (r.configString.equals(findtype)) {
+                    return r;
+                }
             }
-            if (filter.findType == null) {
-                filter.findType = FindType.LITERAL;
-            }
-            if (filter.replaceType == null) {
-                filter.replaceType = ReplaceType.NONE;
-            }
-            if (filter.replaceTo == null) {
-                filter.replaceTo = "AWESOME!";
-            }
-            if (filter.notifySound == null) {
-                filter.notifySound = NotifySounds.ARROW_HIT_PLAYER;
-            }
-            if (filter.color == null) {
-                filter.color = ColorUtil.BLACK;
-            }
+            return FindType.LITERAL;
         }
     }
 
-
-    public enum FindType {
-        @SerializedName("literal")
-        LITERAL,
-        @SerializedName("upperlower")
-        UPPERLOWER,
-        @SerializedName("regex")
-        REGEX,
-        @SerializedName("all")
-        ALL
-    }
-
-    public enum ReplaceType {
-        @SerializedName("none")
-        NONE,
-        @SerializedName("onlymatch")
-        ONLYMATCH,
-        @SerializedName("fullmessage")
-        FULLMESSAGE,
-        @SerializedName("children")
-        CHILDREN
-    }
-
-    public enum NotifySounds {
-        NONE(null),
-        ARROW_HIT_PLAYER(SoundEvents.ENTITY_ARROW_HIT_PLAYER),
-        ANVIL_BREAK(SoundEvents.BLOCK_ANVIL_BREAK),
-        BEACON_ACTIVATE(SoundEvents.BLOCK_BEACON_ACTIVATE),
-        ELDER_GUARDIAN_CURSE(SoundEvents.ENTITY_ELDER_GUARDIAN_CURSE),
-        ENDERMAN_TELEPORT(SoundEvents.ENTITY_ENDERMAN_TELEPORT),
-        WOLOLO(SoundEvents.ENTITY_EVOKER_PREPARE_WOLOLO),
-        BELL(SoundEvents.BLOCK_BELL_USE),
-        CLICK(SoundEvents.UI_BUTTON_CLICK),
-        HUSK_TO_ZOMBIE(SoundEvents.ENTITY_HUSK_CONVERTED_TO_ZOMBIE),
-        GLASS_BREAK(SoundEvents.BLOCK_GLASS_BREAK)
+    public enum ReplaceType implements IConfigOptionListEntry {
+        NONE("none"),
+        ONLYMATCH("onlymatch"),
+        FULLMESSAGE("fullmessage"),
+        CHILDREN("children")
         ;
-        @Getter
-        private final SoundEvent event;
-        NotifySounds(SoundEvent event) {
-            this.event = event;
+        public final String configString;
+
+        private static String translate(String key) {
+            return StringUtils.translate("advancedchat.config.replacetype." + key);
+        }
+
+        ReplaceType(String configString) {
+            this.configString = configString;
+        }
+
+        @Override
+        public String getStringValue() {
+            return configString;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return translate(configString);
+        }
+
+        @Override
+        public IConfigOptionListEntry cycle(boolean forward) {
+            int id = this.ordinal();
+            if (forward) {
+                id++;
+            } else {
+                id--;
+            }
+            return values()[id % values().length];
+        }
+
+        @Override
+        public IConfigOptionListEntry fromString(String value) {
+            return fromReplaceTypeString(value);
+        }
+
+        public static ReplaceType fromReplaceTypeString(String replacetype) {
+            for (ReplaceType r : ReplaceType.values()) {
+                if (r.configString.equals(replacetype)) {
+                    return r;
+                }
+            }
+            return ReplaceType.NONE;
+        }
+    }
+
+    public enum NotifySound implements IConfigOptionListEntry {
+        NONE("none", null),
+        ARROW_HIT_PLAYER("arrow_hit_player", SoundEvents.ENTITY_ARROW_HIT_PLAYER),
+        ANVIL_BREAK("anvil_break", SoundEvents.BLOCK_ANVIL_BREAK),
+        BEACON_ACTIVATE("beacon_activate", SoundEvents.BLOCK_BEACON_ACTIVATE),
+        ELDER_GUARDIAN_CURSE("elder_guardian_curse", SoundEvents.ENTITY_ELDER_GUARDIAN_CURSE),
+        ENDERMAN_TELEPORT("enderman_teleport", SoundEvents.ENTITY_ENDERMAN_TELEPORT),
+        WOLOLO("wololo", SoundEvents.ENTITY_EVOKER_PREPARE_WOLOLO),
+        BELL("bell_use", SoundEvents.BLOCK_BELL_USE),
+        CLICK("button_click", SoundEvents.UI_BUTTON_CLICK),
+        HUSK_TO_ZOMBIE("husk_to_zombie", SoundEvents.ENTITY_HUSK_CONVERTED_TO_ZOMBIE),
+        GLASS_BREAK("glass_break", SoundEvents.BLOCK_GLASS_BREAK)
+        ;
+        public final String configString;
+        public final SoundEvent event;
+
+        private static String translate(String key) {
+            return StringUtils.translate("advancedchat.config.replacetype." + key);
+        }
+
+        NotifySound(String configString, SoundEvent sound) {
+            this.configString = configString;
+            this.event = sound;
+        }
+
+        @Override
+        public String getStringValue() {
+            return configString;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return translate(configString);
+        }
+
+        @Override
+        public IConfigOptionListEntry cycle(boolean forward) {
+            int id = this.ordinal();
+            if (forward) {
+                id++;
+            } else {
+                id--;
+            }
+            return values()[id % values().length];
+        }
+
+        @Override
+        public IConfigOptionListEntry fromString(String value) {
+            return fromReplaceTypeString(value);
+        }
+
+        public static NotifySound fromReplaceTypeString(String notifysound) {
+            for (NotifySound r : NotifySound.values()) {
+                if (r.configString.equals(notifysound)) {
+                    return r;
+                }
+            }
+            return NotifySound.ARROW_HIT_PLAYER;
         }
     }
 

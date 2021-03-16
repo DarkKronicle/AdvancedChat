@@ -14,7 +14,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.Getter;
-import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -63,7 +63,7 @@ public class MainFilter extends AbstractFilter {
     public void loadFilters() {
        filters = new ArrayList<>();
        colorFilters = new ArrayList<>();
-       for (Filter filter : AdvancedChat.configStorage.filters) {
+       for (Filter filter : ConfigStorage.FILTERS) {
            // If it replaces anything.
             List<AbstractFilter> afilter = createFilter(filter);
             if (afilter != null) {
@@ -86,7 +86,7 @@ public class MainFilter extends AbstractFilter {
         ArrayList<AbstractFilter> filters = new ArrayList<>();
         if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
             if (filter.getReplaceType() == Filter.ReplaceType.CHILDREN) {
-                ReplaceFilter f = new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), filter.getColor());
+                ReplaceFilter f = new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null);
                 if (filter.getChildren() != null) {
                     for (Filter child : filter.getChildren()) {
                         List<AbstractFilter> childf = createFilter(child);
@@ -104,7 +104,7 @@ public class MainFilter extends AbstractFilter {
                 filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
             }
         }
-        if (filter.getNotifySound() != Filter.NotifySounds.NONE) {
+        if (filter.getNotifySound() != Filter.NotifySound.NONE) {
             filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifySound(), filter.getSoundVol(), filter.getSoundPitch()));
         }
         if (filter.isReplaceBackgroundColor()) {

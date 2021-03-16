@@ -15,6 +15,7 @@ package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Getter;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.ColorFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
@@ -57,7 +58,7 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     @Override
-    public void addMessage(Text text, int messageId, int timestamp, LocalTime time) {
+    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, PlayerListEntry player) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
         Text unfiltered = text;
@@ -77,12 +78,15 @@ public class MainChatTab extends AbstractChatTab {
             }
         }
         // Goes through chat tabs
+        if (player == null) {
+            player = SearchText.getAuthor(client.getNetworkHandler(), unfiltered);
+        }
         boolean dontforward = false;
         ArrayList<AbstractChatTab> added = new ArrayList<>();
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
                 if (tab.shouldAdd(text)) {
-                    tab.addMessage(text, messageId, timestamp);
+                    tab.addMessage(text, messageId, timestamp, time, player);
                     added.add(tab);
                     if (!tab.isForward()) {
                         dontforward = true;
@@ -106,51 +110,33 @@ public class MainChatTab extends AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-        PlayerListEntry playerInfo = null;
-        Optional<List<SearchText.StringMatch>> words = SearchText.findMatches(text.getString(), AdvancedChat.configStorage.chatHeadRegex, Filter.FindType.REGEX);
-        if (words.isPresent()) {
-            if (client.getNetworkHandler() != null) {
-                for (SearchText.StringMatch m : words.get()) {
-                    if (playerInfo != null) {
-                        break;
-                    }
-                    for (PlayerListEntry e : client.getNetworkHandler().getPlayerList()) {
-                        if ((e.getDisplayName() != null && m.match.equals(e.getDisplayName().getString())) || m.match.equals(e.getProfile().getName())) {
-                            playerInfo = e;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
 
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
         int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5 );
 
-
-        for (int i = 0; i < AdvancedChat.configStorage.chatStack && i < messages.size(); i++) {
+        for (int i = 0; i < ConfigStorage.Chat.CHAT_STACK.config.getIntegerValue() && i < messages.size(); i++) {
             AdvancedChatMessage chatLine = messages.get(i);
             if (text.getString().equals(chatLine.getRawText().getString())) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
                 return;
             }
         }
-        boolean showtime = AdvancedChat.configStorage.chatConfig.showTime;
+        boolean showtime = ConfigStorage.Chat.SHOW_TIME.config.getBooleanValue();
         Text original = text;
         if (showtime) {
-            DateTimeFormatter format = DateTimeFormatter.ofPattern(AdvancedChat.configStorage.timeFormat);
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.Chat.TIME_FORMAT.config.getStringValue());
             SplitText split = new SplitText(text);
             split.addTime(format, time);
             text = split.getText();
         }
 
-        AdvancedChatMessage line = AdvancedChatMessage.builder().originalText(original).text(text).owner(playerInfo).id(messageId).width(width).creationTick(timestamp).time(time).build();
+        AdvancedChatMessage line = AdvancedChatMessage.builder().originalText(original).text(text).owner(player).id(messageId).width(width).creationTick(timestamp).time(time).build();
 
         this.messages.add(0, line);
 
         hud.messageAddedToTab(this);
 
-        int visibleMessagesMaxSize = AdvancedChat.configStorage.chatConfig.storedLines;
+        int visibleMessagesMaxSize = ConfigStorage.Chat.STORED_LINES.config.getIntegerValue();
         while(this.messages.size() > visibleMessagesMaxSize) {
             this.messages.remove(this.messages.size() - 1);
         }
@@ -195,7 +181,7 @@ public class MainChatTab extends AbstractChatTab {
         customChatTabs = new ArrayList<>();
         allChatTabs = new ArrayList<>();
         allChatTabs.add(this);
-        for (ChatTab tab : AdvancedChat.configStorage.tabs) {
+        for (ChatTab tab : ConfigStorage.TABS) {
             CustomChatTab customTab = new CustomChatTab(tab.getName(), tab.getAbreviation(), tab.getFindType(), tab.getFindString(), tab.isForward(), tab.getStartingMessage());
             customChatTabs.add(customTab);
             allChatTabs.add(customTab);

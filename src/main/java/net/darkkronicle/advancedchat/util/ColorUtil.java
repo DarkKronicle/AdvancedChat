@@ -143,6 +143,10 @@ public class ColorUtil {
             this.color = colorToInt(this);
         }
 
+        public String getString() {
+            return String.format("#%08X", color);
+        }
+
     }
 
 }

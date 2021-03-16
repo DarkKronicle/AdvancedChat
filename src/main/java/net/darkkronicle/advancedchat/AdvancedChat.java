@@ -13,7 +13,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 package net.darkkronicle.advancedchat;
 
-import net.darkkronicle.advancedchat.config.ConfigManager;
+import fi.dy.masa.malilib.event.InitializationHandler;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
@@ -35,28 +35,22 @@ import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class AdvancedChat implements ClientModInitializer {
-    public static ConfigManager configManager;
-    public static ConfigStorage configStorage;
     public static MainFilter filter;
     private static AdvancedChatHud advancedChatHud;
     public static MainChatTab chatTab;
     private static ChatLogData chatLogData;
 
+    public static final String MOD_ID = "advancedchat";
+
     @Override
     public void onInitializeClient() {
-        configManager = new ConfigManager();
-        Filter.checkForErrors(configStorage.filters);
-        ChatTab.checkForErrors(configStorage.tabs);
-        filter = new MainFilter();
-        getAdvancedChatHud();
-
-        chatTab = new MainChatTab();
+        InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
 
         KeyBinding keyBinding = new KeyBinding(
-                "config.advancedchat.key.openlog",
+                "advancedchat.key.openlog",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_Y,
-                "category.advancedchat.keys"
+                "advancedchat.category.keys"
         );
         KeyBindingHelper.registerKeyBinding(keyBinding);
         MinecraftClient client = MinecraftClient.getInstance();
