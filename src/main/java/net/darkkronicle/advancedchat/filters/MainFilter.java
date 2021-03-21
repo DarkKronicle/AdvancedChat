@@ -1,20 +1,7 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.Getter;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -80,13 +67,13 @@ public class MainFilter extends AbstractFilter {
     }
 
     public static List<AbstractFilter> createFilter(Filter filter) {
-        if (!filter.isActive()) {
+        if (!filter.getActive().config.getBooleanValue()) {
             return null;
         }
         ArrayList<AbstractFilter> filters = new ArrayList<>();
-        if (filter.getReplaceType() != Filter.ReplaceType.NONE) {
-            if (filter.getReplaceType() == Filter.ReplaceType.CHILDREN) {
-                ReplaceFilter f = new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null);
+        if (filter.getReplace() != Filter.ReplaceType.NONE) {
+            if (filter.getReplace() == Filter.ReplaceType.CHILDREN) {
+                ReplaceFilter f = new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), null);
                 if (filter.getChildren() != null) {
                     for (Filter child : filter.getChildren()) {
                         List<AbstractFilter> childf = createFilter(child);
@@ -98,17 +85,17 @@ public class MainFilter extends AbstractFilter {
                     }
                 }
                 filters.add(f);
-            } else if (filter.isReplaceTextColor()) {
-                filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), filter.getColor()));
+            } else if (filter.getReplaceTextColor().config.getBooleanValue()) {
+                filters.add(new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), filter.getTextColor().config.getSimpleColor()));
             } else {
-                filters.add(new ReplaceFilter(filter.getFindString(), filter.getReplaceTo().replaceAll("&", "§"), filter.getFindType(), filter.getReplaceType(), null));
+                filters.add(new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), null));
             }
         }
-        if (filter.getNotifySound() != Filter.NotifySound.NONE) {
-            filters.add(new NotifyFilter(filter.getFindString(), filter.getFindType(), filter.getNotifySound(), filter.getSoundVol(), filter.getSoundPitch()));
+        if (filter.getSound() != Filter.NotifySound.NONE) {
+            filters.add(new NotifyFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getSound(), (float) filter.getSoundVolume().config.getDoubleValue(), (float) filter.getSoundPitch().config.getDoubleValue()));
         }
-        if (filter.isReplaceBackgroundColor()) {
-            filters.add(new ColorFilter(filter.getFindString(), filter.getFindType(), filter.getColor()));
+        if (filter.getReplaceBackgroundColor().config.getBooleanValue()) {
+            filters.add(new ColorFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getBackgroundColor().config.getSimpleColor()));
         }
         return filters;
     }

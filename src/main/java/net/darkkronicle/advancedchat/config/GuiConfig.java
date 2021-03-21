@@ -1,23 +1,24 @@
 package net.darkkronicle.advancedchat.config;
 
-import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigBase;
+import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiConfigsBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 // Based off of https://github.com/maruohon/minihud/blob/fabric_1.16_snapshots_temp/src/main/java/fi/dy/masa/minihud/gui/GuiConfigs.java
-// Released under GNU GPL v3
+// Released under GNU LGPL
 public class GuiConfig extends GuiConfigsBase {
 
-    public static ConfigGuiTab tab = ConfigGuiTab.CHAT;
+    public static ConfigGuiTab tab = ConfigGuiTab.GENERAL;
 
     public GuiConfig() {
         super(10, 50, AdvancedChat.MOD_ID, null, "advancedchat.screen.main");
@@ -25,6 +26,11 @@ public class GuiConfig extends GuiConfigsBase {
 
     @Override
     public void initGui() {
+        if (GuiConfig.tab == ConfigGuiTab.FILTERS) {
+            GuiBase.openGui(new GuiFilterManager());
+            return;
+        }
+
         super.initGui();
         this.clearOptions();
 
@@ -32,8 +38,7 @@ public class GuiConfig extends GuiConfigsBase {
         int y = 26;
         int rows = 1;
 
-        for (ConfigGuiTab tab : ConfigGuiTab.values())
-        {
+        for (ConfigGuiTab tab : ConfigGuiTab.values()) {
             int width = this.getStringWidth(tab.getDisplayName()) + 10;
 
             if (x >= this.width - width - 10)
@@ -46,8 +51,7 @@ public class GuiConfig extends GuiConfigsBase {
             x += this.createButton(x, y, width, tab);
         }
 
-        if (rows > 1)
-        {
+        if (rows > 1) {
             int scrollbarPosition = this.getListWidget().getScrollbar().getValue();
             this.setListPosition(this.getListX(), 50 + (rows - 1) * 22);
             this.reCreateListWidget();
@@ -56,8 +60,7 @@ public class GuiConfig extends GuiConfigsBase {
         }
     }
 
-    private int createButton(int x, int y, int width, ConfigGuiTab tab)
-    {
+    private int createButton(int x, int y, int width, ConfigGuiTab tab) {
         ButtonGeneric button = new ButtonGeneric(x, y, width, 20, tab.getDisplayName());
         button.setEnabled(GuiConfig.tab != tab);
         this.addButton(button, new ButtonListenerConfigTabs(tab, this));
@@ -70,8 +73,8 @@ public class GuiConfig extends GuiConfigsBase {
         List<ConfigStorage.SaveableConfig<? extends IConfigBase>> configs;
         ConfigGuiTab tab = GuiConfig.tab;
 
-        if (tab == ConfigGuiTab.CHAT) {
-            configs = ConfigStorage.Chat.OPTIONS;
+        if (tab == ConfigGuiTab.GENERAL) {
+            configs = ConfigStorage.General.OPTIONS;
         } else if (tab == ConfigGuiTab.CHAT_SCREEN) {
             configs = ConfigStorage.ChatScreen.OPTIONS;
         } else if (tab == ConfigGuiTab.CHAT_LOG) {
@@ -101,15 +104,20 @@ public class GuiConfig extends GuiConfigsBase {
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             GuiConfig.tab = this.tab;
-            this.parent.reCreateListWidget(); // apply the new config width
-            this.parent.getListWidget().resetScrollbarPosition();
-            this.parent.initGui();
+
+            if (this.tab == ConfigGuiTab.FILTERS) {
+                GuiBase.openGui(new GuiFilterManager());
+            } else {
+                this.parent.reCreateListWidget(); // apply the new config width
+                this.parent.getListWidget().resetScrollbarPosition();
+                this.parent.initGui();
+            }
         }
     }
 
 
     public enum ConfigGuiTab {
-        CHAT("chat"),
+        GENERAL("general"),
         CHAT_SCREEN("chatscreen"),
         CHAT_LOG("chatlog"),
         TABS("tabs"),
@@ -117,7 +125,7 @@ public class GuiConfig extends GuiConfigsBase {
 
         private final String name;
 
-        private ConfigGuiTab(String name) {
+        ConfigGuiTab(String name) {
             this.name = name;
         }
 
@@ -130,7 +138,7 @@ public class GuiConfig extends GuiConfigsBase {
         }
 
         public String getDisplayName() {
-            return StringUtils.translate(this.name);
+            return translate(this.name);
         }
     }
 }

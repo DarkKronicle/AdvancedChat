@@ -1,21 +1,7 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.util;
 
 import lombok.AllArgsConstructor;
-import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -143,7 +129,7 @@ public class SearchText {
         if (networkHandler == null) {
             return null;
         }
-        Optional<List<SearchText.StringMatch>> words = SearchText.findMatches(stripColorCodes(text.getString()), ConfigStorage.Chat.CHAT_HEAD_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+        Optional<List<SearchText.StringMatch>> words = SearchText.findMatches(stripColorCodes(text.getString()), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
         if (!words.isPresent()) {
             return null;
         }
@@ -167,7 +153,7 @@ public class SearchText {
         HashMap<PlayerListEntry, List<StringMatch>> entryMatches = new HashMap<>();
         for (PlayerListEntry e : networkHandler.getPlayerList()) {
             String name = stripColorCodes(e.getDisplayName() == null ? e.getProfile().getName() : e.getDisplayName().getString());
-            Optional<List<SearchText.StringMatch>> nameWords = SearchText.findMatches(name, ConfigStorage.Chat.CHAT_HEAD_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+            Optional<List<SearchText.StringMatch>> nameWords = SearchText.findMatches(name, ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
             if (!nameWords.isPresent()) {
                 continue;
             }

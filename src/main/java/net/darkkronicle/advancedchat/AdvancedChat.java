@@ -1,28 +1,12 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat;
 
 import fi.dy.masa.malilib.event.InitializationHandler;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedSleepingChatScreen;
 import net.darkkronicle.advancedchat.gui.ChatLogScreen;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.storage.ChatLogData;
-import net.darkkronicle.advancedchat.storage.ChatTab;
-import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.EnvType;
@@ -63,7 +47,6 @@ public class AdvancedChat implements ClientModInitializer {
             }
         });
     }
-
 
     public static AdvancedChatHud getAdvancedChatHud() {
         if (advancedChatHud == null) {

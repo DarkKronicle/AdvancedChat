@@ -1,25 +1,10 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
-import net.darkkronicle.advancedchat.storage.Filter;
-import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Base ChatTab that allows for custom chat tabs in AdvancedChatHud.
@@ -73,7 +57,7 @@ public abstract class AbstractChatTab {
     public abstract boolean shouldAdd(Text text);
 
     /**
-     * Method to reformat the messages if Chat size changes or something.
+     * Method to reformat the messages if General size changes or something.
      */
     public void reset() {
         int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5);
@@ -130,7 +114,7 @@ public abstract class AbstractChatTab {
             this.removeMessage(messageId);
         }
 
-        for (int i = 0; i < ConfigStorage.Chat.CHAT_STACK.config.getIntegerValue() && i < messages.size(); i++) {
+        for (int i = 0; i < ConfigStorage.General.CHAT_STACK.config.getIntegerValue() && i < messages.size(); i++) {
             AdvancedChatMessage chatLine = messages.get(i);
             if (text.getString().equals(chatLine.getRawText().getString())) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
@@ -138,11 +122,11 @@ public abstract class AbstractChatTab {
             }
         }
 
-        boolean showtime = ConfigStorage.Chat.SHOW_TIME.config.getBooleanValue();
+        boolean showtime = ConfigStorage.ChatScreen.SHOW_TIME.config.getBooleanValue();
         Text original = text;
         if (showtime) {
             SplitText split = new SplitText(text);
-            DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.Chat.TIME_FORMAT.config.getStringValue());
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.General.TIME_FORMAT.config.getStringValue());
             split.addTime(format, time);
             text = split.getText();
         }
@@ -155,7 +139,7 @@ public abstract class AbstractChatTab {
 
         hud.messageAddedToTab(this);
 
-        int visibleMessagesMaxSize = ConfigStorage.Chat.STORED_LINES.config.getIntegerValue();
+        int visibleMessagesMaxSize = ConfigStorage.ChatScreen.STORED_LINES.config.getIntegerValue();
         while (this.messages.size() > visibleMessagesMaxSize) {
             this.messages.remove(this.messages.size() - 1);
         }

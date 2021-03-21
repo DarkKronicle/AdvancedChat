@@ -1,21 +1,8 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.gui;
 
 import fi.dy.masa.malilib.gui.GuiBase;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.config.GuiConfig;
 import net.darkkronicle.advancedchat.gui.elements.CleanButton;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
@@ -57,18 +44,18 @@ public class AdvancedChatScreen extends Screen {
         this.messageHistorySize = this.client.inGameHud.getChatHud().getMessageHistory().size();
         this.chatField = new TextFieldWidget(this.textRenderer, 4, this.height - 12, this.width - 4, 12, new TranslatableText("chat.editBox")) {
             protected MutableText getNarrationMessage() {
-                return super.getNarrationMessage().append(AdvancedChatScreen.this.commandSuggestor.method_23958());
+                return super.getNarrationMessage().append(AdvancedChatScreen.this.commandSuggestor.getNarration());
             }
         };
         this.chatField.setMaxLength(256);
-        this.chatField.setHasBorder(false);
+        this.chatField.setDrawsBackground(false);
         this.chatField.setText(this.originalChatText);
         this.chatField.setChangedListener(this::onChatFieldUpdate);
 
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
 
         int width = ConfigStorage.ChatScreen.WIDTH.config.getIntegerValue() + 4;
-        if (ConfigStorage.Chat.CHAT_HEADS.config.getBooleanValue()) {
+        if (ConfigStorage.General.CHAT_HEADS.config.getBooleanValue()) {
             width += 10;
         }
         int height = 11;
@@ -253,7 +240,7 @@ public class AdvancedChatScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         this.setFocused(this.chatField);
-        this.chatField.setSelected(true);
+        this.chatField.setTextFieldFocused(true);
         fill(matrices, 2, this.height - 14, this.width - 2, this.height - 2, ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor().color());
         this.chatField.render(matrices, mouseX, mouseY, delta);
         this.commandSuggestor.render(matrices, mouseX, mouseY);

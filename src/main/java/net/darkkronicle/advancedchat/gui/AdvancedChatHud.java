@@ -1,16 +1,3 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.gui;
 
 import com.google.common.collect.Lists;
@@ -20,11 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
-import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +18,6 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.options.ChatVisibility;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
@@ -69,7 +54,7 @@ public class AdvancedChatHud extends DrawableHelper {
 
         // Declare useful variables
         Window window = this.client.getWindow();
-        boolean heads = ConfigStorage.Chat.CHAT_HEADS.config.getBooleanValue();
+        boolean heads = ConfigStorage.General.CHAT_HEADS.config.getBooleanValue();
         // How far heads will render
         int headoffset = heads ? 10 : 0;
         // Width shouldn't be affected of chat scale

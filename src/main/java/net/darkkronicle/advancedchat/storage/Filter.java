@@ -1,25 +1,14 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.storage;
 
+import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
+import fi.dy.masa.malilib.config.options.ConfigDouble;
 import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
 import lombok.Data;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,6 +16,8 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /** Filter Storage
  * This class is used to store data for filters. Each filter is based off of this class. These are stored in an ArrayList for later usage.
@@ -75,27 +66,76 @@ public class Filter {
      * ONLYMATCH replaces only what was matched.
      * FULLLINE replaces the full message.
      */
-    private ReplaceType replaceType;
+    private ConfigStorage.SaveableConfig<ConfigOptionList> replaceType = ConfigStorage.SaveableConfig.fromConfig("replaceType",
+            new ConfigOptionList(translate("replacetype"), ReplaceType.ONLYMATCH, translate("info.replacetype")));
+
+    public ReplaceType getReplace() {
+        return ReplaceType.fromReplaceTypeString(replaceType.config.getStringValue());
+    }
 
     /**
      * What the found string replaces to. (ex. If replaceType is FULLLINE this will replace the message with this)
      */
-    private String replaceTo;
+    private ConfigStorage.SaveableConfig<ConfigString> replaceTo = ConfigStorage.SaveableConfig.fromConfig("replaceTo",
+            new ConfigString(translate("replaceto"), "Welcome", translate("info.replaceto")));
 
     /** How the filter notifies the client of a found string.
      * SOUND plays a sound when the filter is triggered.
      */
-    private NotifySound notifySound;
-    private float soundPitch;
-    private float soundVol;
+    private ConfigStorage.SaveableConfig<ConfigOptionList> notifySound = ConfigStorage.SaveableConfig.fromConfig("notifySound",
+            new ConfigOptionList(translate("notifysound"), NotifySound.ARROW_HIT_PLAYER, translate("info.notifysound")));
 
-    private boolean replaceTextColor;
+    public NotifySound getSound() {
+        return NotifySound.fromNotifySoundString(notifySound.config.getStringValue());
+    }
 
-    private boolean replaceBackgroundColor;
+    private ConfigStorage.SaveableConfig<ConfigDouble> soundPitch = ConfigStorage.SaveableConfig.fromConfig("soundPitch",
+            new ConfigDouble(translate("soundpitch"), 1, 0.5, 3, translate("info.soundpitch")));
 
-    private ColorUtil.SimpleColor color;
+    private ConfigStorage.SaveableConfig<ConfigDouble> soundVolume = ConfigStorage.SaveableConfig.fromConfig("soundVolume",
+            new ConfigDouble(translate("soundvolume"), 1, 0.5, 3, translate("info.soundvolume")));
 
-    private ArrayList<Filter> children;
+    private ConfigStorage.SaveableConfig<ConfigBoolean> replaceTextColor = ConfigStorage.SaveableConfig.fromConfig("replaceTextColor",
+            new ConfigBoolean(translate("replacetextcolor"), false, translate("info.replacetextcolor")));
+
+    private ConfigStorage.SaveableConfig<ConfigSimpleColor> textColor = ConfigStorage.SaveableConfig.fromConfig("textColor",
+            new ConfigSimpleColor(translate("textcolor"), ColorUtil.WHITE, translate("info.textcolor")));
+
+    private ConfigStorage.SaveableConfig<ConfigBoolean> replaceBackgroundColor = ConfigStorage.SaveableConfig.fromConfig("replaceBackgroundColor",
+            new ConfigBoolean(translate("replacebackgroundcolor"), false, translate("info.replacebackgroundcolor")));
+
+    private ConfigStorage.SaveableConfig<ConfigSimpleColor> backgroundColor = ConfigStorage.SaveableConfig.fromConfig("backgroundColor",
+            new ConfigSimpleColor(translate("background"), ColorUtil.WHITE, translate("info.background")));
+
+    private ArrayList<Filter> children = new ArrayList<>();
+
+    private final ImmutableList<ConfigStorage.SaveableConfig<?>> options = ImmutableList.of(
+            name,
+            active,
+            findString,
+            findType,
+            replaceType,
+            replaceTo,
+            notifySound,
+            soundPitch,
+            soundVolume,
+            replaceTextColor,
+            textColor,
+            replaceBackgroundColor,
+            backgroundColor
+    );
+
+    public List<String> getWidgetHoverLines() {
+        String translated = StringUtils.translate("advancedchat.config.filterdescription");
+        ArrayList<String> hover = new ArrayList<>();
+        for (String s : translated.split("\n")) {
+            hover.add(s.replaceAll(Pattern.quote("<name>"), name.config.getStringValue())
+                    .replaceAll(Pattern.quote("<active>"), active.config.getStringValue())
+                    .replaceAll(Pattern.quote("<find>"), findString.config.getStringValue())
+                    .replaceAll(Pattern.quote("<findtype>"), getFind().getDisplayName()));
+        }
+        return hover;
+    }
 
 
     public enum FindType implements IConfigOptionListEntry {
@@ -250,10 +290,10 @@ public class Filter {
 
         @Override
         public IConfigOptionListEntry fromString(String value) {
-            return fromReplaceTypeString(value);
+            return fromNotifySoundString(value);
         }
 
-        public static NotifySound fromReplaceTypeString(String notifysound) {
+        public static NotifySound fromNotifySoundString(String notifysound) {
             for (NotifySound r : NotifySound.values()) {
                 if (r.configString.equals(notifysound)) {
                     return r;

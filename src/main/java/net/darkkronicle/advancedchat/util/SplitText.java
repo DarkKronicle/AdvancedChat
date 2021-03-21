@@ -1,25 +1,10 @@
-/* AdvancedChat: A Minecraft Mod to modify the chat.
-Copyright (C) 2020 DarkKronicle
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
 package net.darkkronicle.advancedchat.util;
 
-import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.TextCollector;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -255,8 +240,8 @@ public class SplitText {
     }
 
     public void addTime(DateTimeFormatter format, LocalTime time) {
-        String replaceFormat = ConfigStorage.Chat.TIME_TEXT_FORMAT.config.getStringValue().replaceAll("&", "§");
-        ColorUtil.SimpleColor color = ConfigStorage.Chat.TIME_COLOR.config.getSimpleColor();
+        String replaceFormat = ConfigStorage.General.TIME_TEXT_FORMAT.config.getStringValue().replaceAll("&", "§");
+        ColorUtil.SimpleColor color = ConfigStorage.General.TIME_COLOR.config.getSimpleColor();
         Style style = Style.EMPTY;
         TextColor textColor = TextColor.fromRgb(color.color());
         style = style.withColor(textColor);

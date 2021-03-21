@@ -2,8 +2,7 @@ package net.darkkronicle.advancedchat.gui;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SplitText;
@@ -46,10 +45,10 @@ public class SharingScreen extends Screen {
         text.setMaxLength(12800);
         if (starting != null) {
             text.setText(starting);
-            text.setSelected(true);
+            text.setTextFieldFocused(true);
         }
         text.changeFocus(true);
-        text.setHasBorder(true);
+        text.setDrawsBackground(true);
         text.setEditable(true);
         text.changeFocus(true);
         addButton(text);
