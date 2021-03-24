@@ -9,9 +9,11 @@ import net.minecraft.text.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * A helper class that can take a Text, break it up, and put it back together.
@@ -33,6 +35,10 @@ public class SplitText {
             siblings.add(new SimpleText(string, style));
             return Optional.empty();
         }, Style.EMPTY);
+    }
+
+    public SplitText() {
+
     }
 
     public SplitText(SimpleText base) {
@@ -129,101 +135,89 @@ public class SplitText {
         if (matches.size() == 0) {
             return;
         }
+        // Sort the matches and then get a nice easy iterator for navigation
+        Iterator<Map.Entry<SearchText.StringMatch, StringInsert>> sortedMatches = new TreeMap<>(matches).entrySet().iterator();
         // List of new SimpleText to form a new SplitText.
         ArrayList<SimpleText> newSiblings = new ArrayList<>();
-        // int used to remember where the match stopped before.
-        int stopped = 0;
         // What match this is currently on.
-        int matchnum = 0;
-        for (Map.Entry<SearchText.StringMatch, StringInsert> entry : matches.entrySet()) {
-            SearchText.StringMatch match = entry.getKey();
-            StringInsert insert = entry.getValue();
-            matchnum++;
-            // Text that includes the start of the match.
-            SimpleText startedText = null;
-            // Char num of where the match started in the text.
-            int startedInt;
-            // Text that includes the end of the match.
-            SimpleText endedText = null;
-            // Char num where the match ended in the text.
-            int endedInt;
-            // Total number of chars went through. Used to find where the match end and beginning is.
-            int totalchar = 0;
-            // If end text has been found.
-            boolean ended = false;
-            // If start text have been found.
-            boolean started = false;
-            for (SimpleText text : getSiblings()) {
-                if (text.getMessage() == null || text.getMessage().length() <= 0) {
-                    continue;
-                }
+        Map.Entry<SearchText.StringMatch, StringInsert> match = sortedMatches.next();
 
-                int length = text.getMessage().length();
-
-                // Boolean to check to see if the SimpleText was modified.
-                boolean modified = false;
-
-                // Checks to see if current text contains the match.start.
-                if (totalchar + length > match.start && !started) {
-                    startedText = text;
-                    startedInt = match.start - totalchar;
-                    // Used for multiple matches. Once the second match starts, it starts at the beginning. We use this to go to where the last match went to.
-                    int togo = 0;
-                    if (stopped != 0 && totalchar < stopped && totalchar + length > stopped) {
-                        togo = stopped - totalchar;
-                    }
-                    // Splits the text from the beginning to the match. Used to easily edit the Style.
-                    int one = Math.min(togo, startedInt);
-                    int two = Math.max(startedInt, togo);
-                    newSiblings.add(text.withMessage(text.getMessage().substring(one, two)));
-                    newSiblings.addAll(insert.getText(text.withMessage(text.getMessage().substring(two)), match).getSiblings());
-                    started = true;
-                    modified = true;
-                }
-
-                // Checks to see if current text contains the match.end.
-                if (length + totalchar >= match.end && !ended) {
-                    endedText = text;
-                    endedInt = match.end - totalchar;
-                    // If there are more matches, stop adding to newSiblings
-                    if (matches.size() > matchnum) {
-                        stopped = match.end;
-                        continue;
-                    }
-                    newSiblings.add(text.withMessage(text.getMessage().substring(endedInt)));
-                    ended = true;
-                    modified = true;
-
-                }
-
-                // If we're in the middle of the start and the end text, we flag this text to not be added to newSiblings.
-                if (started && !ended) {
-                    modified = true;
-                }
-
-                if (!modified) {
-                    if (stopped != 0 && totalchar < stopped && totalchar + length > stopped) {
-                        // Used for multiple matches.
-                        newSiblings.add(text.withMessage(text.getMessage().substring(stopped - totalchar)));
-                    } else if (stopped != 0 && stopped <= totalchar) {
-                        newSiblings.add(text);
-                    } else if (stopped == 0) {
-                        newSiblings.add(text);
-                    }
-                }
-
-                totalchar = totalchar + length;
-
+        // Total number of chars went through. Used to find where the match end and beginning is.
+        int totalchar = 0;
+        boolean inMatch = false;
+        for (SimpleText text : getSiblings()) {
+            if (text.getMessage() == null || text.getMessage().length() <= 0) {
+                continue;
             }
-
-            if (startedText == null || endedText == null) {
-                // Because we know that there are already matches, we should have replace them.
-                // TODO log this correctly.
-                System.out.println("Something went wrong!");
-                return;
+            if (match == null) {
+                // No more replacing...
+                newSiblings.add(text);
+                continue;
             }
+            int length = text.getMessage().length();
+            int last = 0;
+            while (true) {
+                if (length + totalchar <= match.getKey().start) {
+                    newSiblings.add(text.withMessage(text.getMessage().substring(last)));
+                    break;
+                }
+                int start = match.getKey().start - totalchar;
+                int end = match.getKey().end - totalchar;
+                if (inMatch) {
+                    if (end <= length) {
+                        inMatch = false;
+                        newSiblings.add(text.withMessage(text.getMessage().substring(end)));
+                        last = end;
+                        if (!sortedMatches.hasNext()) {
+                            match = null;
+                            break;
+                        }
+                        match = sortedMatches.next();
+                    } else {
+                        break;
+                    }
+                } else if (start < length) {
+                    // End will go onto another string
+                    if (start > 0) {
+                        // Add previous string section
+                        newSiblings.add(text.withMessage(text.getMessage().substring(last, start)));
+                    }
+                    if (end >= length) {
+                        newSiblings.addAll(match.getValue().getText(text, match.getKey()).getSiblings());
+                        if (end == length) {
+                            if (!sortedMatches.hasNext()) {
+                                match = null;
+                                break;
+                            }
+                            match = sortedMatches.next();
+
+                        } else {
+                            inMatch = true;
+                        }
+                        break;
+                    }
+                    newSiblings.addAll(match.getValue().getText(text, match.getKey()).getSiblings());
+                    if (!sortedMatches.hasNext()) {
+                        match = null;
+                    } else {
+                        match = sortedMatches.next();
+                    }
+                    last = end;
+                    if (match == null || match.getKey().start - totalchar > length) {
+                        newSiblings.add(text.withMessage(text.getMessage().substring(end)));
+                        break;
+                    }
+                } else {
+                    break;
+                }
+                if (match == null) {
+                    break;
+                }
+            }
+            totalchar = totalchar + length;
 
         }
+
         // At the end we take the siblings created in this method and override the old ones.
         siblings = newSiblings;
 
@@ -247,6 +241,20 @@ public class SplitText {
         style = style.withColor(textColor);
         SimpleText text = new SimpleText(replaceFormat.replaceAll("%TIME%", time.format(format)), style);
         siblings.add(0, text);
+    }
+
+    public void append(SimpleText text) {
+        if (siblings.size() > 0) {
+            SimpleText last = siblings.get(siblings.size() - 1);
+            // Prevent having a ton of the same siblings in one...
+            if (last.getStyle().equals(text.getStyle())) {
+                last.setMessage(last.getMessage() + text.getMessage());
+            } else {
+                siblings.add(text);
+            }
+        } else {
+            siblings.add(text);
+        }
     }
 
 }

@@ -13,6 +13,7 @@ import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 
 public class GuiFilterManager extends GuiListBase<Filter, WidgetFilterEntry, WidgetListFilters> implements ISelectionListener<Filter> {
 
@@ -90,6 +91,7 @@ public class GuiFilterManager extends GuiListBase<Filter, WidgetFilterEntry, Wid
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (this.type == Type.ADD_FILTER) {
                 ConfigStorage.FILTERS.add(new Filter());
+                Collections.sort(ConfigStorage.FILTERS);
                 this.gui.getListWidget().refreshEntries();
             }
         }

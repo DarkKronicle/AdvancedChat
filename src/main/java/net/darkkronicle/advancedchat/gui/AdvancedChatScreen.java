@@ -1,6 +1,8 @@
 package net.darkkronicle.advancedchat.gui;
 
 import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.util.KeyCodes;
+import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.config.GuiConfig;
@@ -10,9 +12,7 @@ import net.darkkronicle.advancedchat.gui.tabs.CustomChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.CommandSuggestor;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -20,7 +20,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
-public class AdvancedChatScreen extends Screen {
+public class AdvancedChatScreen extends GuiBase {
     private String field_2389 = "";
     private int messageHistorySize = -1;
     protected TextFieldWidget chatField;
@@ -28,7 +28,7 @@ public class AdvancedChatScreen extends Screen {
     private CommandSuggestor commandSuggestor;
 
     public AdvancedChatScreen(String originalChatText) {
-        super(NarratorManager.EMPTY);
+        super();
         this.originalChatText = originalChatText;
         if (this.originalChatText.isEmpty()) {
             AbstractChatTab tab = AdvancedChat.getAdvancedChatHud().getCurrentTab();
@@ -39,7 +39,8 @@ public class AdvancedChatScreen extends Screen {
         }
     }
 
-    protected void init() {
+    public void initGui() {
+        super.initGui();
         this.client.keyboard.setRepeatEvents(true);
         this.messageHistorySize = this.client.inGameHud.getChatHud().getMessageHistory().size();
         this.chatField = new TextFieldWidget(this.textRenderer, 4, this.height - 12, this.width - 4, 12, new TranslatableText("chat.editBox")) {
@@ -62,17 +63,23 @@ public class AdvancedChatScreen extends Screen {
         int bottomOffset = ConfigStorage.ChatScreen.Y.config.getIntegerValue() + ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue() + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;
         ColorUtil.SimpleColor baseColor = ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor();
-        CleanButton tabButton = new CleanButton(ConfigStorage.ChatScreen.X.config.getIntegerValue(), y, width, height, baseColor, new LiteralText(hud.getCurrentTab().getName()), button -> {
+        CleanButton tabButton = new CleanButton(ConfigStorage.ChatScreen.X.config.getIntegerValue(), y, width, height, baseColor, hud.getCurrentTab().getName());
+        this.addButton(tabButton, (button, mouseButton) -> {
             hud.cycleTab();
-            button.setText(new LiteralText(hud.getCurrentTab().getName()));
+            button.setDisplayString(hud.getCurrentTab().getName());
         });
+        int x = client.getWindow().getScaledWidth() - 1;
+        String chatlog = StringUtils.translate("advancedchat.gui.button.chatlog");
+        int chatlogWidth = StringUtils.getStringWidth(chatlog) + 5;
+        x -= chatlogWidth + 2;
+        CleanButton chatLogButton = new CleanButton(x, client.getWindow().getScaledHeight() - 27, chatlogWidth, 11, baseColor, chatlog);
+        this.addButton(chatLogButton, (button, mouseButton) -> GuiBase.openGui(new ChatLogScreen()));
+        String settings = StringUtils.translate("advancedchat.gui.button.settings");
+        int settingsWidth = StringUtils.getStringWidth(settings) + 5;
+        x -= settingsWidth + 5;
+        CleanButton settingsButton = new CleanButton(x, client.getWindow().getScaledHeight() - 27, settingsWidth, 11, baseColor, settings);
+        this.addButton(settingsButton, (button, mouseButton) -> GuiBase.openGui(new GuiConfig()));
 
-        CleanButton chatLogButton = new CleanButton(client.getWindow().getScaledWidth() - 60, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Chat Log"), button -> client.openScreen(new ChatLogScreen()));
-        CleanButton settingsButton = new CleanButton(client.getWindow().getScaledWidth() - 114, client.getWindow().getScaledHeight() - 27, 50, 11, baseColor, new LiteralText("Settings"), button -> GuiBase.openGui(new GuiConfig()));
-
-        this.addButton(chatLogButton);
-        this.addButton(settingsButton);
-        this.addButton(tabButton);
         this.children.add(this.chatField);
 
         if (ConfigStorage.ChatScreen.SHOW_TABS.config.getBooleanValue()) {
@@ -97,18 +104,18 @@ public class AdvancedChatScreen extends Screen {
                 if (abrev.length() >= tabchar) {
                     abrev = abrev.substring(0, tabchar);
                 }
-                CleanButton buttonTab = new CleanButton(xadd, yadd, bwidth, 11, baseColor, new LiteralText(abrev), button -> {
+                CleanButton buttonTab = new CleanButton(xadd, yadd, bwidth, 11, baseColor, abrev);
+                this.addButton(buttonTab, (button, mouseButton) -> {
                     hud.setCurrentTab(tab);
-                    tabButton.setText(new LiteralText(tab.getName()));
+                    tabButton.setDisplayString(tab.getName());
                 });
                 yadd = yadd - 13;
-                addButton(buttonTab);
                 relativeHeight = relativeHeight + 13;
             }
         }
 
 
-        this.commandSuggestor = new CommandSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, 10, true, -805306368);
+        this.commandSuggestor = new CommandSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, 10, true, new ColorUtil.SimpleColor(0, 0, 0, 208).color());
         this.commandSuggestor.refresh();
         this.setInitialFocus(this.chatField);
 
@@ -141,21 +148,21 @@ public class AdvancedChatScreen extends Screen {
             return true;
         } else if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
-        } else if (keyCode == 256) {
+        } else if (keyCode == KeyCodes.KEY_ESCAPE) {
             this.client.openScreen(null);
             return true;
-        } else if (keyCode != 257 && keyCode != 335) {
-            if (keyCode == 265) {
+        } else if (keyCode != KeyCodes.KEY_ENTER && keyCode != KeyCodes.KEY_KP_ENTER) {
+            if (keyCode == KeyCodes.KEY_UP) {
                 this.setChatFromHistory(-1);
                 return true;
-            } else if (keyCode == 264) {
+            } else if (keyCode == KeyCodes.KEY_DOWN) {
                 this.setChatFromHistory(1);
                 return true;
-            } else if (keyCode == 266) {
-                AdvancedChat.getAdvancedChatHud().scroll((double)(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1));
+            } else if (keyCode == KeyCodes.KEY_PAGE_UP) {
+                AdvancedChat.getAdvancedChatHud().scroll(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1);
                 return true;
-            } else if (keyCode == 267) {
-                AdvancedChat.getAdvancedChatHud().scroll((double)(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1));
+            } else if (keyCode == KeyCodes.KEY_PAGE_DOWN) {
+                AdvancedChat.getAdvancedChatHud().scroll(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1);
                 return true;
             } else {
                 return false;
@@ -166,7 +173,7 @@ public class AdvancedChatScreen extends Screen {
                 this.sendMessage(string);
             }
 
-            this.client.openScreen((Screen)null);
+            this.client.openScreen(null);
             return true;
         }
     }
@@ -180,16 +187,14 @@ public class AdvancedChatScreen extends Screen {
             amount = -1.0D;
         }
 
-        if (this.commandSuggestor.mouseScrolled(amount)) {
-            return true;
-        } else {
+        if (!this.commandSuggestor.mouseScrolled(amount)) {
             if (!hasShiftDown()) {
                 amount *= 7.0D;
             }
 
             AdvancedChat.getAdvancedChatHud().scroll(amount);
-            return true;
         }
+        return true;
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -208,13 +213,13 @@ public class AdvancedChatScreen extends Screen {
         }
     }
 
+    @Override
     protected void insertText(String text, boolean override) {
         if (override) {
             this.chatField.setText(text);
         } else {
             this.chatField.write(text);
         }
-
     }
 
     public void setChatFromHistory(int i) {
@@ -230,28 +235,32 @@ public class AdvancedChatScreen extends Screen {
                     this.field_2389 = this.chatField.getText();
                 }
 
-                this.chatField.setText((String)this.client.inGameHud.getChatHud().getMessageHistory().get(j));
+                this.chatField.setText(this.client.inGameHud.getChatHud().getMessageHistory().get(j));
                 this.commandSuggestor.setWindowActive(false);
                 this.messageHistorySize = j;
             }
         }
     }
 
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    @Override
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         this.setFocused(this.chatField);
         this.chatField.setTextFieldFocused(true);
-        fill(matrices, 2, this.height - 14, this.width - 2, this.height - 2, ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor().color());
-        this.chatField.render(matrices, mouseX, mouseY, delta);
-        this.commandSuggestor.render(matrices, mouseX, mouseY);
+        fill(matrixStack, 2, this.height - 14, this.width - 2, this.height - 2, ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor().color());
+        this.chatField.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.commandSuggestor.render(matrixStack, mouseX, mouseY);
         Style style = hud.getText(mouseX, mouseY);
         if (style != null && style.getHoverEvent() != null) {
-            this.renderTextHoverEffect(matrices, style, mouseX, mouseY);
+            this.renderTextHoverEffect(matrixStack, style, mouseX, mouseY);
         }
-
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
+    @Override
+    protected void drawScreenBackground(int mouseX, int mouseY) {
+
+    }
 
     public boolean isPauseScreen() {
         return false;

@@ -1,13 +1,20 @@
 package net.darkkronicle.advancedchat.config.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import fi.dy.masa.malilib.config.gui.ConfigOptionChangeListenerTextField;
+import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.ButtonOnOff;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
+import fi.dy.masa.malilib.gui.interfaces.ITextFieldListener;
+import fi.dy.masa.malilib.gui.widgets.WidgetBase;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
+import fi.dy.masa.malilib.gui.wrappers.TextFieldWrapper;
 import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.storage.ConfigStorage;
@@ -16,8 +23,10 @@ import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -33,6 +42,7 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
     private final List<String> hoverLines;
     private final int buttonStartX;
     private final Filter filter;
+    private TextFieldWrapper<WidgetIntBox> num;
 
     public WidgetFilterEntry(int x, int y, int width, int height, boolean isOdd, Filter filter, int listIndex, WidgetListFilters parent) {
         super(x, y, width, height, filter, listIndex);
@@ -44,6 +54,37 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
         y += 1;
 
         int pos = x + width - 2;
+        WidgetIntBox num = new WidgetIntBox(pos - 40, y, 40, 20, MinecraftClient.getInstance().textRenderer);
+        num.setText(filter.getOrder().toString());
+        num.setApply(() -> {
+            Integer order = num.getInt();
+            if (order == null) {
+                order = 0;
+            }
+            this.filter.setOrder(order);
+            Collections.sort(ConfigStorage.FILTERS);
+            AdvancedChat.filter.loadFilters();
+            this.parent.refreshEntries();
+        });
+        this.num = new TextFieldWrapper<>(num, new ITextFieldListener<WidgetIntBox>() {
+            @Override
+            public boolean onTextChange(WidgetIntBox textField) {
+                return false;
+            }
+
+            @Override
+            public boolean onGuiClosed(WidgetIntBox textField) {
+                Integer order = num.getInt();
+                if (order == null) {
+                    order = 0;
+                }
+                filter.setOrder(order);
+                Collections.sort(ConfigStorage.FILTERS);
+                return false;
+            }
+        });
+        this.parent.addTextField(this.num);
+        pos -= num.getWidth() + 2;
         if (parent.filter != null) {
             pos -= addButton(pos, y, ButtonListener.Type.REMOVE, (filt) -> parent.filter.getChildren().remove(filt));
         } else {
@@ -86,6 +127,8 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
 
         RenderUtils.color(1f, 1f, 1f, 1f);
         RenderSystem.disableBlend();
+
+        this.drawTextFields(mouseX, mouseY, matrixStack);
 
         super.render(mouseX, mouseY, selected, matrixStack);
 
@@ -157,6 +200,57 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
 
         }
 
+    }
+
+    @Override
+    protected boolean onKeyTypedImpl(int keyCode, int scanCode, int modifiers) {
+        if (this.num != null && this.num.isFocused()) {
+            if (keyCode == KeyCodes.KEY_ENTER) {
+                this.num.getTextField().getApply().run();
+                return true;
+            } else {
+                return this.num.onKeyTyped(keyCode, scanCode, modifiers);
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    protected boolean onCharTypedImpl(char charIn, int modifiers) {
+        if (this.num != null && this.num.onCharTyped(charIn, modifiers)) {
+            return true;
+        }
+
+        return super.onCharTypedImpl(charIn, modifiers);
+    }
+
+    @Override
+    protected boolean onMouseClickedImpl(int mouseX, int mouseY, int mouseButton) {
+        if (super.onMouseClickedImpl(mouseX, mouseY, mouseButton)) {
+            return true;
+        }
+
+        boolean ret = false;
+
+        if (this.num != null)
+        {
+            ret = this.num.getTextField().mouseClicked(mouseX, mouseY, mouseButton);
+        }
+
+        if (!this.subWidgets.isEmpty()) {
+            for (WidgetBase widget : this.subWidgets) {
+                ret |= widget.isMouseOver(mouseX, mouseY) && widget.onMouseClicked(mouseX, mouseY, mouseButton);
+            }
+        }
+
+        return ret;
+    }
+
+    protected void drawTextFields(int mouseX, int mouseY, MatrixStack matrixStack) {
+        if (this.num != null) {
+            this.num.getTextField().render(matrixStack, mouseX, mouseY, 0f);
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package net.darkkronicle.advancedchat.gui;
 
+import fi.dy.masa.malilib.util.KeyCodes;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
@@ -10,8 +11,8 @@ public class AdvancedSleepingChatScreen extends AdvancedChatScreen {
         super("");
     }
 
-    protected void init() {
-        super.init();
+    public void initGui() {
+        super.initGui();
         this.addButton(new ButtonWidget(this.width / 2 - 100, this.height - 40, 200, 20, new TranslatableText("multiplayer.stopSleeping"), (buttonWidget) -> {
             this.stopSleeping();
         }));
@@ -24,7 +25,7 @@ public class AdvancedSleepingChatScreen extends AdvancedChatScreen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 256) {
             this.stopSleeping();
-        } else if (keyCode == 257 || keyCode == 335) {
+        } else if (keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_KP_ENTER) {
             String string = this.chatField.getText().trim();
             if (!string.isEmpty()) {
                 this.sendMessage(string);

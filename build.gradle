@@ -18,6 +18,7 @@ repositories {
     jcenter()
     maven { url "https://maven.shedaniel.me/" }
     maven { url 'https://masa.dy.fi/maven' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -34,11 +35,14 @@ dependencies {
 
     modCompile "fi.dy.masa.malilib:malilib-fabric-1.16.3:${project.malilib_version}"
 
-    modImplementation "io.github.prospector:modmenu:1.15.0+build.1"
+    modCompileOnly "io.github.prospector:modmenu:1.14.6+build.31"
 
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
 
     compile 'com.google.code.gson:gson:2.8.6'
+
+    implementation "com.github.maowcraft:owo:${project.owo_version}"
+    include "com.github.maowcraft:owo:${project.owo_version}"
 
 }
 

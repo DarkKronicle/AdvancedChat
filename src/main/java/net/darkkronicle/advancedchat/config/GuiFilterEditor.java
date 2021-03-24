@@ -1,6 +1,9 @@
 package net.darkkronicle.advancedchat.config;
 
+import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.IConfigBase;
+import fi.dy.masa.malilib.config.IConfigDouble;
+import fi.dy.masa.malilib.config.gui.SliderCallbackDouble;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
@@ -8,10 +11,14 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.ConfigButtonOptionList;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
+import fi.dy.masa.malilib.gui.interfaces.ISliderCallback;
+import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList;
 import fi.dy.masa.malilib.gui.widgets.WidgetLabel;
+import fi.dy.masa.malilib.gui.widgets.WidgetSlider;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.widgets.WidgetColor;
+import net.darkkronicle.advancedchat.config.widgets.WidgetLabelHoverable;
 import net.darkkronicle.advancedchat.config.widgets.WidgetToggle;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -30,6 +37,7 @@ public class GuiFilterEditor extends GuiBase {
     private WidgetColor textColor;
     private WidgetToggle setBackgroundColor;
     private WidgetColor backgroundColor;
+    private WidgetDropDownList<Filter.NotifySound> widgetDropDown;
 
     public FilterTab tab = FilterTab.CONFIG;
 
@@ -37,6 +45,8 @@ public class GuiFilterEditor extends GuiBase {
         this.filter = filter;
         this.title = filter.getName().config.getStringValue();
         this.setParent(parent);
+        this.widgetDropDown = new WidgetDropDownList<>(0, 0, getWidth(), 20, 200, 10, ImmutableList.copyOf(Filter.NotifySound.values()), Filter.NotifySound::getDisplayName);
+        this.widgetDropDown.setZLevel(this.getZOffset() + 100);
     }
 
     @Override
@@ -94,6 +104,7 @@ public class GuiFilterEditor extends GuiBase {
         filter.getReplaceTextColor().config.setBooleanValue(setTextColor.isCurrentlyOn());
         filter.getBackgroundColor().config.setIntegerValue(backgroundColor.getAndRefreshColor().color());
         filter.getReplaceBackgroundColor().config.setBooleanValue(setBackgroundColor.isCurrentlyOn());
+        filter.getNotifySound().config.setOptionListValue(widgetDropDown.getSelectedEntry());
         AdvancedChat.filter.loadFilters();
     }
 
@@ -140,12 +151,26 @@ public class GuiFilterEditor extends GuiBase {
         setBackgroundColor = new WidgetToggle(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, false, "advancedchat.config.filter.backgroundcoloractive", filter.getReplaceBackgroundColor().config.getBooleanValue());
         this.addButton(setBackgroundColor, null);
         y += findType.getHeight() + 2;
-
+        this.addLabel(x + getWidth() / 2, y, filter.getSoundPitch().config);
+        y += this.addLabel(x, y, filter.getSoundVolume().config) + 1;
+        ISliderCallback volumeCallback = new SliderCallbackDouble(filter.getSoundVolume().config, null);
+        this.addWidget(new WidgetSlider(x, y, getWidth() / 2 - 1, 20, volumeCallback));
+        ISliderCallback pitchCallback = new SliderCallbackDouble(filter.getSoundPitch().config, null);
+        this.addWidget(new WidgetSlider(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, 20, pitchCallback));
+        y += 22;
+        // Add this last so it's on top with the drop down
+        y += this.addLabel(x, y, filter.getNotifySound().config) + 1;
+        this.widgetDropDown.setPosition(x, y + 1);
+        this.widgetDropDown.setSelectedEntry(filter.getSound());
+        y += widgetDropDown.getHeight() + 2;
+        this.addWidget(this.widgetDropDown);
     }
 
     private int addLabel(int x, int y, IConfigBase config) {
         int width = StringUtils.getStringWidth(config.getConfigGuiDisplayName());
-        this.addWidget(new WidgetLabel(x, y, width, 8, ColorUtil.WHITE.color(), config.getConfigGuiDisplayName()));
+        WidgetLabelHoverable label = new WidgetLabelHoverable(x, y, width, 8, ColorUtil.WHITE.color(), config.getConfigGuiDisplayName());
+        label.setHoverLines(StringUtils.translate(config.getComment()));
+        this.addWidget(label);
         return 8;
     }
 

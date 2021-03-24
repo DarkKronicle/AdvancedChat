@@ -9,11 +9,18 @@ import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
 import lombok.Data;
 import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
+import net.darkkronicle.advancedchat.filters.TextReplace.ChildrenTextReplace;
+import net.darkkronicle.advancedchat.filters.TextReplace.FullMessageTextReplace;
+import net.darkkronicle.advancedchat.filters.TextReplace.OnlyMatchTextReplace;
+import net.darkkronicle.advancedchat.filters.TextReplace.OwOTextReplace;
+import net.darkkronicle.advancedchat.filters.TextReplace.RainbowTextReplace;
+import net.darkkronicle.advancedchat.interfaces.ITextReplace;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +28,19 @@ import java.util.regex.Pattern;
 
 /** Filter Storage
  * This class is used to store data for filters. Each filter is based off of this class. These are stored in an ArrayList for later usage.
+ *
+ * Note: this class has a natural ordering that is inconsistent with equals for ordering.
  */
 
 @Environment(EnvType.CLIENT)
 @Data
-public class Filter {
+public class Filter implements Comparable<Filter> {
 
     private static String translate(String key) {
         return StringUtils.translate("advancedchat.config.filter." + key);
     }
+
+    private Integer order = 0;
 
     /**
      * Name is only cosmetic. Shows up when editing filters. Way to distinguish filters for the player.
@@ -83,7 +94,7 @@ public class Filter {
      * SOUND plays a sound when the filter is triggered.
      */
     private ConfigStorage.SaveableConfig<ConfigOptionList> notifySound = ConfigStorage.SaveableConfig.fromConfig("notifySound",
-            new ConfigOptionList(translate("notifysound"), NotifySound.ARROW_HIT_PLAYER, translate("info.notifysound")));
+            new ConfigOptionList(translate("notifysound"), NotifySound.NONE, translate("info.notifysound")));
 
     public NotifySound getSound() {
         return NotifySound.fromNotifySoundString(notifySound.config.getStringValue());
@@ -105,7 +116,7 @@ public class Filter {
             new ConfigBoolean(translate("replacebackgroundcolor"), false, translate("info.replacebackgroundcolor")));
 
     private ConfigStorage.SaveableConfig<ConfigSimpleColor> backgroundColor = ConfigStorage.SaveableConfig.fromConfig("backgroundColor",
-            new ConfigSimpleColor(translate("background"), ColorUtil.WHITE, translate("info.background")));
+            new ConfigSimpleColor(translate("backgroundcolor"), ColorUtil.WHITE, translate("info.backgroundcolor")));
 
     private ArrayList<Filter> children = new ArrayList<>();
 
@@ -135,6 +146,11 @@ public class Filter {
                     .replaceAll(Pattern.quote("<findtype>"), getFind().getDisplayName()));
         }
         return hover;
+    }
+
+    @Override
+    public int compareTo(@NotNull Filter o) {
+        return order.compareTo(o.order);
     }
 
 
@@ -172,6 +188,11 @@ public class Filter {
             } else {
                 id--;
             }
+            if (id >= values().length) {
+                id = 0;
+            } else if (id < 0) {
+                id = values().length - 1;
+            }
             return values()[id % values().length];
         }
 
@@ -191,19 +212,23 @@ public class Filter {
     }
 
     public enum ReplaceType implements IConfigOptionListEntry {
-        NONE("none"),
-        ONLYMATCH("onlymatch"),
-        FULLMESSAGE("fullmessage"),
-        CHILDREN("children")
+        NONE("none", null),
+        ONLYMATCH("onlymatch", new OnlyMatchTextReplace()),
+        FULLMESSAGE("fullmessage", new FullMessageTextReplace()),
+        CHILDREN("children", new ChildrenTextReplace()),
+        OWO("owo", new OwOTextReplace()),
+        RAINBOW("rainbow", new RainbowTextReplace())
         ;
         public final String configString;
+        public final ITextReplace textReplace;
 
         private static String translate(String key) {
             return StringUtils.translate("advancedchat.config.replacetype." + key);
         }
 
-        ReplaceType(String configString) {
+        ReplaceType(String configString, ITextReplace textReplace) {
             this.configString = configString;
+            this.textReplace = textReplace;
         }
 
         @Override
@@ -223,6 +248,11 @@ public class Filter {
                 id++;
             } else {
                 id--;
+            }
+            if (id >= values().length) {
+                id = 0;
+            } else if (id < 0) {
+                id = values().length - 1;
             }
             return values()[id % values().length];
         }
@@ -259,7 +289,7 @@ public class Filter {
         public final SoundEvent event;
 
         private static String translate(String key) {
-            return StringUtils.translate("advancedchat.config.replacetype." + key);
+            return StringUtils.translate("advancedchat.config.notifysound." + key);
         }
 
         NotifySound(String configString, SoundEvent sound) {
@@ -285,6 +315,11 @@ public class Filter {
             } else {
                 id--;
             }
+            if (id >= values().length) {
+                id = 0;
+            } else if (id < 0) {
+                id = values().length - 1;
+            }
             return values()[id % values().length];
         }
 
@@ -299,7 +334,7 @@ public class Filter {
                     return r;
                 }
             }
-            return NotifySound.ARROW_HIT_PLAYER;
+            return NotifySound.NONE;
         }
     }
 

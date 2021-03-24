@@ -26,6 +26,7 @@ import net.fabricmc.api.Environment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 // Used to store values into config.json
 @Environment(EnvType.CLIENT)
@@ -194,6 +195,8 @@ public class ConfigStorage implements IConfigHandler {
 
            }
         }
+
+        AdvancedChat.filter.loadFilters();
     }
 
     public static class ChatLogConfig {
@@ -236,6 +239,13 @@ public class ConfigStorage implements IConfigHandler {
 
     public static Filter readFilter(JsonObject obj) {
         Filter f = new Filter();
+        if (obj.get("order") != null) {
+            try {
+                f.setOrder(obj.get("order").getAsInt());
+            } catch (Exception e) {
+                f.setOrder(0);
+            }
+        }
         for (SaveableConfig<?> conf : f.getOptions()) {
             IConfigBase option = conf.config;
             if (obj.has(conf.key)) {
@@ -245,9 +255,11 @@ public class ConfigStorage implements IConfigHandler {
         JsonElement children = obj.get("children");
         if (children != null && children.isJsonArray()) {
             ArrayList<Filter> child = new ArrayList<>();
+            int i = 0;
             for (JsonElement o : children.getAsJsonArray()) {
                 if (o.isJsonObject()) {
                     child.add(readFilter(o.getAsJsonObject()));
+                    i++;
                 }
             }
             f.setChildren(child);
@@ -265,6 +277,7 @@ public class ConfigStorage implements IConfigHandler {
             children.add(getFilter(c));
         }
         obj.add("children", children);
+        obj.addProperty("order", filter.getOrder());
         return obj;
     }
 
@@ -333,6 +346,11 @@ public class ConfigStorage implements IConfigHandler {
             } else {
                 id--;
             }
+            if (id >= values().length) {
+                id = 0;
+            } else if (id < 0) {
+                id = values().length - 1;
+            }
             return values()[id % values().length];
         }
 
@@ -388,6 +406,11 @@ public class ConfigStorage implements IConfigHandler {
                 id++;
             } else {
                 id--;
+            }
+            if (id >= values().length) {
+                id = 0;
+            } else if (id < 0) {
+                id = values().length - 1;
             }
             return values()[id % values().length];
         }
@@ -445,6 +468,11 @@ public class ConfigStorage implements IConfigHandler {
                 id++;
             } else {
                 id--;
+            }
+            if (id >= values().length) {
+                id = 0;
+            } else if (id < 0) {
+                id = values().length - 1;
             }
             return values()[id % values().length];
         }

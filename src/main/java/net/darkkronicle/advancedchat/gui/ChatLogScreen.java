@@ -1,5 +1,7 @@
 package net.darkkronicle.advancedchat.gui;
 
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
@@ -7,14 +9,12 @@ import net.darkkronicle.advancedchat.storage.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SearchText;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-public class ChatLogScreen extends Screen {
+public class ChatLogScreen extends GuiBase {
 
     private MinecraftClient client;
 
@@ -40,7 +40,7 @@ public class ChatLogScreen extends Screen {
     private Filter.FindType findType = Filter.FindType.LITERAL;
 
     public ChatLogScreen() {
-        super(new TranslatableText("advancedchat.screen.chatlog"));
+        this.title = StringUtils.translate("advancedchat.screen.chatlog");
     }
 
     public static int getWidth() {
@@ -49,7 +49,8 @@ public class ChatLogScreen extends Screen {
     }
 
     @Override
-    public void init() {
+    public void initGui() {
+        super.initGui();
         client = MinecraftClient.getInstance();
         String tabname = "All";
         if (tab != null) {
@@ -129,11 +130,7 @@ public class ChatLogScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-//        AdvancedChat.getChatLogData().checkLast();
-//        if (AdvancedChat.getChatLogData().isChatLogTime()) {
-//            AdvancedChat.getChatLogData().reformatMessages();
-//        }
-        renderBackground(matrices);
+        super.render(matrices, mouseX, mouseY, delta);
         drawCenteredString(matrices, client.textRenderer, "ChatLog", client.getWindow().getScaledWidth()/2, 20, ColorUtil.WHITE.color());
         int windowHeight = client.getWindow().getScaledHeight();
         int maxheight =  windowHeight - 90;
@@ -198,7 +195,6 @@ public class ChatLogScreen extends Screen {
             this.renderTextHoverEffect(matrices, style, mouseX, mouseY);
         }
 
-        super.render(matrices, mouseX, mouseY, delta);
     }
 
     @Override

@@ -13,9 +13,9 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class NotifyFilter extends AbstractFilter {
 
-    private Filter.NotifySound notifySound;
-    private float volume;
-    private float pitch;
+    private final Filter.NotifySound notifySound;
+    private final float volume;
+    private final float pitch;
 
     public NotifyFilter(String toFind, Filter.FindType findType, Filter.NotifySound notifySound, float volume, float pitch) {
         this.notifySound = notifySound;

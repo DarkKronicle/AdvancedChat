@@ -10,8 +10,10 @@ import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.VisitingUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.font.TextVisitFactory;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.ChatMessages;
 import net.minecraft.text.*;
@@ -47,6 +49,7 @@ public class MainChatTab extends AbstractChatTab {
     public void addMessage(Text text, int messageId, int timestamp, LocalTime time, PlayerListEntry player) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
+        text = VisitingUtils.format(text);
         Text unfiltered = text;
         Optional<Text> filtered = AdvancedChat.filter.filter(text);
         if (filtered.isPresent()) {
@@ -134,7 +137,7 @@ public class MainChatTab extends AbstractChatTab {
         for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, scaledWidth, textRenderer)) {
             MutableText newLine = new LiteralText("");
 
-            AtomicReference <Style> oldStyle = new AtomicReference<>(null);
+            AtomicReference<Style> oldStyle = new AtomicReference<>(null);
             AtomicReference<String> s = new AtomicReference<>("");
 
             breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
