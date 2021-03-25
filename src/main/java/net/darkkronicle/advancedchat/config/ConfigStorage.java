@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.storage;
+package net.darkkronicle.advancedchat.config;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
@@ -26,7 +26,6 @@ import net.fabricmc.api.Environment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 // Used to store values into config.json
 @Environment(EnvType.CLIENT)
@@ -173,6 +172,7 @@ public class ConfigStorage implements IConfigHandler {
         File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
 
         if (configFile.exists() && configFile.isFile() && configFile.canRead()) {
+            Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
             JsonElement element = JsonUtils.parseJsonFile(configFile);
 
             if (element != null && element.isJsonObject()) {
@@ -186,7 +186,7 @@ public class ConfigStorage implements IConfigHandler {
                 if (o != null && o.isJsonArray()) {
                     for (JsonElement el : o.getAsJsonArray()) {
                         if (el.isJsonObject()) {
-                            ConfigStorage.FILTERS.add(readFilter(el.getAsJsonObject()));
+                            ConfigStorage.FILTERS.add(filterSave.load(el.getAsJsonObject()));
                         }
                     }
                 }
@@ -220,6 +220,7 @@ public class ConfigStorage implements IConfigHandler {
         File dir = FileUtils.getConfigDirectory();
 
         if ((dir.exists() && dir.isDirectory()) || dir.mkdirs()) {
+            Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
             JsonObject root = new JsonObject();
 
             writeOptions(root, General.NAME, General.OPTIONS);
@@ -227,7 +228,7 @@ public class ConfigStorage implements IConfigHandler {
 
             JsonArray arr = new JsonArray();
             for (Filter f : ConfigStorage.FILTERS) {
-                arr.add(getFilter(f));
+                arr.add(filterSave.save(f));
             }
             root.add(FILTER_KEY, arr);
 
@@ -235,50 +236,6 @@ public class ConfigStorage implements IConfigHandler {
 
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }
-    }
-
-    public static Filter readFilter(JsonObject obj) {
-        Filter f = new Filter();
-        if (obj.get("order") != null) {
-            try {
-                f.setOrder(obj.get("order").getAsInt());
-            } catch (Exception e) {
-                f.setOrder(0);
-            }
-        }
-        for (SaveableConfig<?> conf : f.getOptions()) {
-            IConfigBase option = conf.config;
-            if (obj.has(conf.key)) {
-                option.setValueFromJsonElement(obj.get(conf.key));
-            }
-        }
-        JsonElement children = obj.get("children");
-        if (children != null && children.isJsonArray()) {
-            ArrayList<Filter> child = new ArrayList<>();
-            int i = 0;
-            for (JsonElement o : children.getAsJsonArray()) {
-                if (o.isJsonObject()) {
-                    child.add(readFilter(o.getAsJsonObject()));
-                    i++;
-                }
-            }
-            f.setChildren(child);
-        }
-        return f;
-    }
-
-    public static JsonObject getFilter(Filter filter) {
-        JsonArray children = new JsonArray();
-        JsonObject obj = new JsonObject();
-        for (SaveableConfig<?> option : filter.getOptions()) {
-            obj.add(option.key, option.config.getAsJsonElement());
-        }
-        for (Filter c : filter.getChildren()) {
-            children.add(getFilter(c));
-        }
-        obj.add("children", children);
-        obj.addProperty("order", filter.getOrder());
-        return obj;
     }
 
     public static void readOptions(JsonObject root, String category, List<SaveableConfig<?>> options) {

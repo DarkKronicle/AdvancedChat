@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.config.widgets;
+package net.darkkronicle.advancedchat.config.gui.widgets;
 
 import fi.dy.masa.malilib.gui.widgets.WidgetLabel;
 import fi.dy.masa.malilib.render.RenderUtils;

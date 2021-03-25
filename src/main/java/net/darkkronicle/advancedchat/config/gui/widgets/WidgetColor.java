@@ -1,9 +1,7 @@
-package net.darkkronicle.advancedchat.config.widgets;
+package net.darkkronicle.advancedchat.config.gui.widgets;
 
-import fi.dy.masa.malilib.config.options.ConfigColor;
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.font.TextRenderer;

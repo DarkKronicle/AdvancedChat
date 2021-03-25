@@ -1,22 +1,16 @@
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.Getter;
-import maow.owo.OwO;
-import maow.owo.util.ParsingUtil;
-import net.darkkronicle.advancedchat.interfaces.ITextReplace;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
-import net.darkkronicle.advancedchat.util.SearchText;
-import net.darkkronicle.advancedchat.util.SimpleText;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
-import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,9 +46,9 @@ public class ReplaceFilter extends AbstractFilter {
             return Optional.empty();
         }
         SplitText splitText = new SplitText(text);
-        ITextReplace replace = type.textReplace;
+        IMatchReplace replace = type.textReplace;
         if (replace.matchesOnly()) {
-            Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(splitText.getFullMessage(), super.filterString, findType);
+            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(splitText.getFullMessage(), super.filterString, findType);
             if (!omatches.isPresent()) {
                 return Optional.empty();
             }

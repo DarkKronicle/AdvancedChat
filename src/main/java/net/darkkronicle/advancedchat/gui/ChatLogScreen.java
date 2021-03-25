@@ -3,11 +3,11 @@ package net.darkkronicle.advancedchat.gui;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
-import net.darkkronicle.advancedchat.util.SearchText;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
@@ -147,13 +147,13 @@ public class ChatLogScreen extends GuiBase {
                 if (searchFull.isChecked()) {
                     ArrayList<UUID> uuids = new ArrayList<>();
                     filteredLines.forEach(line -> {
-                        if (SearchText.isMatch(line.getText().getString(), searchText, findType)) {
+                        if (SearchUtils.isMatch(line.getText().getString(), searchText, findType)) {
                             uuids.add(line.getUuid());
                         }
                     });
                     filteredLines = filteredLines.stream().filter(filter -> uuids.contains(filter.getUuid())).collect(Collectors.toList());
                 } else {
-                    filteredLines = filteredLines.stream().filter(filter -> SearchText.isMatch(filter.getText().getString(), searchText, findType)).collect(Collectors.toList());
+                    filteredLines = filteredLines.stream().filter(filter -> SearchUtils.isMatch(filter.getText().getString(), searchText, findType)).collect(Collectors.toList());
                 }
             } catch (PatternSyntaxException e) {
                 drawStringWithShadow(matrices, client.textRenderer, "Bad search!", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());

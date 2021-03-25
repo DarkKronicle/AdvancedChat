@@ -1,9 +1,10 @@
 package net.darkkronicle.advancedchat.util;
 
 import lombok.AllArgsConstructor;
+import lombok.experimental.UtilityClass;
 import net.darkkronicle.advancedchat.gui.MessageOwner;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -11,6 +12,7 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,8 @@ import java.util.regex.Pattern;
 * Helps with Regular Expressions and means that we don't need this in each class.
  */
 @Environment(EnvType.CLIENT)
-public class SearchText {
+@UtilityClass
+public class SearchUtils {
 
     /**
      * Method to see if there is a match somewhere with a string with an expression.
@@ -37,23 +40,36 @@ public class SearchText {
      * @param type How toMatch should be interpreted.
      * @return If a match is found.
      */
-    public static boolean isMatch(String input, String toMatch, Filter.FindType type) {
-        if (type == Filter.FindType.UPPERLOWER) {
-            Pattern pattern = Pattern.compile(Pattern.quote(toMatch), Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(input);
-            return matcher.find();
-        } else if (type == Filter.FindType.LITERAL) {
-            Pattern pattern = Pattern.compile(Pattern.quote(toMatch));
-            Matcher matcher = pattern.matcher(input);
-            return matcher.find();
-        } else if (type == Filter.FindType.REGEX) {
-            Pattern pattern = Pattern.compile(toMatch);
-            Matcher matcher = pattern.matcher(input);
-            return matcher.find();
-        } else if (type == Filter.FindType.ALL) {
+    public boolean isMatch(String input, String toMatch, Filter.FindType type) {
+        if (type == Filter.FindType.ALL) {
             return true;
         }
-        return false;
+        Pattern pattern = compilePattern(toMatch, type);
+        if (pattern == null) {
+            return false;
+        }
+        return pattern.matcher(input).find();
+    }
+
+    /**
+     * Compiles a {@link Pattern} for the specified {@link Filter.FindType}
+     *
+     * @param toMatch Match string
+     * @param type Find type
+     * @return Compiled pattern
+     */
+    public Pattern compilePattern(String toMatch, Filter.FindType type) {
+        switch (type) {
+            case UPPERLOWER:
+                return Pattern.compile(Pattern.quote(toMatch), Pattern.CASE_INSENSITIVE);
+            case LITERAL:
+                return Pattern.compile(Pattern.quote(toMatch));
+            case REGEX:
+                return Pattern.compile(toMatch);
+            case ALL:
+                return Pattern.compile(".+");
+        }
+        return null;
     }
 
     /**
@@ -66,49 +82,29 @@ public class SearchText {
      * @param type How toMatch should be interpreted.
      * @return An Optional containing a list of {@link StringMatch}
      */
-    public static Optional<List<StringMatch>> findMatches(String input, String toMatch, Filter.FindType type) {
-        Set<StringMatch> matches = new TreeSet<>();
-        if (type == Filter.FindType.UPPERLOWER) {
-            Pattern pattern = Pattern.compile(Pattern.quote(toMatch), Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(input);
-            int i = 0;
-            while (matcher.find()) {
-                matches.add(new StringMatch(matcher.group(), matcher.start(), matcher.end()));
-                i++;
-                if (i > 10) {
-                    break;
-                }
-            }
-
-        } else if (type == Filter.FindType.LITERAL) {
-            Pattern pattern = Pattern.compile(Pattern.quote(toMatch));
-            Matcher matcher = pattern.matcher(input);
-            int i = 0;
-            while (matcher.find()) {
-                matches.add(new StringMatch(matcher.group(), matcher.start(), matcher.end()));
-                i++;
-                if (i > 10) {
-                    break;
-                }
-            }
-        } else if (type == Filter.FindType.REGEX) {
-            Pattern pattern = Pattern.compile(toMatch);
-            Matcher matcher = pattern.matcher(input);
-            int i = 0;
-            while (matcher.find()) {
-                matches.add(new StringMatch(matcher.group(), matcher.start(), matcher.end()));
-                i++;
-                if (i > 1000) {
-                    break;
-                }
-            }
-        } else if (type == Filter.FindType.ALL) {
-            matches.add(new StringMatch(input, 0, input.length()));
+    public Optional<List<StringMatch>> findMatches(String input, String toMatch, Filter.FindType type) {
+        if (type == Filter.FindType.ALL) {
+            return Optional.of(Collections.singletonList(new StringMatch(input, 0, input.length())));
         }
+        Pattern pattern = compilePattern(toMatch, type);
+        if (pattern == null) {
+            return Optional.empty();
+        }
+        Set<StringMatch> matches = new TreeSet<>();
+        Matcher matcher = pattern.matcher(input);
+        addMatches(matches, matcher);
         if (matches.size() != 0) {
             return Optional.of(new ArrayList<>(matches));
         }
         return Optional.empty();
+    }
+
+    private void addMatches(Set<StringMatch> matches, Matcher matcher) {
+        int i = 0;
+        while (matcher.find() && i < 1000) {
+            matches.add(new StringMatch(matcher.group(), matcher.start(), matcher.end()));
+            i++;
+        }
     }
 
     /**
@@ -144,18 +140,18 @@ public class SearchText {
      * @param text Text to search
      * @return Owner of the message
      */
-    public static MessageOwner getAuthor(ClientPlayNetworkHandler networkHandler, Text text) {
+    public MessageOwner getAuthor(ClientPlayNetworkHandler networkHandler, Text text) {
         if (networkHandler == null) {
             return null;
         }
-        Optional<List<SearchText.StringMatch>> words = SearchText.findMatches(stripColorCodes(text.getString()), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+        Optional<List<SearchUtils.StringMatch>> words = SearchUtils.findMatches(stripColorCodes(text.getString()), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
         if (!words.isPresent()) {
             return null;
         }
         // Start by just checking names and such
         PlayerListEntry player = null;
         StringMatch match = null;
-        for (SearchText.StringMatch m : words.get()) {
+        for (SearchUtils.StringMatch m : words.get()) {
             if (player != null) {
                 break;
             }
@@ -172,15 +168,15 @@ public class SearchText {
         HashMap<PlayerListEntry, List<StringMatch>> entryMatches = new HashMap<>();
         for (PlayerListEntry e : networkHandler.getPlayerList()) {
             String name = stripColorCodes(e.getDisplayName() == null ? e.getProfile().getName() : e.getDisplayName().getString());
-            Optional<List<SearchText.StringMatch>> nameWords = SearchText.findMatches(name, ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+            Optional<List<SearchUtils.StringMatch>> nameWords = SearchUtils.findMatches(name, ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
             if (!nameWords.isPresent()) {
                 continue;
             }
             entryMatches.put(e, nameWords.get());
         }
-        for (SearchText.StringMatch m : words.get()) {
+        for (SearchUtils.StringMatch m : words.get()) {
             for (Map.Entry<PlayerListEntry, List<StringMatch>> entry : entryMatches.entrySet()) {
-                for (SearchText.StringMatch nm : entry.getValue()) {
+                for (SearchUtils.StringMatch nm : entry.getValue()) {
                     if (nm.match.equals(m.match)) {
                         if (player != null && match.start <= m.start) {
                             return new MessageOwner(match.match, player);
@@ -193,7 +189,7 @@ public class SearchText {
         return null;
     }
 
-    public static String stripColorCodes(String string) {
+    public String stripColorCodes(String string) {
         return string.replaceAll("§.", "");
     }
 

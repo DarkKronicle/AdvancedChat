@@ -46,20 +46,6 @@ public class ColorUtil {
         return rgb;
     }
 
-    public SimpleColor fade(SimpleColor color, int timeAlive, int fadestart, int fadestop) {
-        if (timeAlive <= fadestop) {
-            if (timeAlive > fadestart) {
-                int fadetime = fadestop - fadestart;
-                int currenttime = timeAlive - fadestart;
-                float alpha = (float) color.alpha();
-                float fadePerTick = alpha / fadetime;
-                int fadealpha = (int) alpha - (int) (fadePerTick * currenttime);
-                return color.withAlpha(fadealpha);
-            }
-        }
-        return color;
-    }
-
     public SimpleColor fade(SimpleColor color, float percent) {
         float alpha = (float) color.alpha();
         return color.withAlpha((int) Math.floor((alpha * percent)));

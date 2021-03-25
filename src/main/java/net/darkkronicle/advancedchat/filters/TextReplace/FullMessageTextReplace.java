@@ -1,9 +1,9 @@
 package net.darkkronicle.advancedchat.filters.TextReplace;
 
 import net.darkkronicle.advancedchat.filters.ReplaceFilter;
-import net.darkkronicle.advancedchat.interfaces.ITextReplace;
+import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import net.darkkronicle.advancedchat.util.ColorUtil;
-import net.darkkronicle.advancedchat.util.SearchText;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
-public class FullMessageTextReplace implements ITextReplace {
+public class FullMessageTextReplace implements IMatchReplace {
 
     @Override
-    public Optional<Text> filter(ReplaceFilter filter, SplitText text, List<SearchText.StringMatch> matches) {
+    public Optional<Text> filter(ReplaceFilter filter, SplitText text, List<SearchUtils.StringMatch> matches) {
         StringBuilder match = new StringBuilder();
-        for (SearchText.StringMatch m : matches) {
+        for (SearchUtils.StringMatch m : matches) {
             match.append(m.match);
         }
         SimpleText base = new SimpleText("None", Style.EMPTY);

@@ -18,7 +18,7 @@
       "net.darkkronicle.advancedchat.AdvancedChat"
     ],
     "modmenu": [
-      "net.darkkronicle.advancedchat.config.ModMenuImpl"
+      "net.darkkronicle.advancedchat.config.gui.ModMenuImpl"
     ]
   },
   "mixins": [

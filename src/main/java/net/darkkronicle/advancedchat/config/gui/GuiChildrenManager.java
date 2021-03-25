@@ -1,15 +1,14 @@
-package net.darkkronicle.advancedchat.config;
+package net.darkkronicle.advancedchat.config.gui;
 
-import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiListBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.darkkronicle.advancedchat.config.widgets.WidgetFilterEntry;
-import net.darkkronicle.advancedchat.config.widgets.WidgetListFilters;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.config.gui.widgets.WidgetFilterEntry;
+import net.darkkronicle.advancedchat.config.gui.widgets.WidgetListFilters;
 
 import javax.annotation.Nullable;
 import java.util.Collections;

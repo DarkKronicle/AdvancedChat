@@ -1,8 +1,8 @@
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.Getter;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;

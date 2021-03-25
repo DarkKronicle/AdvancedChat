@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -253,20 +253,6 @@ public class AdvancedChatHud extends DrawableHelper {
 
     }
 
-   public void addMessage(Text message) {
-        this.addMessage(message, 0);
-    }
-
-    public void addMessage(Text message, int messageId) {
-        this.addMessage(message, messageId, this.client.inGameHud.getTicks(), false);
-        LOGGER.info("[CHAT] {}", message.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
-    }
-
-    public void addMessage(Text Text, int messageId, int timestamp, boolean bl) {
-        AdvancedChat.chatTab.addMessage(Text, messageId, timestamp);
-
-    }
-
     /**
      * When a chat option is changed, this resets all of the messages to be uniform together.
      * Avoids expensive SplitLines every tick this is rendered.
@@ -304,21 +290,6 @@ public class AdvancedChatHud extends DrawableHelper {
 
     }
 
-    public boolean getQueuedMessage(double d, double e) {
-        if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden() && !this.queuedMessages.isEmpty()) {
-            double f = d - 2.0D;
-            double g = (double)this.client.getWindow().getScaledHeight() - e - 40.0D;
-            if (f <= (double)MathHelper.floor((double) this.getWidth() / this.getChatScale()) && g < 0.0D && g > (double)MathHelper.floor(-9.0D * this.getChatScale())) {
-                this.addMessage((Text)this.queuedMessages.remove());
-                this.lastTimeCheck = System.currentTimeMillis();
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
 
     public Style getText(double mouseX, double mouseY) {
         if (!this.isChatFocused() || this.client.options.hudHidden || this.chatIsHidden()) {
@@ -383,36 +354,6 @@ public class AdvancedChatHud extends DrawableHelper {
 
     public int getVisibleLineCount() {
         return AdvancedChatHud.getScaledHeight() / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
-    }
-
-    private long getChatDelayMS() {
-        return (long)(this.client.options.chatDelay * 1000.0D);
-    }
-
-    private void processQueuedMessages() {
-        if (!this.queuedMessages.isEmpty()) {
-            long l = System.currentTimeMillis();
-            if (l - this.lastTimeCheck >= this.getChatDelayMS()) {
-                this.addMessage((Text)this.queuedMessages.remove());
-                this.lastTimeCheck = l;
-            }
-
-        }
-    }
-
-    public void addQueuedMessage(Text text) {
-        if (this.client.options.chatDelay <= 0.0D) {
-            this.addMessage(text);
-        } else {
-            long l = System.currentTimeMillis();
-            if (l - this.lastTimeCheck >= this.getChatDelayMS()) {
-                this.addMessage(text);
-                this.lastTimeCheck = l;
-            } else {
-                this.queuedMessages.add(text);
-            }
-        }
-
     }
 
     public void cycleTab() {

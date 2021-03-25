@@ -1,11 +1,10 @@
-package net.darkkronicle.advancedchat.config.widgets;
+package net.darkkronicle.advancedchat.config.gui.widgets;
 
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
-import fi.dy.masa.malilib.util.KeyCodes;
 import lombok.Getter;
 import lombok.Setter;
-import net.darkkronicle.advancedchat.storage.Filter;
-import net.darkkronicle.advancedchat.util.SearchText;
+import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.minecraft.client.font.TextRenderer;
 
 import java.util.List;
@@ -43,11 +42,11 @@ public class WidgetIntBox extends GuiTextFieldGeneric {
             return Integer.parseInt(text);
         } catch (NumberFormatException e) {
             // Extra catch
-            Optional<List<SearchText.StringMatch>> omatches = SearchText.findMatches(text, "[0-9]+", Filter.FindType.REGEX);
+            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(text, "[0-9]+", Filter.FindType.REGEX);
             if (!omatches.isPresent()) {
                 return null;
             }
-            for (SearchText.StringMatch m : omatches.get()) {
+            for (SearchUtils.StringMatch m : omatches.get()) {
                 try {
                     return Integer.parseInt(m.match);
                 } catch (NumberFormatException err) {

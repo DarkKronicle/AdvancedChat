@@ -1,11 +1,11 @@
-package net.darkkronicle.advancedchat.config.widgets;
+package net.darkkronicle.advancedchat.config.gui.widgets;
 
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListBase;
 import fi.dy.masa.malilib.gui.wrappers.TextFieldWrapper;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 

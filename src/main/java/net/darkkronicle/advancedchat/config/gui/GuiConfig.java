@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.config;
+package net.darkkronicle.advancedchat.config.gui;
 
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -8,7 +8,7 @@ import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 
 import java.util.ArrayList;
 import java.util.Collections;

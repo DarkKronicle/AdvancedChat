@@ -1,15 +1,12 @@
 package net.darkkronicle.advancedchat.filters.TextReplace;
 
-import com.google.common.collect.ImmutableList;
 import net.darkkronicle.advancedchat.filters.ReplaceFilter;
-import net.darkkronicle.advancedchat.interfaces.ITextReplace;
-import net.darkkronicle.advancedchat.storage.Filter;
-import net.darkkronicle.advancedchat.util.SearchText;
-import net.darkkronicle.advancedchat.util.SimpleText;
+import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
@@ -19,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
-public class RainbowTextReplace implements ITextReplace {
+public class RainbowTextReplace implements IMatchReplace {
 
     private final static TextColor[] COLORS = new TextColor[]{
             TextColor.fromRgb(Formatting.RED.getColorValue()),
@@ -44,15 +41,15 @@ public class RainbowTextReplace implements ITextReplace {
     }
 
     @Override
-    public Optional<Text> filter(ReplaceFilter filter, SplitText text, List<SearchText.StringMatch> matches) {
-        HashMap<SearchText.StringMatch, SplitText.StringInsert> toReplace = new HashMap<>();
-        for (SearchText.StringMatch m : matches) {
-            Optional<List<SearchText.StringMatch>> ocharMatches = SearchText.findMatches(m.match, "(?<!§)[^§]", Filter.FindType.REGEX);
+    public Optional<Text> filter(ReplaceFilter filter, SplitText text, List<SearchUtils.StringMatch> matches) {
+        HashMap<SearchUtils.StringMatch, SplitText.StringInsert> toReplace = new HashMap<>();
+        for (SearchUtils.StringMatch m : matches) {
+            Optional<List<SearchUtils.StringMatch>> ocharMatches = SearchUtils.findMatches(m.match, "(?<!§)[^§]", Filter.FindType.REGEX);
             if (!ocharMatches.isPresent()) {
                 continue;
             }
-            for (SearchText.StringMatch match : ocharMatches.get()) {
-                toReplace.put(new SearchText.StringMatch(match.match, match.start + m.start, match.end + m.start), (current1, match1) ->
+            for (SearchUtils.StringMatch match : ocharMatches.get()) {
+                toReplace.put(new SearchUtils.StringMatch(match.match, match.start + m.start, match.end + m.start), (current1, match1) ->
                         new SplitText(current1.withMessage(match1.match).withStyle(current1.getStyle().withColor(next()))));
             }
         }

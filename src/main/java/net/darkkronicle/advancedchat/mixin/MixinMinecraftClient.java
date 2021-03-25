@@ -1,7 +1,7 @@
 package net.darkkronicle.advancedchat.mixin;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

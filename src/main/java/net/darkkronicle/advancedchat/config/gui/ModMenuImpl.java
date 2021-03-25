@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.config;
+package net.darkkronicle.advancedchat.config.gui;
 
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;

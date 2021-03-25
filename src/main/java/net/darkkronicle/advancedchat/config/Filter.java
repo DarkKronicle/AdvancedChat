@@ -1,6 +1,10 @@
-package net.darkkronicle.advancedchat.storage;
+package net.darkkronicle.advancedchat.config;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigDouble;
@@ -14,7 +18,8 @@ import net.darkkronicle.advancedchat.filters.TextReplace.FullMessageTextReplace;
 import net.darkkronicle.advancedchat.filters.TextReplace.OnlyMatchTextReplace;
 import net.darkkronicle.advancedchat.filters.TextReplace.OwOTextReplace;
 import net.darkkronicle.advancedchat.filters.TextReplace.RainbowTextReplace;
-import net.darkkronicle.advancedchat.interfaces.ITextReplace;
+import net.darkkronicle.advancedchat.interfaces.IJsonSave;
+import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -148,6 +153,53 @@ public class Filter implements Comparable<Filter> {
         return hover;
     }
 
+    public static class FilterJsonSave implements IJsonSave<Filter> {
+
+        @Override
+        public Filter load(JsonObject obj) {
+            Filter f = new Filter();
+            if (obj.get("order") != null) {
+                try {
+                    f.setOrder(obj.get("order").getAsInt());
+                } catch (Exception e) {
+                    f.setOrder(0);
+                }
+            }
+            for (ConfigStorage.SaveableConfig<?> conf : f.getOptions()) {
+                IConfigBase option = conf.config;
+                if (obj.has(conf.key)) {
+                    option.setValueFromJsonElement(obj.get(conf.key));
+                }
+            }
+            JsonElement children = obj.get("children");
+            if (children != null && children.isJsonArray()) {
+                ArrayList<Filter> child = new ArrayList<>();
+                for (JsonElement o : children.getAsJsonArray()) {
+                    if (o.isJsonObject()) {
+                        child.add(load(o.getAsJsonObject()));
+                    }
+                }
+                f.setChildren(child);
+            }
+            return f;
+        }
+
+        @Override
+        public JsonObject save(Filter filter) {
+            JsonArray children = new JsonArray();
+            JsonObject obj = new JsonObject();
+            for (ConfigStorage.SaveableConfig<?> option : filter.getOptions()) {
+                obj.add(option.key, option.config.getAsJsonElement());
+            }
+            for (Filter c : filter.getChildren()) {
+                children.add(save(c));
+            }
+            obj.add("children", children);
+            obj.addProperty("order", filter.getOrder());
+            return obj;
+        }
+    }
+
     @Override
     public int compareTo(@NotNull Filter o) {
         return order.compareTo(o.order);
@@ -220,13 +272,13 @@ public class Filter implements Comparable<Filter> {
         RAINBOW("rainbow", new RainbowTextReplace())
         ;
         public final String configString;
-        public final ITextReplace textReplace;
+        public final IMatchReplace textReplace;
 
         private static String translate(String key) {
             return StringUtils.translate("advancedchat.config.replacetype." + key);
         }
 
-        ReplaceType(String configString, ITextReplace textReplace) {
+        ReplaceType(String configString, IMatchReplace textReplace) {
             this.configString = configString;
             this.textReplace = textReplace;
         }

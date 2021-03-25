@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.storage;
+package net.darkkronicle.advancedchat.config;
 
 import lombok.Data;
 

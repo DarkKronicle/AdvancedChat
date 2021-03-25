@@ -1,13 +1,14 @@
 package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Getter;
-import net.darkkronicle.advancedchat.storage.Filter;
-import net.darkkronicle.advancedchat.util.SearchText;
+import net.darkkronicle.advancedchat.config.ChatTab;
+import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.minecraft.text.Text;
 
 /**
- * ChatTab that loads from {@link net.darkkronicle.advancedchat.storage.ChatTab}.
+ * ChatTab that loads from {@link ChatTab}.
  * Easy to customize.
  */
 public class CustomChatTab extends AbstractChatTab {
@@ -36,6 +37,6 @@ public class CustomChatTab extends AbstractChatTab {
     @Override
     public boolean shouldAdd(Text text) {
         SplitText newText = new SplitText(text);
-        return SearchText.isMatch(newText.getFullMessage(), findString, findType);
+        return SearchUtils.isMatch(newText.getFullMessage(), findString, findType);
     }
 }

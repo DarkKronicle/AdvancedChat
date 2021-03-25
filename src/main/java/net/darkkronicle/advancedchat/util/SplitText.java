@@ -1,9 +1,8 @@
 package net.darkkronicle.advancedchat.util;
 
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.TextCollector;
 import net.minecraft.text.*;
 
 import java.time.LocalTime;
@@ -52,7 +51,7 @@ public class SplitText {
 
     /**
      * Takes the SplitText that is stored inside of this class, and puts it into a plain string.
-     * Used mainly for debugging and {@link SearchText}
+     * Used mainly for debugging and {@link SearchUtils}
      *
      * @return Plain string of just the raw text of held {@link SimpleText}
      */
@@ -82,7 +81,7 @@ public class SplitText {
         return t;
     }
 
-    public SplitText truncate(SearchText.StringMatch match) {
+    public SplitText truncate(SearchUtils.StringMatch match) {
         ArrayList<SimpleText> newSiblings = new ArrayList<>();
         boolean start = false;
         // Total number of chars went through. Used to find where the match end and beginning is.
@@ -122,7 +121,7 @@ public class SplitText {
     }
 
     public interface StringInsert {
-        SplitText getText(SimpleText current, SearchText.StringMatch match);
+        SplitText getText(SimpleText current, SearchUtils.StringMatch match);
     }
 
     /**
@@ -130,17 +129,17 @@ public class SplitText {
      *
      * @param matches Map containing a match and a SplitText provider
      */
-    public void replaceStrings(Map<SearchText.StringMatch, StringInsert> matches) {
+    public void replaceStrings(Map<SearchUtils.StringMatch, StringInsert> matches) {
         // If there's no matches nothing should get replaced.
         if (matches.size() == 0) {
             return;
         }
         // Sort the matches and then get a nice easy iterator for navigation
-        Iterator<Map.Entry<SearchText.StringMatch, StringInsert>> sortedMatches = new TreeMap<>(matches).entrySet().iterator();
+        Iterator<Map.Entry<SearchUtils.StringMatch, StringInsert>> sortedMatches = new TreeMap<>(matches).entrySet().iterator();
         // List of new SimpleText to form a new SplitText.
         ArrayList<SimpleText> newSiblings = new ArrayList<>();
         // What match this is currently on.
-        Map.Entry<SearchText.StringMatch, StringInsert> match = sortedMatches.next();
+        Map.Entry<SearchUtils.StringMatch, StringInsert> match = sortedMatches.next();
 
         // Total number of chars went through. Used to find where the match end and beginning is.
         int totalchar = 0;

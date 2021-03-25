@@ -3,14 +3,13 @@ package net.darkkronicle.advancedchat.gui.tabs;
 import lombok.Data;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.gui.MessageOwner;
-import net.darkkronicle.advancedchat.storage.ConfigStorage;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
 
@@ -89,21 +88,6 @@ public abstract class AbstractChatTab {
             oldline = newline;
         }
         return null;
-    }
-
-    /**
-     * Used for adding messages into the tab.
-     *
-     * @param text      Text to add.
-     * @param messageId ID of message.
-     * @param timestamp Amount of ticks when it was created.
-     */
-    public void addMessage(Text text, int messageId, int timestamp) {
-        addMessage(text, messageId, timestamp, LocalTime.now());
-    }
-
-    public void addMessage(Text text, int messageId, int timestamp, LocalTime time) {
-        addMessage(text, messageId, timestamp, time, null);
     }
 
     public void addMessage(Text text, int messageId, int timestamp, LocalTime time, MessageOwner playerInfo) {

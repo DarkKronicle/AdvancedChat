@@ -1,8 +1,7 @@
-package net.darkkronicle.advancedchat.config;
+package net.darkkronicle.advancedchat.config.gui;
 
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.IConfigBase;
-import fi.dy.masa.malilib.config.IConfigDouble;
 import fi.dy.masa.malilib.config.gui.SliderCallbackDouble;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -13,14 +12,13 @@ import fi.dy.masa.malilib.gui.button.ConfigButtonOptionList;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.ISliderCallback;
 import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList;
-import fi.dy.masa.malilib.gui.widgets.WidgetLabel;
 import fi.dy.masa.malilib.gui.widgets.WidgetSlider;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.config.widgets.WidgetColor;
-import net.darkkronicle.advancedchat.config.widgets.WidgetLabelHoverable;
-import net.darkkronicle.advancedchat.config.widgets.WidgetToggle;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.config.gui.widgets.WidgetColor;
+import net.darkkronicle.advancedchat.config.gui.widgets.WidgetLabelHoverable;
+import net.darkkronicle.advancedchat.config.gui.widgets.WidgetToggle;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;

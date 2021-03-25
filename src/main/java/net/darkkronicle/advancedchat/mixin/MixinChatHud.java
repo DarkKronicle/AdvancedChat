@@ -1,6 +1,7 @@
 package net.darkkronicle.advancedchat.mixin;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.MessageDispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -24,7 +25,12 @@ public class MixinChatHud {
 
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At("HEAD"), cancellable = true)
     private void addMessage(Text text, int messageId, int timestamp, boolean bl, CallbackInfo ci) {
-        AdvancedChat.getAdvancedChatHud().addMessage(text, messageId, timestamp, bl);
+        ci.cancel();
+    }
+
+    @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("HEAD"), cancellable = true)
+    private void addMessage(Text text, CallbackInfo ci) {
+        MessageDispatcher.getInstance().handleText(text);
         ci.cancel();
     }
 

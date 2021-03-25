@@ -1,9 +1,9 @@
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.NonNull;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
-import net.darkkronicle.advancedchat.util.SearchText;
+import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -36,7 +36,7 @@ public class ColorFilter extends AbstractFilter {
     // Probably not perfect to use null, may come back later.
     public ColorUtil.SimpleColor getBackgroundColor(Text text) {
         SplitText splitText = new SplitText(text);
-        if (SearchText.isMatch(splitText.getFullMessage(), filterString, findType)) {
+        if (SearchUtils.isMatch(splitText.getFullMessage(), filterString, findType)) {
             return color;
         }
         return null;

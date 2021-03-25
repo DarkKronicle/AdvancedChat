@@ -2,10 +2,9 @@ package net.darkkronicle.advancedchat.filters;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.darkkronicle.advancedchat.storage.Filter;
+import net.darkkronicle.advancedchat.config.Filter;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 /**
@@ -20,7 +19,7 @@ public abstract class AbstractFilter {
     protected String filterString;
 
     /**
-     * The {@link net.darkkronicle.advancedchat.storage.Filter.FindType} on how text will be filtered.
+     * The {@link Filter.FindType} on how text will be filtered.
      */
     @Setter @Getter
     protected Filter.FindType findType;
