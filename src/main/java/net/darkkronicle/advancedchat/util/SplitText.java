@@ -227,12 +227,12 @@ public class SplitText {
         return siblings;
     }
 
-    public static Text getTextFromText(SimpleText text) {
-        TextCollector textCollector = new TextCollector();
-        textCollector.add(StringVisitable.styled(text.getMessage(), text.getStyle()));
-        return (Text) textCollector.getCombined();
-    }
-
+    /**
+     * Prefixes the time to text
+     *
+     * @param format Date formatter
+     * @param time Current time
+     */
     public void addTime(DateTimeFormatter format, LocalTime time) {
         String replaceFormat = ConfigStorage.General.TIME_TEXT_FORMAT.config.getStringValue().replaceAll("&", "§");
         ColorUtil.SimpleColor color = ConfigStorage.General.TIME_COLOR.config.getSimpleColor();
@@ -243,11 +243,11 @@ public class SplitText {
         siblings.add(0, text);
     }
 
-    public void append(SimpleText text) {
+    public void append(SimpleText text, boolean copyIfEmpty) {
         if (siblings.size() > 0) {
             SimpleText last = siblings.get(siblings.size() - 1);
             // Prevent having a ton of the same siblings in one...
-            if (last.getStyle().equals(text.getStyle())) {
+            if (last.getStyle().equals(text.getStyle()) || (copyIfEmpty && text.getStyle().equals(Style.EMPTY))) {
                 last.setMessage(last.getMessage() + text.getMessage());
             } else {
                 siblings.add(text);

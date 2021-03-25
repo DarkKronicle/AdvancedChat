@@ -2,6 +2,7 @@ package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Getter;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.gui.MessageOwner;
 import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.ColorFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
@@ -10,10 +11,9 @@ import net.darkkronicle.advancedchat.storage.ChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SearchText;
 import net.darkkronicle.advancedchat.util.SplitText;
-import net.darkkronicle.advancedchat.util.VisitingUtils;
+import net.darkkronicle.advancedchat.util.StyleFormatter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.font.TextVisitFactory;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.ChatMessages;
 import net.minecraft.text.*;
@@ -46,10 +46,10 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     @Override
-    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, PlayerListEntry player) {
+    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, MessageOwner player) {
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
         MinecraftClient client = MinecraftClient.getInstance();
-        text = VisitingUtils.format(text);
+        text = StyleFormatter.formatText(text);
         Text unfiltered = text;
         Optional<Text> filtered = AdvancedChat.filter.filter(text);
         if (filtered.isPresent()) {

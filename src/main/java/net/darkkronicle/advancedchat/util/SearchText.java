@@ -1,6 +1,7 @@
 package net.darkkronicle.advancedchat.util;
 
 import lombok.AllArgsConstructor;
+import net.darkkronicle.advancedchat.gui.MessageOwner;
 import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.storage.Filter;
 import net.fabricmc.api.EnvType;
@@ -115,8 +116,19 @@ public class SearchText {
      */
     @AllArgsConstructor
     public static class StringMatch implements Comparable<StringMatch> {
+        /**
+         * The content that was matched
+         */
         public String match;
+
+        /**
+         * The index of the start of the match
+         */
         public Integer start;
+
+        /**
+         * The index of the end of the match
+         */
         public Integer end;
 
         @Override
@@ -125,7 +137,14 @@ public class SearchText {
         }
     }
 
-    public static PlayerListEntry getAuthor(ClientPlayNetworkHandler networkHandler, Text text) {
+    /**
+     * Get the author of a message using regex
+     *
+     * @param networkHandler Network handler to get player data
+     * @param text Text to search
+     * @return Owner of the message
+     */
+    public static MessageOwner getAuthor(ClientPlayNetworkHandler networkHandler, Text text) {
         if (networkHandler == null) {
             return null;
         }
@@ -164,9 +183,9 @@ public class SearchText {
                 for (SearchText.StringMatch nm : entry.getValue()) {
                     if (nm.match.equals(m.match)) {
                         if (player != null && match.start <= m.start) {
-                            return player;
+                            return new MessageOwner(match.match, player);
                         }
-                        return entry.getKey();
+                        return new MessageOwner(nm.match, entry.getKey());
                     }
                 }
             }

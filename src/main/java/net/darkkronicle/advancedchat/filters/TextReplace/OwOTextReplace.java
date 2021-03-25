@@ -38,7 +38,7 @@ public class OwOTextReplace implements ITextReplace {
             }
         }
         text.replaceStrings(replaceMatches);
-        text.append(new SimpleText(" " + ParsingUtil.parseRandomizedLetters(ParsingUtil.getRandomElement(OwO.INSTANCE.getSuffixes())), Style.EMPTY));
+        text.append(new SimpleText(" " + ParsingUtil.parseRandomizedLetters(ParsingUtil.getRandomElement(OwO.INSTANCE.getSuffixes())), Style.EMPTY), true);
         return Optional.of(text.getText());
     }
 }

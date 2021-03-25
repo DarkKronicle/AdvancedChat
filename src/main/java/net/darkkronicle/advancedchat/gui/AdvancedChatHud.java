@@ -163,7 +163,7 @@ public class AdvancedChatHud extends DrawableHelper {
                             }
 
                             if (headNow && line.getOwner() != null) {
-                                client.getTextureManager().bindTexture(line.getOwner().getSkinTexture());
+                                client.getTextureManager().bindTexture(line.getOwner().getTexture());
                                 DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
                             }
                             drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
@@ -203,7 +203,7 @@ public class AdvancedChatHud extends DrawableHelper {
                                 }
                                 if (headNow && line.getOwner() != null) {
                                     RenderSystem.color4f(1, 1, 1, (float) textColor.alpha() / 255);
-                                    client.getTextureManager().bindTexture(line.getOwner().getSkinTexture());
+                                    client.getTextureManager().bindTexture(line.getOwner().getTexture());
                                     DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
                                     RenderSystem.color4f(1, 1, 1, 1);
                                 }
@@ -321,26 +321,35 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public Style getText(double mouseX, double mouseY) {
-        if (this.isChatFocused() && !this.client.options.hudHidden && !this.chatIsHidden()) {
-            double relX = mouseX - 2 - ConfigStorage.ChatScreen.X.config.getIntegerValue();
-            // TODO Heads bench
-            double relY = (double)this.client.getWindow().getScaledHeight() - mouseY - ConfigStorage.ChatScreen.Y.config.getIntegerValue();
-            double trueX = relX / getChatScale();
-            double trueY = relY / getChatScale();
-            if (trueX >= 0.0D && trueY >= 0.0D) {
-                int numOfMessages = Math.min(this.getVisibleLineCount(), currentTab.getLineCount());
-                if (trueX <= (double) MathHelper.floor((double) getWidth())) {
-                    if (trueY < (double) (9 * numOfMessages + numOfMessages)) {
-                        int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double) this.scrolledLines);
-                        if (lineNum >= 0 && lineNum < currentTab.getLineCount() && lineNum <= getVisibleLineCount() + scrolledLines) {
-                            AdvancedChatMessage.AdvancedChatLine chatHudLine = currentTab.getLine(lineNum);
-                            return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX);
-                        }
-                    }
-                }
-
-            }
+        if (!this.isChatFocused() || this.client.options.hudHidden || this.chatIsHidden()) {
+            return null;
         }
+        double relX = mouseX - 2 - ConfigStorage.ChatScreen.X.config.getIntegerValue();
+        if (ConfigStorage.General.CHAT_HEADS.config.getBooleanValue()) {
+            relX += 10;
+        }
+        double relY = (double)this.client.getWindow().getScaledHeight() - mouseY - ConfigStorage.ChatScreen.Y.config.getIntegerValue();
+        double trueX = relX / getChatScale();
+        double trueY = relY / getChatScale();
+        // Divide it by chat scale to get where it actually is
+        if (trueX < 0.0D || trueY < 0.0D) {
+            return null;
+        }
+
+        int numOfMessages = Math.min(this.getVisibleLineCount(), currentTab.getLineCount());
+        if (trueX > (double) MathHelper.floor((double) getWidth())) {
+            return null;
+        }
+        if (trueY > (double) (9 * numOfMessages + numOfMessages)) {
+            return null;
+        }
+
+        int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double) this.scrolledLines);
+        if (lineNum >= 0 && lineNum < currentTab.getLineCount() && lineNum <= getVisibleLineCount() + scrolledLines) {
+            AdvancedChatMessage.AdvancedChatLine chatHudLine = currentTab.getLine(lineNum);
+            return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX);
+        }
+
         return null;
     }
 

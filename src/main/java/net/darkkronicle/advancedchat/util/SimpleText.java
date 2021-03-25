@@ -10,8 +10,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
 
-/*
-Class that allows for easy mutable objects that are like minecraft Text.
+/**
+ * Class that allows for easy mutable objects that are like minecraft Text.
  */
 
 @Accessors(chain = true)
@@ -33,6 +33,12 @@ public class SimpleText {
         return new SimpleText(this);
     }
 
+    /**
+     * Apply a color to the SimpleText
+     * @param string Content
+     * @param color Color that will get transfered over
+     * @return New SimpleText
+     */
     public static SimpleText withColor(String string, ColorUtil.SimpleColor color) {
         if (color == null) {
             return new SimpleText(string, Style.EMPTY);

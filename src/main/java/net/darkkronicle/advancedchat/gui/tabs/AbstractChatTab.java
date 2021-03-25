@@ -2,6 +2,7 @@ package net.darkkronicle.advancedchat.gui.tabs;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.gui.MessageOwner;
 import net.darkkronicle.advancedchat.storage.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
@@ -105,7 +106,7 @@ public abstract class AbstractChatTab {
         addMessage(text, messageId, timestamp, time, null);
     }
 
-    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, PlayerListEntry playerInfo) {
+    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, MessageOwner playerInfo) {
         if (!shouldAdd(text)) {
             return;
         }

@@ -25,7 +25,7 @@ public class AdvancedChatMessage {
     private ColorUtil.SimpleColor background;
     private int stacks;
     private UUID uuid;
-    private PlayerListEntry owner;
+    private MessageOwner owner;
     private ArrayList<AdvancedChatLine> lines;
 
     @Data
@@ -42,7 +42,7 @@ public class AdvancedChatMessage {
     }
 
     @Builder
-    private AdvancedChatMessage(int creationTick, Text text, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, PlayerListEntry owner) {
+    private AdvancedChatMessage(int creationTick, Text text, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
         this.creationTick = creationTick;
         this.text = text;
         this.id = id;
