@@ -2,7 +2,7 @@ package net.darkkronicle.advancedchat.config;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.gui.ChatLogLine;
-import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

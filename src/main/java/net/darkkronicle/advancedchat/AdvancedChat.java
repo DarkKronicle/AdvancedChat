@@ -5,7 +5,7 @@ import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedSleepingChatScreen;
 import net.darkkronicle.advancedchat.gui.ChatLogScreen;
-import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.config.ChatLogData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;

@@ -1,13 +1,13 @@
-package net.darkkronicle.advancedchat.gui;
+package net.darkkronicle.advancedchat.chat;
 
 import lombok.Builder;
 import lombok.Data;
-import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
+import net.darkkronicle.advancedchat.gui.MessageOwner;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.StyleFormatter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
 
 import java.time.LocalTime;
@@ -60,10 +60,14 @@ public class AdvancedChatMessage {
         if (width == 0) {
             this.lines.add(new AdvancedChatLine(this, text));
         } else {
-            for (Text t : MainChatTab.wrapText(MinecraftClient.getInstance().textRenderer, width, text)) {
+            for (Text t : StyleFormatter.wrapText(MinecraftClient.getInstance().textRenderer, width, text)) {
                 this.lines.add(new AdvancedChatLine(this, t));
             }
         }
+    }
+
+    public boolean isSimilar(AdvancedChatMessage message) {
+        return message.getRawText().getString().equals(this.getRawText().getString());
     }
 
     public int getLineCount() {

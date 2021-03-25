@@ -7,9 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
-import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
-import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
@@ -47,6 +48,7 @@ public class AdvancedChatHud extends DrawableHelper {
     }
 
     public void render(MatrixStack matrices, int tick) {
+        // TODO fix garbage
 
         // Set up rendering
         matrices.push();
@@ -116,6 +118,7 @@ public class AdvancedChatHud extends DrawableHelper {
             // Render each message
             ArrayList<UUID> rendered = new ArrayList<>();
             for (int i = 0; i + scrolledLines < lineCount; i++) {
+                // TODO big bug with messages that are over 1 line don't scroll itself correctly
                 AdvancedChatMessage line = currentTab.getMessageFromLine(i + scrolledLines);
                 if (rendered.contains(line.getUuid())) {
                     continue;

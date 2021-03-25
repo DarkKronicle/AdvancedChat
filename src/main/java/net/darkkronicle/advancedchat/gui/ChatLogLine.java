@@ -3,7 +3,7 @@ package net.darkkronicle.advancedchat.gui;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;

@@ -6,7 +6,7 @@ import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.chat.MessageDispatcher;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.MainFilter;
-import net.darkkronicle.advancedchat.gui.tabs.MainChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 

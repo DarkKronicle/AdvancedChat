@@ -1,20 +1,16 @@
-package net.darkkronicle.advancedchat.gui.tabs;
+package net.darkkronicle.advancedchat.chat.tabs;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.gui.MessageOwner;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
-import net.darkkronicle.advancedchat.gui.AdvancedChatMessage;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.*;
 import net.minecraft.util.math.MathHelper;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -90,40 +86,25 @@ public abstract class AbstractChatTab {
         return null;
     }
 
-    public void addMessage(Text text, int messageId, int timestamp, LocalTime time, MessageOwner playerInfo) {
-        if (!shouldAdd(text)) {
+    public void addMessage(AdvancedChatMessage line) {
+        if (!shouldAdd(line.getText())) {
             return;
         }
-
-        if (messageId != 0) {
-            this.removeMessage(messageId);
+        // Whether or not to override one
+        if (line.getId() != 0) {
+            this.removeMessage(line.getId());
         }
-
         for (int i = 0; i < ConfigStorage.General.CHAT_STACK.config.getIntegerValue() && i < messages.size(); i++) {
             AdvancedChatMessage chatLine = messages.get(i);
-            if (text.getString().equals(chatLine.getRawText().getString())) {
+            if (line.isSimilar(chatLine)) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
                 return;
             }
         }
 
-        boolean showtime = ConfigStorage.ChatScreen.SHOW_TIME.config.getBooleanValue();
-        Text original = text;
-        if (showtime) {
-            SplitText split = new SplitText(text);
-            DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.General.TIME_FORMAT.config.getStringValue());
-            split.addTime(format, time);
-            text = split.getText();
-        }
-
         // To Prevent small letters from being stuck right next to the tab border we subtract 5 here.
-        int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5);
-
-        AdvancedChatMessage line = AdvancedChatMessage.builder().text(text).originalText(original).owner(playerInfo).id(messageId).width(width).creationTick(timestamp).time(time).build();
         this.messages.add(0, line);
-
         hud.messageAddedToTab(this);
-
         int visibleMessagesMaxSize = ConfigStorage.ChatScreen.STORED_LINES.config.getIntegerValue();
         while (this.messages.size() > visibleMessagesMaxSize) {
             this.messages.remove(this.messages.size() - 1);

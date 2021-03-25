@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.gui.tabs;
+package net.darkkronicle.advancedchat.chat.tabs;
 
 import lombok.Getter;
 import net.darkkronicle.advancedchat.config.ChatTab;

@@ -2,13 +2,21 @@ package net.darkkronicle.advancedchat.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.ChatMessages;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Unit;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Class to format text without losing data
@@ -205,6 +213,45 @@ public class StyleFormatter {
         }, length);
         text.visit(formatter::updateStyle, Style.EMPTY);
         return t.getText();
+    }
+
+    /**
+     * Wraps text into multiple lines
+     *
+     * @param textRenderer TextRenderer to handle text
+     * @param scaledWidth Maximum width before the line breaks
+     * @param text Text to break up
+     * @return List of MutableText of the new lines
+     */
+    public static List<MutableText> wrapText(TextRenderer textRenderer, int scaledWidth, Text text) {
+        ArrayList<MutableText> lines = new ArrayList<>();
+        for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, scaledWidth, textRenderer)) {
+            MutableText newLine = new LiteralText("");
+
+            AtomicReference<Style> oldStyle = new AtomicReference<>(null);
+            AtomicReference<String> s = new AtomicReference<>("");
+
+            breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
+                if (oldStyle.get() == null) {
+                    oldStyle.set(style);
+                }
+
+                if (oldStyle.get() != style) {
+                    newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
+                    oldStyle.set(style);
+                    s.set("");
+                }
+
+                s.set(s.get() + (char) codePoint);
+                return true;
+            });
+
+            if (!s.get().isEmpty()) {
+                newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
+            }
+            lines.add(newLine);
+        }
+        return lines;
     }
 
 }

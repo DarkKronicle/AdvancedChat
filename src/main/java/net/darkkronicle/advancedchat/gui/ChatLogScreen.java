@@ -4,7 +4,7 @@ import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
-import net.darkkronicle.advancedchat.gui.tabs.AbstractChatTab;
+import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SearchUtils;
