@@ -32,7 +32,10 @@ public class MessageDispatcher {
         // We don't really want this to be reconstructed or changed because it will lead to problems
         // of not having everything registered
         registerPreFilter((text) -> Optional.of(StyleFormatter.formatText(text)), -1);
-        registerPreFilter((IMessageProcessor) text -> LogManager.getLogger().info("[CHAT] {}",text.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n")), -1);
+        registerPreFilter((IMessageProcessor) (text, orig) -> {
+            LogManager.getLogger().info("[CHAT] {}",text.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
+            return true;
+        }, -1);
 
     }
 
@@ -90,7 +93,7 @@ public class MessageDispatcher {
     }
 
     /**
-     * Register's a {@link IMessageProcessor} to handle a chat event.
+     * Register's a {@link IMessageProcessor} to handle a chat event after the message has been preprocessed.
      *
      * @param processor IMessageProcessor to get called back
      * @param index Index that it will be added to. Supplying a negative value will put it at the end.

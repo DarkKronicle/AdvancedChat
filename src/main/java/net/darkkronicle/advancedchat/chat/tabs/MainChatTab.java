@@ -2,6 +2,7 @@ package net.darkkronicle.advancedchat.chat.tabs;
 
 import lombok.Getter;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatLogMessage;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
 import net.darkkronicle.advancedchat.config.ChatTab;
@@ -49,7 +50,7 @@ public class MainChatTab extends AbstractChatTab {
         if (forward) {
             added.add(this);
         }
-        AdvancedChat.getChatLogData().addMessage(line.getRawText(), added.toArray(new AbstractChatTab[0]));
+        AdvancedChat.getChatLogData().addMessage(new ChatLogMessage(line, added.toArray(new AbstractChatTab[0])));
         if (!forward) {
             return;
         }
@@ -66,9 +67,14 @@ public class MainChatTab extends AbstractChatTab {
         allChatTabs = new ArrayList<>();
         allChatTabs.add(this);
         for (ChatTab tab : ConfigStorage.TABS) {
-            CustomChatTab customTab = new CustomChatTab(tab.getName(), tab.getAbreviation(), tab.getFindType(), tab.getFindString(), tab.isForward(), tab.getStartingMessage());
+            CustomChatTab customTab = new CustomChatTab(tab.getName().config.getStringValue(), tab.getAbbreviation().config.getStringValue(), tab.getFind(), tab.getFindString().config.getStringValue(), tab.getForward().config.getBooleanValue(), tab.getStartingMessage().config.getStringValue());
             customChatTabs.add(customTab);
             allChatTabs.add(customTab);
+        }
+        for (ChatLogMessage l : AdvancedChat.getChatLogData().getMessages()) {
+            for (AbstractChatTab t : customChatTabs) {
+                t.addMessage(l);
+            }
         }
     }
 

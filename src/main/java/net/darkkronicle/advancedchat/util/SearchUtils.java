@@ -2,7 +2,7 @@ package net.darkkronicle.advancedchat.util;
 
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
-import net.darkkronicle.advancedchat.gui.MessageOwner;
+import net.darkkronicle.advancedchat.chat.MessageOwner;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.fabricmc.api.EnvType;

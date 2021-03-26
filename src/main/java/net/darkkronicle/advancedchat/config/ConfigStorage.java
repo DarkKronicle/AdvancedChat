@@ -22,6 +22,9 @@ import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +34,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class ConfigStorage implements IConfigHandler {
 
-    private static final String CONFIG_FILE_NAME = AdvancedChat.MOD_ID + ".json";
+    public static final String CONFIG_FILE_NAME = AdvancedChat.MOD_ID + ".json";
     private static final int CONFIG_VERSION = 1;
 
     public static final ArrayList<Filter> FILTERS = new ArrayList<>();
@@ -169,10 +172,28 @@ public class ConfigStorage implements IConfigHandler {
 
 
     public static void loadFromFile() {
+
+        if (ConfigUpdater.checkForOutdated()) {
+            Logger LOGGER = LogManager.getLogger();
+            try {
+                LOGGER.info("Old AdvancedChat configuration found! Updating now...");
+                ConfigUpdater.update();
+                saveFromFile();
+                LOGGER.info("AdvancedChat update successful!");
+                AdvancedChat.chatTab.setUpTabs();
+                AdvancedChat.filter.loadFilters();
+                return;
+            } catch (Exception e) {
+                LOGGER.warn("Something went wrong when updating the old configuration file!");
+                e.printStackTrace();
+            }
+        }
+
         File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
 
         if (configFile.exists() && configFile.isFile() && configFile.canRead()) {
             Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
+            ChatTab.ChatTabJsonSave tabSave = new ChatTab.ChatTabJsonSave();
             JsonElement element = JsonUtils.parseJsonFile(configFile);
 
             if (element != null && element.isJsonObject()) {
@@ -190,12 +211,21 @@ public class ConfigStorage implements IConfigHandler {
                         }
                     }
                 }
+                JsonElement t = root.get(TABS_KEY);
+                ConfigStorage.TABS.clear();
+                if (t != null && t.isJsonArray()) {
+                    for (JsonElement el : t.getAsJsonArray()) {
+                        if (el.isJsonObject()) {
+                            ConfigStorage.TABS.add(tabSave.load(el.getAsJsonObject()));
+                        }
+                    }
+                }
 
                 int version = JsonUtils.getIntegerOrDefault(root, "configVersion", 0);
 
            }
         }
-
+        AdvancedChat.chatTab.setUpTabs();
         AdvancedChat.filter.loadFilters();
     }
 
@@ -221,6 +251,7 @@ public class ConfigStorage implements IConfigHandler {
 
         if ((dir.exists() && dir.isDirectory()) || dir.mkdirs()) {
             Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
+            ChatTab.ChatTabJsonSave tabSave = new ChatTab.ChatTabJsonSave();
             JsonObject root = new JsonObject();
 
             writeOptions(root, General.NAME, General.OPTIONS);
@@ -231,6 +262,12 @@ public class ConfigStorage implements IConfigHandler {
                 arr.add(filterSave.save(f));
             }
             root.add(FILTER_KEY, arr);
+
+            JsonArray tabs = new JsonArray();
+            for (ChatTab t : ConfigStorage.TABS) {
+                tabs.add(tabSave.save(t));
+            }
+            root.add(TABS_KEY, tabs);
 
             root.add("config_version", new JsonPrimitive(CONFIG_VERSION));
 

@@ -3,6 +3,7 @@ package net.darkkronicle.advancedchat.gui;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatLogMessage;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.config.Filter;
@@ -134,7 +135,7 @@ public class ChatLogScreen extends GuiBase {
         drawCenteredString(matrices, client.textRenderer, "ChatLog", client.getWindow().getScaledWidth()/2, 20, ColorUtil.WHITE.color());
         int windowHeight = client.getWindow().getScaledHeight();
         int maxheight =  windowHeight - 90;
-        List<ChatLogLine> filteredLines = AdvancedChat.getChatLogData().getFormattedMessages();
+        List<ChatLogMessage> filteredLines = AdvancedChat.getChatLogData().getMessages();
         int lines = 0;
         int lineHeight = ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
         int bottomScreenOffset = 20;
@@ -173,7 +174,7 @@ public class ChatLogScreen extends GuiBase {
             int startLine = scrolledLines + 1;
             int endLine = filteredLines.size();
             for (int i = 0; i + scrolledLines < filteredLines.size(); i++) {
-                ChatLogLine line = filteredLines.get(i + scrolledLines);
+                ChatLogMessage line = filteredLines.get(i + scrolledLines);
                 lines++;
                 int relativeHeight = (lines * lineHeight);
                 int height = (windowHeight - bottomScreenOffset) - relativeHeight;
@@ -220,13 +221,14 @@ public class ChatLogScreen extends GuiBase {
         double trueY = (double)this.client.getWindow().getScaledHeight() - mouseY - 20;
 //      trueX = MathHelper.floor(trueX);
 //      trueY = MathHelper.floor(trueY * (AdvancedChat.configStorage.chatConfig.lineSpace + 1.0D));
+        // TODO fix
         if (trueX >= 0.0D && trueY >= 0.0D) {
-            int numOfMessages = Math.min(this.getVisibleLineCount(), AdvancedChat.getChatLogData().getFormattedMessages().size());
+            int numOfMessages = Math.min(this.getVisibleLineCount(), AdvancedChat.getChatLogData().getMessages().size());
             if (trueX <= (double) MathHelper.floor((double) getWidth())) {
                 if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
                     int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double)this.scrolledLines);
-                    if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getFormattedMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
-                        ChatLogLine chatHudLine = AdvancedChat.getChatLogData().getFormattedMessages().get(lineNum);
+                    if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
+                        ChatLogMessage chatHudLine = AdvancedChat.getChatLogData().getMessages().get(lineNum);
                         return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX - 20);
                     }
                 }

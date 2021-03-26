@@ -2,7 +2,6 @@ package net.darkkronicle.advancedchat.chat;
 
 import lombok.Builder;
 import lombok.Data;
-import net.darkkronicle.advancedchat.gui.MessageOwner;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.StyleFormatter;
 import net.fabricmc.api.EnvType;
@@ -17,16 +16,21 @@ import java.util.UUID;
 @Environment(EnvType.CLIENT)
 @Data
 public class AdvancedChatMessage {
-    private int creationTick;
-    private Text text;
-    private Text rawText;
-    private int id;
-    private LocalTime time;
-    private ColorUtil.SimpleColor background;
-    private int stacks;
-    private UUID uuid;
-    private MessageOwner owner;
-    private ArrayList<AdvancedChatLine> lines;
+    protected int creationTick;
+    protected Text text;
+    protected Text rawText;
+    protected int id;
+    protected LocalTime time;
+    protected ColorUtil.SimpleColor background;
+    protected int stacks;
+    protected UUID uuid;
+    protected MessageOwner owner;
+    protected ArrayList<AdvancedChatLine> lines;
+
+    public void setText(Text text, int width) {
+        this.text = text;
+        formatChildren(width);
+    }
 
     @Data
     public static class AdvancedChatLine {
@@ -42,7 +46,7 @@ public class AdvancedChatMessage {
     }
 
     @Builder
-    private AdvancedChatMessage(int creationTick, Text text, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
+    protected AdvancedChatMessage(int creationTick, Text text, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
         this.creationTick = creationTick;
         this.text = text;
         this.id = id;

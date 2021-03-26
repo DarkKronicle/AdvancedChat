@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.gui;
+package net.darkkronicle.advancedchat.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

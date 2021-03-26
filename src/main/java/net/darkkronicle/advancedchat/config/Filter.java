@@ -13,11 +13,11 @@ import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
 import lombok.Data;
 import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
-import net.darkkronicle.advancedchat.filters.TextReplace.ChildrenTextReplace;
-import net.darkkronicle.advancedchat.filters.TextReplace.FullMessageTextReplace;
-import net.darkkronicle.advancedchat.filters.TextReplace.OnlyMatchTextReplace;
-import net.darkkronicle.advancedchat.filters.TextReplace.OwOTextReplace;
-import net.darkkronicle.advancedchat.filters.TextReplace.RainbowTextReplace;
+import net.darkkronicle.advancedchat.filters.textreplace.ChildrenTextReplace;
+import net.darkkronicle.advancedchat.filters.textreplace.FullMessageTextReplace;
+import net.darkkronicle.advancedchat.filters.textreplace.OnlyMatchTextReplace;
+import net.darkkronicle.advancedchat.filters.textreplace.OwOTextReplace;
+import net.darkkronicle.advancedchat.filters.textreplace.RainbowTextReplace;
 import net.darkkronicle.advancedchat.interfaces.IJsonSave;
 import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Filter Storage
@@ -145,10 +146,10 @@ public class Filter implements Comparable<Filter> {
         String translated = StringUtils.translate("advancedchat.config.filterdescription");
         ArrayList<String> hover = new ArrayList<>();
         for (String s : translated.split("\n")) {
-            hover.add(s.replaceAll(Pattern.quote("<name>"), name.config.getStringValue())
-                    .replaceAll(Pattern.quote("<active>"), active.config.getStringValue())
-                    .replaceAll(Pattern.quote("<find>"), findString.config.getStringValue())
-                    .replaceAll(Pattern.quote("<findtype>"), getFind().getDisplayName()));
+            hover.add(s.replaceAll(Pattern.quote("<name>"), Matcher.quoteReplacement(name.config.getStringValue()))
+                    .replaceAll(Pattern.quote("<active>"), Matcher.quoteReplacement(active.config.getStringValue()))
+                    .replaceAll(Pattern.quote("<find>"), Matcher.quoteReplacement(findString.config.getStringValue()))
+                    .replaceAll(Pattern.quote("<findtype>"), Matcher.quoteReplacement(getFind().getDisplayName())));
         }
         return hover;
     }
@@ -378,6 +379,18 @@ public class Filter implements Comparable<Filter> {
         @Override
         public IConfigOptionListEntry fromString(String value) {
             return fromNotifySoundString(value);
+        }
+
+        public static NotifySound fromNotifySoundName(String notifysound) {
+            for (NotifySound r : NotifySound.values()) {
+                if (r.event == null) {
+                    continue;
+                }
+                if (r.event.getId().getPath().replaceAll("\\.", "_").toLowerCase().equalsIgnoreCase(notifysound)) {
+                    return r;
+                }
+            }
+            return NotifySound.NONE;
         }
 
         public static NotifySound fromNotifySoundString(String notifysound) {

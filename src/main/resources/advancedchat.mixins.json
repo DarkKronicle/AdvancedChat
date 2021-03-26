@@ -3,14 +3,15 @@
   "package": "net.darkkronicle.advancedchat.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinSleepingChatScreen"
   ],
   "client": [
     "MixinChatHud",
     "MixinChatScreen",
     "MixinInGameHud",
     "MixinKeyboard",
-    "MixinMinecraftClient"
+    "MixinMinecraftClient",
+    "MixinChatHudInvoker",
+    "MixinSleepingChatScreen"
   ],
   "injectors": {
     "defaultRequire": 1

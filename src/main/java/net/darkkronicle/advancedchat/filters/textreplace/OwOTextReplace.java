@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.filters.TextReplace;
+package net.darkkronicle.advancedchat.filters.textreplace;
 
 import maow.owo.OwO;
 import maow.owo.util.ParsingUtil;

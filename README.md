@@ -11,6 +11,7 @@ A Minecraft mod designed to give the client more customizability over the vanill
 - Advanced Search
     - Use Regular Expressions
     - Case Sensitive or Insensitive
+    - Pass forward to children filters for more control
 - Chat Tabs
     - Sections of chat that can store specific messages that matches an advanced search
     - Have a preset prefix to start chat when you open up chat in the specified tab
@@ -21,6 +22,8 @@ A Minecraft mod designed to give the client more customizability over the vanill
     - Change the background color of the match
     - Play a sound when a match is found
     - Replace the full message
+    - Rainbow specific text
+    - Convert specific text to OwO
 - Chat Log Screen
     - Stores up to 5000 messages
     - Can filter out using a search box
@@ -36,6 +39,8 @@ A Minecraft mod designed to give the client more customizability over the vanill
 - Stack messages
     - Stack only up to the last message
     - Stack up to 20 messages back
+- Chat Tabs
+- Built in developer API
 - More features soon to come!
 
 *This mod is still in development and will have improvements and changes over time. To help contribute, please submit all bugs and feature requests to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)*
@@ -64,6 +69,8 @@ Update to 1.16.3: Imichaelis
 Logo & Proofreading: Chronos22Gamer
 
 Idea of Chat Heads: [dzwdz](https://github.com/dzwdz/chat_heads/blob/fabric-1.16.x/)
+
+Original Idea of OwOing chat: [hewo](https://github.com/Arc-blroth/hewo)
 
 If you notice any bugs, please report to the [bug tracker!](https://github.com/DarkKronicle/AdvancedChat/issues)
 

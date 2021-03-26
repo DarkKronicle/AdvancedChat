@@ -7,6 +7,7 @@ import net.darkkronicle.advancedchat.chat.MessageDispatcher;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.chat.tabs.MainChatTab;
+import net.darkkronicle.advancedchat.filters.processors.ChatTabProcessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -18,7 +19,8 @@ public class InitHandler implements IInitializationHandler {
         ConfigManager.getInstance().registerConfigHandler(AdvancedChat.MOD_ID, new ConfigStorage());
         AdvancedChat.filter = new MainFilter();
         AdvancedChat.chatTab = new MainChatTab();
-        MessageDispatcher.getInstance().register(new ChatDispatcher(), -1);
+        ChatDispatcher.getInstance().setFinalProcessor(new ChatTabProcessor());
+        MessageDispatcher.getInstance().register(ChatDispatcher.getInstance(), -1);
         AdvancedChat.getAdvancedChatHud();
     }
 

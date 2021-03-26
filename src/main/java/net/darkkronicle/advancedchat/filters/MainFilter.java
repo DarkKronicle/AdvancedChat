@@ -1,8 +1,11 @@
 package net.darkkronicle.advancedchat.filters;
 
 import lombok.Getter;
+import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.interfaces.IMatchProcessor;
+import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
@@ -20,6 +23,8 @@ public class MainFilter extends AbstractFilter {
 
     private ArrayList<AbstractFilter> filters = new ArrayList<>();
 
+    private ArrayList<ForwardFilter> forwardFilters = new ArrayList<>();
+
     public MainFilter() {
         loadFilters();
     }
@@ -36,9 +41,15 @@ public class MainFilter extends AbstractFilter {
                 text = modifiedtext;
             }
         }
+        ArrayList<IMessageProcessor> processed = new ArrayList<>();
+        for (ForwardFilter f : forwardFilters) {
+            if (f.filter(text, processed).isPresent()) {
+                // Send the signal to stop
+                return Optional.of(ChatDispatcher.TERMINATE);
+            }
+        }
         if (modifiedtext != null) {
             return Optional.of(modifiedtext);
-
         }
         return Optional.empty();
     }
