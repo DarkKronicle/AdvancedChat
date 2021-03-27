@@ -11,6 +11,7 @@ import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetFilterEntry;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetListFilters;
+import net.darkkronicle.advancedchat.gui.SharingScreen;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -58,8 +59,9 @@ public class GuiFilterManager extends GuiListBase<Filter, WidgetFilterEntry, Wid
         this.reCreateListWidget();
 
         y += 24;
-
-        this.addButton(this.width - 10, y, ButtonListener.Type.ADD_FILTER);
+        x = this.width - 10;
+        x -= this.addButton(x, y, ButtonListener.Type.ADD_FILTER) + 2;
+        this.addButton(x, y, ButtonListener.Type.IMPORT);
     }
 
     protected int addButton(int x, int y, ButtonListener.Type type) {
@@ -93,11 +95,14 @@ public class GuiFilterManager extends GuiListBase<Filter, WidgetFilterEntry, Wid
                 ConfigStorage.FILTERS.add(new Filter());
                 Collections.sort(ConfigStorage.FILTERS);
                 this.gui.getListWidget().refreshEntries();
+            } else if (this.type == Type.IMPORT) {
+                GuiBase.openGui(new SharingScreen(null, gui));
             }
         }
 
         public enum Type {
-            ADD_FILTER("addfilter")
+            ADD_FILTER("addfilter"),
+            IMPORT("import")
             ;
 
             private static String translate(String key) {

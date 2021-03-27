@@ -19,6 +19,7 @@ import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetColor;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetLabelHoverable;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetToggle;
+import net.darkkronicle.advancedchat.gui.SharingScreen;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -111,6 +112,13 @@ public class GuiFilterEditor extends GuiBase {
         int backWidth = StringUtils.getStringWidth(backText) + 10;
         ButtonGeneric back = new ButtonGeneric(x + backWidth, y, backWidth, true, backText);
         this.addButton(back, new ButtonListener(ButtonListener.Type.BACK, this));
+        int topx = x;
+        topx += back.getWidth() + 2;
+
+        String exportText = ButtonListener.Type.EXPORT.getDisplayName();
+        int exportWidth = StringUtils.getStringWidth(exportText) + 10;
+        ButtonGeneric export = new ButtonGeneric(topx + exportWidth, y, exportWidth, true, exportText);
+        this.addButton(export, new ButtonListener(ButtonListener.Type.EXPORT, this));
         y += back.getHeight() + 2;
         y += this.addLabel(x, y, filter.getName().config) + 1;
         name = this.addStringConfigButton(x, y, getWidth(), 10, filter.getName().config);
@@ -198,11 +206,15 @@ public class GuiFilterEditor extends GuiBase {
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (this.type == Type.BACK) {
                 parent.back();
+            } else if (this.type == Type.EXPORT) {
+                parent.save();
+                GuiBase.openGui(SharingScreen.fromFilter(parent.filter, parent));
             }
         }
 
         public enum Type {
-            BACK("back")
+            BACK("back"),
+            EXPORT("export")
             ;
             private final String translation;
 

@@ -13,6 +13,7 @@ import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.ChatTab;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetLabelHoverable;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetToggle;
+import net.darkkronicle.advancedchat.gui.SharingScreen;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -68,11 +69,19 @@ public class GuiTabEditor extends GuiBase {
     }
 
     private void createButtons(int x, int y) {
-        String backText = GuiFilterEditor.ButtonListener.Type.BACK.getDisplayName();
+        String backText = ButtonListener.Type.BACK.getDisplayName();
         int backWidth = StringUtils.getStringWidth(backText) + 10;
+        int topx = x;
         ButtonGeneric back = new ButtonGeneric(x + backWidth, y, backWidth, true, backText);
         this.addButton(back, new ButtonListener(ButtonListener.Type.BACK, this));
-        y += back.getHeight() + 2;
+        topx += back.getWidth() + 2;
+
+        String exportText = ButtonListener.Type.EXPORT.getDisplayName();
+        int exportWidth = StringUtils.getStringWidth(exportText) + 10;
+        ButtonGeneric export = new ButtonGeneric(topx + exportWidth, y, exportWidth, true, exportText);
+        this.addButton(export, new ButtonListener(ButtonListener.Type.EXPORT, this));
+        y += export.getHeight() + 2;
+
         y += this.addLabel(x, y, tab.getName().config) + 1;
         name = this.addStringConfigButton(x, y, getWidth(), 10, tab.getName().config);
         y += name.getHeight() + 4;
@@ -131,11 +140,15 @@ public class GuiTabEditor extends GuiBase {
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (this.type == ButtonListener.Type.BACK) {
                 parent.back();
+            } else if (this.type == ButtonListener.Type.EXPORT) {
+                parent.save();
+                GuiBase.openGui(SharingScreen.fromTab(parent.tab, parent));
             }
         }
 
         public enum Type {
-            BACK("back")
+            BACK("back"),
+            EXPORT("export")
             ;
             private final String translation;
 

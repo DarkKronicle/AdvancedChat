@@ -11,6 +11,7 @@ import net.darkkronicle.advancedchat.config.ChatTab;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetListTabs;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetTabEntry;
+import net.darkkronicle.advancedchat.gui.SharingScreen;
 
 import javax.annotation.Nullable;
 
@@ -56,8 +57,9 @@ public class GuiTabManager extends GuiListBase<ChatTab, WidgetTabEntry, WidgetLi
         this.reCreateListWidget();
 
         y += 24;
-
-        this.addButton(this.width - 10, y, ButtonListener.Type.ADD_TAB);
+        x = this.width - 10;
+        x -= this.addButton(x, y, ButtonListener.Type.ADD_TAB) + 2;
+        x -= this.addButton(x, y, ButtonListener.Type.IMPORT) + 2;
     }
 
     protected int addButton(int x, int y, ButtonListener.Type type) {
@@ -90,11 +92,15 @@ public class GuiTabManager extends GuiListBase<ChatTab, WidgetTabEntry, WidgetLi
             if (this.type == ButtonListener.Type.ADD_TAB) {
                 ConfigStorage.TABS.add(new ChatTab());
                 this.gui.getListWidget().refreshEntries();
+            } else if (this.type == Type.IMPORT) {
+                GuiBase.openGui(new SharingScreen(null, gui));
             }
         }
 
         public enum Type {
-            ADD_TAB("addtab");
+            ADD_TAB("addtab"),
+            IMPORT("import")
+            ;
 
             private static String translate(String key) {
                 return "advancedchat.gui.button." + key;

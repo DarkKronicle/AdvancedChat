@@ -30,7 +30,7 @@ public class ChatTab {
             new ConfigString(translate("name"), "Boring Chat Tab", translate("info.name")));
 
     private ConfigStorage.SaveableConfig<ConfigString> findString = ConfigStorage.SaveableConfig.fromConfig("findString",
-            new ConfigString(translate("findstring"), "Divert this message!", translate("info.findString")));
+            new ConfigString(translate("findstring"), "Divert this message!", translate("info.findstring")));
 
     private ConfigStorage.SaveableConfig<ConfigOptionList> findType = ConfigStorage.SaveableConfig.fromConfig("findType",
             new ConfigOptionList(translate("findtype"), Filter.FindType.LITERAL, translate("info.findtype")));
