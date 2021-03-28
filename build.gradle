@@ -136,7 +136,3 @@ curseforge {
         javaVersionAutoDetect = false
     }
 }
-
-task curseforgePublish {
-    dependsOn tasks.getByName("curseforge")
-}
