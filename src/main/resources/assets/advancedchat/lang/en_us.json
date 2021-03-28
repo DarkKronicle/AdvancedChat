@@ -132,6 +132,8 @@
   "advancedchat.config.replacetype.onlymatch": "§eOnly Match",
   "advancedchat.config.replacetype.fullmessage": "§aFull Message",
   "advancedchat.config.replacetype.children": "§dChildren",
+  "advancedchat.config.replacetype.owo": "§6OwO",
+  "advancedchat.config.replacetype.rainbow": "§9Rainbow",
   "advancedchat.config.replacetype.none": "§cNone",
   "advancedchat.config.filter.textcolor": "Text Color",
   "advancedchat.config.filter.info.textcolor": "The color of the §6replaced text§r when the filter is triggered \n§7This setting gets overridden by §6legacy formatting codes§7!",

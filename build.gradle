@@ -2,14 +2,20 @@ plugins {
     id 'fabric-loom' version '0.6-SNAPSHOT'
     id 'maven-publish'
     id "io.freefair.lombok" version "5.1.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.mod_version}-${project.minecraft_version}"
 group = project.maven_group
+// Private keys
+Properties additionalProperties = new Properties()
+if (file("extra.properties").exists()) {
+    additionalProperties.load(file("extra.properties").newReader())
+}
 
 minecraft {
 }
@@ -97,4 +103,40 @@ publishing {
         // uncomment to publish to the local maven
         // mavenLocal()
     }
+}
+
+
+
+curseforge {
+    if (additionalProperties["curse_api_key"] != null || System.getenv("curse_api_key") != null) {
+        if (additionalProperties["curse_api_key"] != null) {
+            apiKey = additionalProperties["curse_api_key"]
+        } else {
+            apiKey = System.getenv("curse_api_key")
+        }
+        project {
+            id = project.curseforge_id
+            releaseType = "release"
+            relations {
+                requiredDependency "malilib"
+            }
+            addGameVersion "1.16.4"
+            addGameVersion "1.16.5"
+            addGameVersion "Java 8"
+            addGameVersion "Fabric"
+            mainArtifact(remapJar)
+            afterEvaluate {
+                uploadTask.dependsOn(remapJar)
+            }
+        }
+
+    }
+    options {
+        forgeGradleIntegration = false
+        javaVersionAutoDetect = false
+    }
+}
+
+task curseforgePublish {
+    dependsOn tasks.getByName("curseforge")
 }

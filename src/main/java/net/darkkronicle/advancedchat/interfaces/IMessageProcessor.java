@@ -1,8 +1,8 @@
 package net.darkkronicle.advancedchat.interfaces;
 
-import jdk.internal.jline.internal.Nullable;
 import net.minecraft.text.Text;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 public interface IMessageProcessor extends IMessageFilter {

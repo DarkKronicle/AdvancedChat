@@ -1,9 +1,9 @@
 package net.darkkronicle.advancedchat.interfaces;
 
-import jdk.internal.jline.internal.Nullable;
 import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.minecraft.text.Text;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface IMatchProcessor extends IMessageProcessor {

@@ -3,6 +3,8 @@ package net.darkkronicle.advancedchat.gui;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fi.dy.masa.malilib.interfaces.IRenderer;
+import fi.dy.masa.malilib.render.RenderUtils;
 import lombok.Getter;
 import lombok.Setter;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
@@ -14,6 +16,8 @@ import net.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.options.ChatVisibility;
@@ -31,28 +35,35 @@ import java.util.Deque;
 import java.util.List;
 import java.util.UUID;
 
-public class AdvancedChatHud extends DrawableHelper {
-    private static final Logger LOGGER = LogManager.getLogger();
+@Environment(EnvType.CLIENT)
+public class AdvancedChatHud implements IRenderer {
     private final MinecraftClient client;
     private final List<String> messageHistory = Lists.newArrayList();
-    private final Deque<Text> queuedMessages = Queues.newArrayDeque();
     @Getter
     @Setter
     private AbstractChatTab currentTab;
     private int scrolledLines;
-    private long lastTimeCheck = 0L;
 
-    public AdvancedChatHud(MinecraftClient minecraftClient) {
-        client = minecraftClient;
+    private AdvancedChatHud() {
+        client = MinecraftClient.getInstance();
         currentTab = AdvancedChat.chatTab;
     }
 
-    public void render(MatrixStack matrices, int tick) {
+    private static final AdvancedChatHud INSTANCE = new AdvancedChatHud();
+
+    public static AdvancedChatHud getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public void onRenderGameOverlayPost(float partialTicks, MatrixStack matrices) {
         // TODO fix garbage
+        int tick = client.inGameHud.getTicks();
 
         // Set up rendering
         matrices.push();
-        matrices.scale((float) getChatScale(), (float) getChatScale(), 1);
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef((float) getChatScale(), (float) getChatScale(), 1);
 
         // Declare useful variables
         Window window = this.client.getWindow();
@@ -98,10 +109,10 @@ public class AdvancedChatHud extends DrawableHelper {
         int finalheight = 0;
 
         int lineCount = currentTab.getLineCount();
+        int lines = 0;
         if (lineCount > 0) {
 
             // Current line number
-            int lines = 0;
             boolean alternate = ConfigStorage.ChatScreen.ALTERNATE_LINES.config.getBooleanValue();
             boolean didAlternate = false;
             // Check to see if the scroll is too far.
@@ -112,7 +123,7 @@ public class AdvancedChatHud extends DrawableHelper {
                 // Scroll bar
                 float add = (float) scrolledLines / (lineCount - getVisibleLineCount() + 1);
                 int scrollHeight = (int) (add * maxSize);
-                fill(matrices, actualWidth + 3 + xoffset, windowHeight - bottomScreenOffset - scrollHeight, actualWidth + 4 + xoffset, windowHeight - bottomScreenOffset - scrollHeight - 10, ColorUtil.WHITE.color());
+                RenderUtils.drawRect(actualWidth + 3 + fillX, windowHeight - bottomScreenOffset - scrollHeight - 10, 1, 10, ColorUtil.WHITE.color());
             }
 
             // Render each message
@@ -153,7 +164,7 @@ public class AdvancedChatHud extends DrawableHelper {
                             } else {
                                 fadebackground = backgroundColor;
                             }
-                            fill(matrices, fillX, height, fillX + actualWidth + 4, height + lineHeight, fadebackground.color());
+                            RenderUtils.drawRect(fillX, height, actualWidth + 4, lineHeight, fadebackground.color());
                             Text newString = l.getText();
                             if (line.getStacks() > 0 && showStack) {
                                 SplitText toPrint = new SplitText(newString);
@@ -166,10 +177,11 @@ public class AdvancedChatHud extends DrawableHelper {
                             }
 
                             if (headNow && line.getOwner() != null) {
+                                RenderSystem.color4f(1, 1, 1, 1);
                                 client.getTextureManager().bindTexture(line.getOwner().getTexture());
                                 DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
                             }
-                            drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
+                            DrawableHelper.drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
                             finalheight = height;
                         } else {
                             int timeAlive = tick - line.getCreationTick();
@@ -189,10 +201,10 @@ public class AdvancedChatHud extends DrawableHelper {
                                     continue;
                                 }
                                 if (hudLineType == ConfigStorage.HudLineType.FULL) {
-                                    fill(matrices, fillX, height, fillX + actualWidth + 4, height + lineHeight, fadebackground.color());
+                                    RenderUtils.drawRect(fillX, height, actualWidth + 4, lineHeight, fadebackground.color());
                                 } else if (hudLineType == ConfigStorage.HudLineType.COMPACT) {
                                     int width = l.getWidth();
-                                    fill(matrices, fillX, height, fillX + width + headoffset + 2, height + lineHeight, fadebackground.color());
+                                    RenderUtils.drawRect(fillX, height, width + headoffset + 2, lineHeight, fadebackground.color());
                                 }
                                 Text newString = l.getText();
                                 if (line.getStacks() > 0 && showStack) {
@@ -210,7 +222,7 @@ public class AdvancedChatHud extends DrawableHelper {
                                     DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
                                     RenderSystem.color4f(1, 1, 1, 1);
                                 }
-                                drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
+                                DrawableHelper.drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, fadetext.color());
                             }
                         }
                     }
@@ -220,13 +232,13 @@ public class AdvancedChatHud extends DrawableHelper {
         }
         if (chatFocused) {
             if (currentTab.messages.size() > 0) {
-                fill(matrices, fillX, finalheight, fillX + actualWidth + 4, windowHeight - bottomScreenOffset - maxSize, backgroundColor.color());
+                RenderUtils.drawRect(fillX, windowHeight - bottomScreenOffset - actualHeight, actualWidth + 4, actualHeight - (lines * lineHeight), backgroundColor.color());
             } else {
-                fill(matrices, fillX, windowHeight - bottomScreenOffset, fillX + actualWidth + 4, windowHeight - bottomScreenOffset -  maxSize, backgroundColor.color());
+                RenderUtils.drawRect(fillX, windowHeight - bottomScreenOffset - actualHeight, actualWidth + 4, actualHeight, backgroundColor.color());
             }
         }
 
-
+        RenderSystem.popMatrix();
         matrices.pop();
     }
 

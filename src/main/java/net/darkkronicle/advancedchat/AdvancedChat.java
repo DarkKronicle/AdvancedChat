@@ -20,7 +20,6 @@ import org.lwjgl.glfw.GLFW;
 @Environment(EnvType.CLIENT)
 public class AdvancedChat implements ClientModInitializer {
     public static MainFilter filter;
-    private static AdvancedChatHud advancedChatHud;
     public static MainChatTab chatTab;
     private static ChatLogData chatLogData;
 
@@ -49,10 +48,8 @@ public class AdvancedChat implements ClientModInitializer {
     }
 
     public static AdvancedChatHud getAdvancedChatHud() {
-        if (advancedChatHud == null) {
-            advancedChatHud = new AdvancedChatHud(MinecraftClient.getInstance());
-        }
-        return advancedChatHud;
+        // TODO remove
+        return AdvancedChatHud.getInstance();
     }
 
     public static ChatLogData getChatLogData() {

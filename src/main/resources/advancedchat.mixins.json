@@ -7,7 +7,6 @@
   "client": [
     "MixinChatHud",
     "MixinChatScreen",
-    "MixinInGameHud",
     "MixinKeyboard",
     "MixinMinecraftClient",
     "MixinChatHudInvoker",

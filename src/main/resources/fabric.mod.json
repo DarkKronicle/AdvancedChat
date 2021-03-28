@@ -30,6 +30,11 @@
     "minecraft": ">=1.16.3"
   },
   "custom": {
-    "modmenu:clientsideOnly": true
+    "modmenu:clientsideOnly": true,
+    "modupdater": {
+      "strategy": "curseforge",
+      "projectID": 387825,
+      "strict": false
+    }
   }
 }

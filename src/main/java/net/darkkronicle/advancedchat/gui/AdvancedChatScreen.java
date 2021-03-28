@@ -26,6 +26,17 @@ public class AdvancedChatScreen extends GuiBase {
     private String originalChatText = "";
     private CommandSuggestor commandSuggestor;
 
+    private static String last = "";
+
+    @Override
+    protected void closeGui(boolean showParent) {
+        if (ConfigStorage.ChatScreen.PERSISTENT_TEXT.config.getBooleanValue()) {
+            last = chatField.getText();
+        }
+        super.closeGui(showParent);
+
+    }
+
     public AdvancedChatScreen(String originalChatText) {
         super();
         this.originalChatText = originalChatText;
@@ -49,7 +60,11 @@ public class AdvancedChatScreen extends GuiBase {
         };
         this.chatField.setMaxLength(256);
         this.chatField.setDrawsBackground(false);
-        this.chatField.setText(this.originalChatText);
+        if (!this.originalChatText.equals("")) {
+            this.chatField.setText(this.originalChatText);
+        } else if (ConfigStorage.ChatScreen.PERSISTENT_TEXT.config.getBooleanValue() && !last.equals("")) {
+            this.chatField.setText(last);
+        }
         this.chatField.setChangedListener(this::onChatFieldUpdate);
 
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
