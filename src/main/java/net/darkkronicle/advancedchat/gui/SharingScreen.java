@@ -115,7 +115,7 @@ public class SharingScreen extends GuiBase {
                     }
                     ConfigStorage.TABS.add(tab);
                     AdvancedChat.chatTab.setUpTabs();
-                    parent.sendMessage(StringUtils.translate("advancedchat.gui.message.successful"));
+                    parent.addGuiMessage(Message.MessageType.SUCCESS, 5000, StringUtils.translate("advancedchat.gui.message.successful"));
                 }
             } catch (Exception e) {
                 parent.addGuiMessage(Message.MessageType.ERROR, 10000, StringUtils.translate("advancedchat.gui.message.error") + ": " + e.getMessage());
