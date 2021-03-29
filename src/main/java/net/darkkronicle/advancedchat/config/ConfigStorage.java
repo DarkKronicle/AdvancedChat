@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -302,7 +303,7 @@ public class ConfigStorage implements IConfigHandler {
         }
     }
 
-    // WINDOWS BAD AND LIKES UTF-8 MINECRAFT LIKES UTF-16
+    // WINDOWS BAD AND MINECRAFT LIKES UTF-16
     public static JsonElement parseJsonFile(File file)
     {
         if (file != null && file.exists() && file.isFile() && file.canRead())
@@ -312,12 +313,21 @@ public class ConfigStorage implements IConfigHandler {
             try
             {
                 JsonParser parser = new JsonParser();
-                InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_16);
+                Charset[] sets = new Charset[]{StandardCharsets.UTF_8, Charset.defaultCharset()};
+                // Start to enforce UTF 8. Old files may be UTF-16
+                for (Charset s : sets) {
+                    JsonElement element;
+                    InputStreamReader reader = new InputStreamReader(new FileInputStream(file), s);
+                    try {
+                        element = parser.parse(reader);
+                    } catch (Exception e) {
+                        reader.close();
+                        continue;
+                    }
+                    reader.close();
 
-                JsonElement element = parser.parse(reader);
-                reader.close();
-
-                return element;
+                    return element;
+                }
             }
             catch (Exception e)
             {
@@ -328,13 +338,13 @@ public class ConfigStorage implements IConfigHandler {
         return null;
     }
 
-    // WINDOWS BAD AND LIKES UTF-8 MINECRAFT LIKES UTF-16
+    // WINDOWS BAD AND MINECRAFT LIKES UTF-16
     public static boolean writeJsonToFile(JsonObject root, File file) {
         OutputStreamWriter writer = null;
 
         try
         {
-            writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_16);
+            writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             writer.write(JsonUtils.GSON.toJson(root));
             writer.close();
 
