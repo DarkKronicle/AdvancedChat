@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import fi.dy.masa.malilib.MaLiLib;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
@@ -16,17 +18,27 @@ import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.EasingMethod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -194,7 +206,7 @@ public class ConfigStorage implements IConfigHandler {
         if (configFile.exists() && configFile.isFile() && configFile.canRead()) {
             Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
             ChatTab.ChatTabJsonSave tabSave = new ChatTab.ChatTabJsonSave();
-            JsonElement element = JsonUtils.parseJsonFile(configFile);
+            JsonElement element = parseJsonFile(configFile);
 
             if (element != null && element.isJsonObject()) {
                 JsonObject root = element.getAsJsonObject();
@@ -246,6 +258,8 @@ public class ConfigStorage implements IConfigHandler {
 
     }
 
+
+
     public static void saveFromFile() {
         File dir = FileUtils.getConfigDirectory();
 
@@ -271,7 +285,7 @@ public class ConfigStorage implements IConfigHandler {
 
             root.add("config_version", new JsonPrimitive(CONFIG_VERSION));
 
-            JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
+            writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }
     }
 
@@ -286,6 +300,66 @@ public class ConfigStorage implements IConfigHandler {
                 }
             }
         }
+    }
+
+    // WINDOWS BAD AND LIKES UTF-8 MINECRAFT LIKES UTF-16
+    public static JsonElement parseJsonFile(File file)
+    {
+        if (file != null && file.exists() && file.isFile() && file.canRead())
+        {
+            String fileName = file.getAbsolutePath();
+
+            try
+            {
+                JsonParser parser = new JsonParser();
+                InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_16);
+
+                JsonElement element = parser.parse(reader);
+                reader.close();
+
+                return element;
+            }
+            catch (Exception e)
+            {
+                MaLiLib.logger.error("Failed to parse the JSON file '{}'", fileName, e);
+            }
+        }
+
+        return null;
+    }
+
+    // WINDOWS BAD AND LIKES UTF-8 MINECRAFT LIKES UTF-16
+    public static boolean writeJsonToFile(JsonObject root, File file) {
+        OutputStreamWriter writer = null;
+
+        try
+        {
+            writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_16);
+            writer.write(JsonUtils.GSON.toJson(root));
+            writer.close();
+
+            return true;
+        }
+        catch (IOException e)
+        {
+            MaLiLib.logger.warn("Failed to write JSON data to file '{}'", file.getAbsolutePath(), e);
+        }
+        finally
+        {
+            try
+            {
+                if (writer != null)
+                {
+                    writer.close();
+                }
+            }
+            catch (Exception e)
+            {
+                MaLiLib.logger.warn("Failed to close JSON file", e);
+            }
+        }
+
+        return false;
     }
 
     public static void writeOptions(JsonObject root, String category, List<SaveableConfig<?>> options) {
@@ -364,11 +438,11 @@ public class ConfigStorage implements IConfigHandler {
     }
 
     public enum Easing implements IConfigOptionListEntry, EasingMethod {
-        LINEAR("linear", EasingMethod.EasingMethodImpl.LINEAR),
-        SINE("sine", EasingMethod.EasingMethodImpl.SINE),
-        QUAD("quad", EasingMethod.EasingMethodImpl.QUAD),
-        QUART("quart", EasingMethod.EasingMethodImpl.QUART),
-        CIRC("circ", EasingMethod.EasingMethodImpl.CIRC),
+        LINEAR("linear", Method.LINEAR),
+        SINE("sine", Method.SINE),
+        QUAD("quad", Method.QUAD),
+        QUART("quart", Method.QUART),
+        CIRC("circ", Method.CIRC),
         ;
 
         public final EasingMethod ease;

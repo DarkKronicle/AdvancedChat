@@ -7,13 +7,13 @@ import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.malilib.render.RenderUtils;
 import lombok.Getter;
 import lombok.Setter;
-import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.EasingMethod;
 import net.darkkronicle.advancedchat.util.SimpleText;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
@@ -100,14 +100,13 @@ public class AdvancedChatHud implements IRenderer {
         ConfigStorage.Visibility visibility = ConfigStorage.Visibility.fromVisibilityString(ConfigStorage.ChatScreen.VISIBILITY.config.getStringValue());
         boolean chatFocused = visibility == ConfigStorage.Visibility.ALWAYS || isChatFocused();
         if (visibility == ConfigStorage.Visibility.FOCUSONLY && !chatFocused) {
+            RenderSystem.popMatrix();
             return;
         }
 
         ConfigStorage.HudLineType hudLineType = ConfigStorage.HudLineType.fromHudLineTypeString(ConfigStorage.ChatScreen.HUD_LINE_TYPE.config.getStringValue());
 
         // How far up we went. Used to fill in the rest of the box.
-        int finalheight = 0;
-
         int lineCount = currentTab.getLineCount();
         int lines = 0;
         if (lineCount > 0) {
@@ -182,7 +181,6 @@ public class AdvancedChatHud implements IRenderer {
                                 DrawableHelper.drawTexture(matrices, fillX + 1, height, 8, 8, 8, 8, 8, 8, 64, 64);
                             }
                             DrawableHelper.drawTextWithShadow(matrices, client.textRenderer, newString, xoffset + 1, height + 1, textColor.color());
-                            finalheight = height;
                         } else {
                             int timeAlive = tick - line.getCreationTick();
                             if (timeAlive < fadestop) {

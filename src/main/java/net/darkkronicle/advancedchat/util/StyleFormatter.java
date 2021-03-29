@@ -113,7 +113,19 @@ public class StyleFormatter {
         }
         Formatting formatting = Formatting.byCode(nextChar);
         if (formatting != null) {
-            currentStyle = formatting == Formatting.RESET ? textStyle : textStyle.withExclusiveFormatting(formatting);
+            if (formatting == Formatting.RESET) {
+                // If it resets, just go to what the current text is.
+                currentStyle = textStyle;
+            } else {
+                if (currentStyle.equals(Style.EMPTY) || currentStyle.equals(textStyle)) {
+                    // If it's empty or different rely on just the current text style
+                    currentStyle = textStyle.withExclusiveFormatting(formatting);
+                } else {
+                    // Styles are different so we take what happened before. This allows us to chain formatting symbols.
+                    // TODO this could also fail. Test
+                    currentStyle = currentStyle.withExclusiveFormatting(formatting);
+                }
+            }
             if (currentStyle.equals(Style.EMPTY)) {
                 currentStyle = textStyle;
             }
