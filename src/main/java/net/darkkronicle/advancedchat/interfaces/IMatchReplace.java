@@ -21,4 +21,8 @@ public interface IMatchReplace extends IMessageFilter {
         return Optional.empty();
     }
 
+    default boolean useChildren() {
+        return false;
+    }
+
 }

@@ -12,14 +12,12 @@ import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
 import lombok.Data;
+import net.darkkronicle.advancedchat.chat.registry.MatchReplaceRegistry;
 import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
-import net.darkkronicle.advancedchat.filters.textreplace.ChildrenTextReplace;
-import net.darkkronicle.advancedchat.filters.textreplace.FullMessageTextReplace;
-import net.darkkronicle.advancedchat.filters.textreplace.OnlyMatchTextReplace;
-import net.darkkronicle.advancedchat.filters.textreplace.OwOTextReplace;
-import net.darkkronicle.advancedchat.filters.textreplace.RainbowTextReplace;
+import net.darkkronicle.advancedchat.filters.processors.ChatTabProcessor;
 import net.darkkronicle.advancedchat.interfaces.IJsonSave;
 import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -28,6 +26,7 @@ import net.minecraft.sound.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,10 +83,10 @@ public class Filter implements Comparable<Filter> {
      * FULLLINE replaces the full message.
      */
     private ConfigStorage.SaveableConfig<ConfigOptionList> replaceType = ConfigStorage.SaveableConfig.fromConfig("replaceType",
-            new ConfigOptionList(translate("replacetype"), ReplaceType.ONLYMATCH, translate("info.replacetype")));
+            new ConfigOptionList(translate("replacetype"), MatchReplaceRegistry.getInstance().getDefaultReplace(), translate("info.replacetype")));
 
-    public ReplaceType getReplace() {
-        return ReplaceType.fromReplaceTypeString(replaceType.config.getStringValue());
+    public IMatchReplace getReplace() {
+        return ((MatchReplaceRegistry.MatchReplaceOption) replaceType.config.getOptionListValue()).getReplace();
     }
 
     /**
@@ -125,6 +124,8 @@ public class Filter implements Comparable<Filter> {
             new ConfigSimpleColor(translate("backgroundcolor"), ColorUtil.WHITE, translate("info.backgroundcolor")));
 
     private ArrayList<Filter> children = new ArrayList<>();
+
+    private ArrayList<IMessageProcessor> processors = new ArrayList<>(Collections.singleton(new ChatTabProcessor()));
 
     private final ImmutableList<ConfigStorage.SaveableConfig<?>> options = ImmutableList.of(
             name,
@@ -261,67 +262,6 @@ public class Filter implements Comparable<Filter> {
                 }
             }
             return FindType.LITERAL;
-        }
-    }
-
-    public enum ReplaceType implements IConfigOptionListEntry {
-        NONE("none", null),
-        ONLYMATCH("onlymatch", new OnlyMatchTextReplace()),
-        FULLMESSAGE("fullmessage", new FullMessageTextReplace()),
-        CHILDREN("children", new ChildrenTextReplace()),
-        OWO("owo", new OwOTextReplace()),
-        RAINBOW("rainbow", new RainbowTextReplace())
-        ;
-        public final String configString;
-        public final IMatchReplace textReplace;
-
-        private static String translate(String key) {
-            return StringUtils.translate("advancedchat.config.replacetype." + key);
-        }
-
-        ReplaceType(String configString, IMatchReplace textReplace) {
-            this.configString = configString;
-            this.textReplace = textReplace;
-        }
-
-        @Override
-        public String getStringValue() {
-            return configString;
-        }
-
-        @Override
-        public String getDisplayName() {
-            return translate(configString);
-        }
-
-        @Override
-        public IConfigOptionListEntry cycle(boolean forward) {
-            int id = this.ordinal();
-            if (forward) {
-                id++;
-            } else {
-                id--;
-            }
-            if (id >= values().length) {
-                id = 0;
-            } else if (id < 0) {
-                id = values().length - 1;
-            }
-            return values()[id % values().length];
-        }
-
-        @Override
-        public IConfigOptionListEntry fromString(String value) {
-            return fromReplaceTypeString(value);
-        }
-
-        public static ReplaceType fromReplaceTypeString(String replacetype) {
-            for (ReplaceType r : ReplaceType.values()) {
-                if (r.configString.equals(replacetype)) {
-                    return r;
-                }
-            }
-            return ReplaceType.NONE;
         }
     }
 

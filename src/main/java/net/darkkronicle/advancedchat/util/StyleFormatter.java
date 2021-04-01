@@ -46,6 +46,7 @@ public class StyleFormatter {
     private int currentIndex;
     private int realIndex;
     private Style currentStyle;
+    private Style lastTextStyle = null;
     private final FormattingVisitable visitor;
     private final int length;
 
@@ -169,9 +170,11 @@ public class StyleFormatter {
      * @return Value to terminate. Follows {@link StringVisitable.StyledVisitor} return values.
      */
     public Optional<Optional<Unit>> updateStyle(Style textStyle, String string) {
-        if (!textStyle.equals(Style.EMPTY)) {
-            currentStyle = textStyle;
+        if (lastTextStyle == null) {
+            lastTextStyle = textStyle;
         }
+        currentStyle = textStyle;
+        boolean differentTextStyle = !textStyle.equals(lastTextStyle);
         int stringLength = string.length();
         for (int i = 0; i < stringLength; i++) {
             char c = string.charAt(i);
@@ -204,6 +207,7 @@ public class StyleFormatter {
             }
             currentIndex++;
         }
+        lastTextStyle = textStyle;
         return Optional.empty();
     }
 

@@ -20,7 +20,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
 public class AdvancedChatScreen extends GuiBase {
-    private String field_2389 = "";
+    private String finalHistory = "";
     private int messageHistorySize = -1;
     protected TextFieldWidget chatField;
     private String originalChatText = "";
@@ -34,7 +34,6 @@ public class AdvancedChatScreen extends GuiBase {
             last = chatField.getText();
         }
         super.closeGui(showParent);
-
     }
 
     public AdvancedChatScreen(String originalChatText) {
@@ -69,10 +68,7 @@ public class AdvancedChatScreen extends GuiBase {
 
         AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
 
-        int width = ConfigStorage.ChatScreen.WIDTH.config.getIntegerValue() + 4;
-        if (ConfigStorage.General.CHAT_HEADS.config.getBooleanValue()) {
-            width += 10;
-        }
+        int width = ConfigStorage.ChatScreen.WIDTH.config.getIntegerValue();
         int height = 11;
         int bottomOffset = ConfigStorage.ChatScreen.Y.config.getIntegerValue() + ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue() + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;
@@ -186,7 +182,8 @@ public class AdvancedChatScreen extends GuiBase {
             if (!string.isEmpty()) {
                 this.sendMessage(string);
             }
-
+            this.chatField.setText("");
+            last = "";
             this.client.openScreen(null);
             return true;
         }
@@ -212,7 +209,7 @@ public class AdvancedChatScreen extends GuiBase {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.commandSuggestor.mouseClicked((double)((int)mouseX), (double)((int)mouseY), button)) {
+        if (this.commandSuggestor.mouseClicked((int) mouseX, (int) mouseY, button)) {
             return true;
         } else {
             if (button == 0) {
@@ -243,10 +240,10 @@ public class AdvancedChatScreen extends GuiBase {
         if (j != this.messageHistorySize) {
             if (j == k) {
                 this.messageHistorySize = k;
-                this.chatField.setText(this.field_2389);
+                this.chatField.setText(this.finalHistory);
             } else {
                 if (this.messageHistorySize == k) {
-                    this.field_2389 = this.chatField.getText();
+                    this.finalHistory = this.chatField.getText();
                 }
 
                 this.chatField.setText(this.client.inGameHud.getChatHud().getMessageHistory().get(j));

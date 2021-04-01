@@ -15,6 +15,8 @@ import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList;
 import fi.dy.masa.malilib.gui.widgets.WidgetSlider;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatDispatcher;
+import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetColor;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetLabelHoverable;
@@ -104,7 +106,7 @@ public class GuiFilterEditor extends GuiBase {
         filter.getBackgroundColor().config.setIntegerValue(backgroundColor.getAndRefreshColor().color());
         filter.getReplaceBackgroundColor().config.setBooleanValue(setBackgroundColor.isCurrentlyOn());
         filter.getNotifySound().config.setOptionListValue(widgetDropDown.getSelectedEntry());
-        AdvancedChat.filter.loadFilters();
+        ChatDispatcher.getInstance().loadFilters();
     }
 
     private void createButtons(int x, int y) {

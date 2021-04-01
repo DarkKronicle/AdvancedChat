@@ -19,6 +19,7 @@ import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.EasingMethod;
@@ -129,12 +130,22 @@ public class ConfigStorage implements IConfigHandler {
                 new ConfigInteger(translate("x"), 0, 0, 4000, translate("info.x")));
         public final static SaveableConfig<ConfigInteger> Y = SaveableConfig.fromConfig("y",
                 new ConfigInteger(translate("y"), 30, 0, 4000, translate("info.y")));
+        public final static SaveableConfig<ConfigInteger> MESSAGE_SPACE = SaveableConfig.fromConfig("messageSpace",
+                new ConfigInteger(translate("messagespace"), 0, 0, 10, translate("info.messagespace")));
+        public final static SaveableConfig<ConfigInteger> LINE_SPACE = SaveableConfig.fromConfig("lineSpace",
+                new ConfigInteger(translate("linespace"), 9, 8, 20, translate("info.linespace")));
+        public final static SaveableConfig<ConfigInteger> LEFT_PAD = SaveableConfig.fromConfig("leftPad",
+                new ConfigInteger(translate("leftpad"), 2, 0, 20, translate("info.leftpad")));
+        public final static SaveableConfig<ConfigInteger> RIGHT_PAD = SaveableConfig.fromConfig("rightPad",
+                new ConfigInteger(translate("rightpad"), 2, 0, 20, translate("info.rightpad")));
+        public final static SaveableConfig<ConfigInteger> BOTTOM_PAD = SaveableConfig.fromConfig("bottomPad",
+                new ConfigInteger(translate("bottompad"), 1, 0, 20, translate("info.bottompad")));
+        public final static SaveableConfig<ConfigInteger> TOP_PAD = SaveableConfig.fromConfig("topPad",
+                new ConfigInteger(translate("toppad"), 0, 0, 20, translate("info.toppad")));
         public final static SaveableConfig<ConfigBoolean> SHOW_TABS = SaveableConfig.fromConfig("showTabs",
                 new ConfigBoolean(translate("showtabs"), true, translate("info.showtabs")));
         public final static SaveableConfig<ConfigOptionList> VISIBILITY = SaveableConfig.fromConfig("visibility",
                 new ConfigOptionList(translate("visibility"), Visibility.VANILLA, translate("info.visibility")));
-        public final static SaveableConfig<ConfigInteger> LINE_SPACE = SaveableConfig.fromConfig("lineSpace",
-                new ConfigInteger(translate("linespace"), 9, 8, 20, translate("info.linespace")));
         public final static SaveableConfig<ConfigDouble> CHAT_SCALE = SaveableConfig.fromConfig(translate("chatScale"),
                 new ConfigDouble(translate("chatscale"), 1, 0, 1, translate("info.chatscale")));
         public final static SaveableConfig<ConfigInteger> FADE_TIME = SaveableConfig.fromConfig("fadeTime",
@@ -165,9 +176,14 @@ public class ConfigStorage implements IConfigHandler {
                 HEIGHT,
                 X,
                 Y,
+                MESSAGE_SPACE,
+                LINE_SPACE,
+                LEFT_PAD,
+                RIGHT_PAD,
+                BOTTOM_PAD,
+                TOP_PAD,
                 SHOW_TABS,
                 VISIBILITY,
-                LINE_SPACE,
                 CHAT_SCALE,
                 FADE_TIME,
                 FADE_START,
@@ -194,7 +210,7 @@ public class ConfigStorage implements IConfigHandler {
                 saveFromFile();
                 LOGGER.info("AdvancedChat update successful!");
                 AdvancedChat.chatTab.setUpTabs();
-                AdvancedChat.filter.loadFilters();
+                ChatDispatcher.getInstance().loadFilters();
                 return;
             } catch (Exception e) {
                 LOGGER.warn("Something went wrong when updating the old configuration file!");
@@ -239,7 +255,7 @@ public class ConfigStorage implements IConfigHandler {
            }
         }
         AdvancedChat.chatTab.setUpTabs();
-        AdvancedChat.filter.loadFilters();
+        ChatDispatcher.getInstance().loadFilters();
     }
 
     public static class ChatLogConfig {

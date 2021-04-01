@@ -11,6 +11,7 @@ import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.config.ChatTab;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.Filter;
@@ -105,7 +106,7 @@ public class SharingScreen extends GuiBase {
                         throw new NullPointerException("Filter is null!");
                     }
                     ConfigStorage.FILTERS.add(filter);
-                    AdvancedChat.filter.loadFilters();
+                    ChatDispatcher.getInstance().loadFilters();
                     parent.addGuiMessage(Message.MessageType.SUCCESS, 5000, StringUtils.translate("advancedchat.gui.message.successful"));
                 } else if (type == Type.IMPORT_TAB) {
                     ChatTab.ChatTabJsonSave tabSave = new ChatTab.ChatTabJsonSave();

@@ -5,8 +5,6 @@ import net.darkkronicle.advancedchat.chat.ChatLogMessage;
 import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,9 +20,9 @@ public class ChatLogData {
         boolean showtime = ConfigStorage.ChatLogConfig.SHOW_TIME.config.getBooleanValue();
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.General.TIME_FORMAT.config.getStringValue());
-            SplitText split = new SplitText(message.getRawText());
+            SplitText split = new SplitText(message.getOriginalText());
             split.addTime(format, message.getTime());
-            message.setText(split.getText(), 600);
+            message.setDisplayText(split.getText(), 600);
         }
 
         messages.add(message);

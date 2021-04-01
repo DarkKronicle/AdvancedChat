@@ -14,6 +14,7 @@ import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.gui.GuiFilterEditor;
 import net.darkkronicle.advancedchat.config.Filter;
@@ -60,7 +61,7 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
             }
             this.filter.setOrder(order);
             Collections.sort(ConfigStorage.FILTERS);
-            AdvancedChat.filter.loadFilters();
+            ChatDispatcher.getInstance().loadFilters();
             this.parent.refreshEntries();
         });
         this.num = new TextFieldWrapper<>(num, new ITextFieldListener<WidgetIntBox>() {
@@ -165,10 +166,10 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
                     remove.accept(parent.filter);
                 }
                 parent.parent.refreshEntries();
-                AdvancedChat.filter.loadFilters();
+                ChatDispatcher.getInstance().loadFilters();
             } else if (type == Type.ACTIVE) {
                 this.parent.filter.getActive().config.setBooleanValue(!this.parent.filter.getActive().config.getBooleanValue());
-                AdvancedChat.filter.loadFilters();
+                ChatDispatcher.getInstance().loadFilters();
                 parent.parent.refreshEntries();
             } else if (type == Type.CONFIGURE) {
                 GuiBase.openGui(new GuiFilterEditor(parent.filter, parent.parent.getParent()));

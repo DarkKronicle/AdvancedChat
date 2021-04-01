@@ -21,7 +21,7 @@ import java.util.Optional;
 public class ReplaceFilter extends AbstractFilter {
 
     public final String replaceTo;
-    public final Filter.ReplaceType type;
+    public final IMatchReplace type;
     public final ColorUtil.SimpleColor color;
 
     @Getter
@@ -31,7 +31,7 @@ public class ReplaceFilter extends AbstractFilter {
         children.add(filter);
     }
 
-    public ReplaceFilter(String filterString, String replaceTo, Filter.FindType findType, Filter.ReplaceType type, ColorUtil.SimpleColor color) {
+    public ReplaceFilter(String filterString, String replaceTo, Filter.FindType findType, IMatchReplace type, ColorUtil.SimpleColor color) {
         super.filterString = filterString;
         this.replaceTo = replaceTo;
         this.type = type;
@@ -42,19 +42,18 @@ public class ReplaceFilter extends AbstractFilter {
     @Override
     public Optional<Text> filter(Text text) {
         // Grabs SplitText for easy mutability.
-        if (type.textReplace == null) {
+        if (type == null) {
             return Optional.empty();
         }
         SplitText splitText = new SplitText(text);
-        IMatchReplace replace = type.textReplace;
-        if (replace.matchesOnly()) {
+        if (type.matchesOnly()) {
             Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(splitText.getFullMessage(), super.filterString, findType);
             if (!omatches.isPresent()) {
                 return Optional.empty();
             }
-            return replace.filter(this, splitText, omatches.get());
+            return type.filter(this, splitText, omatches.get());
         } else {
-            return replace.filter(this, splitText, null);
+            return type.filter(this, splitText, null);
         }
     }
 }

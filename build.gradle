@@ -32,12 +32,12 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     //Fabric api
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 
     modCompile "fi.dy.masa.malilib:malilib-fabric-1.16.3:${project.malilib_version}"
 
-    modCompileOnly "io.github.prospector:modmenu:1.14.6+build.31"
+    modCompileOnly "io.github.prospector:modmenu:1.16.8"
 
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
 

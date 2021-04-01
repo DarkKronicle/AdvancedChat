@@ -13,7 +13,7 @@ public class ChatLogMessage extends AdvancedChatMessage {
     private AbstractChatTab[] tab;
 
     public ChatLogMessage(AdvancedChatMessage message, AbstractChatTab... tabs) {
-        super(message.creationTick, message.text, message.rawText, message.id, message.time, message.background, 600, message.owner);
+        super(message.creationTick, message.displayText, message.originalText, message.id, message.time, message.background, 600, message.owner);
         this.tab = tabs;
     }
 

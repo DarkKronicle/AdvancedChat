@@ -36,7 +36,7 @@ public class MainChatTab extends AbstractChatTab {
         ArrayList<AbstractChatTab> added = new ArrayList<>();
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
-                if (!tab.shouldAdd(line.getRawText())) {
+                if (!tab.shouldAdd(line.getOriginalText())) {
                     continue;
                 }
                 tab.addMessage(line);

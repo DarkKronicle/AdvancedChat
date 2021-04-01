@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.filters.textreplace;
+package net.darkkronicle.advancedchat.filters.matchreplace;
 
 import net.darkkronicle.advancedchat.filters.AbstractFilter;
 import net.darkkronicle.advancedchat.filters.ReplaceFilter;
@@ -55,4 +55,8 @@ public class ChildrenTextReplace implements IMatchReplace {
         return Optional.of(text.getText());
     }
 
+    @Override
+    public boolean useChildren() {
+        return true;
+    }
 }

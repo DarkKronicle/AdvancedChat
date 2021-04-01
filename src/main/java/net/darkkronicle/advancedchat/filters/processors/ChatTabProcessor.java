@@ -2,6 +2,7 @@ package net.darkkronicle.advancedchat.filters.processors;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
+import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.ColorFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
@@ -29,7 +30,7 @@ public class ChatTabProcessor implements IMessageProcessor {
             unfiltered = text;
         }
         ColorUtil.SimpleColor backcolor = null;
-        for (ColorFilter colorFilter : AdvancedChat.filter.getColorFilters()) {
+        for (ColorFilter colorFilter : ChatDispatcher.getInstance().getColorFilters()) {
             backcolor = colorFilter.getBackgroundColor(text);
             if (backcolor != null) {
                 break;
@@ -48,11 +49,11 @@ public class ChatTabProcessor implements IMessageProcessor {
             text = split.getText();
         }
 
-        int width = MathHelper.floor(AdvancedChatHud.getScaledWidth() - 5);
+        int width = 0;
         // Find player
         MessageOwner player = SearchUtils.getAuthor(MinecraftClient.getInstance().getNetworkHandler(), unfiltered);
         AdvancedChatMessage line = AdvancedChatMessage.builder()
-                .text(text)
+                .displayText(text)
                 .originalText(original)
                 .owner(player)
                 .id(0)

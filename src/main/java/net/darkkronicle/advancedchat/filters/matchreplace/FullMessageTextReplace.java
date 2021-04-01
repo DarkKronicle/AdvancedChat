@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.filters.textreplace;
+package net.darkkronicle.advancedchat.filters.matchreplace;
 
 import net.darkkronicle.advancedchat.filters.ReplaceFilter;
 import net.darkkronicle.advancedchat.interfaces.IMatchReplace;

@@ -1,7 +1,6 @@
 package net.darkkronicle.advancedchat;
 
 import fi.dy.masa.malilib.event.InitializationHandler;
-import net.darkkronicle.advancedchat.filters.MainFilter;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.gui.AdvancedSleepingChatScreen;
 import net.darkkronicle.advancedchat.gui.ChatLogScreen;
@@ -19,7 +18,6 @@ import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class AdvancedChat implements ClientModInitializer {
-    public static MainFilter filter;
     public static MainChatTab chatTab;
     private static ChatLogData chatLogData;
 

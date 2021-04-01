@@ -17,8 +17,8 @@ import java.util.UUID;
 @Data
 public class AdvancedChatMessage {
     protected int creationTick;
-    protected Text text;
-    protected Text rawText;
+    protected Text displayText;
+    protected Text originalText;
     protected int id;
     protected LocalTime time;
     protected ColorUtil.SimpleColor background;
@@ -27,9 +27,13 @@ public class AdvancedChatMessage {
     protected MessageOwner owner;
     protected ArrayList<AdvancedChatLine> lines;
 
-    public void setText(Text text, int width) {
-        this.text = text;
+    public void setDisplayText(Text text, int width) {
+        this.displayText = text;
         formatChildren(width);
+    }
+
+    public AdvancedChatMessage shallowClone(int width) {
+        return new AdvancedChatMessage(creationTick, displayText, originalText, id, time, background, width, owner);
     }
 
     @Data
@@ -46,32 +50,32 @@ public class AdvancedChatMessage {
     }
 
     @Builder
-    protected AdvancedChatMessage(int creationTick, Text text, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
+    protected AdvancedChatMessage(int creationTick, Text displayText, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
         this.creationTick = creationTick;
-        this.text = text;
+        this.displayText = displayText;
         this.id = id;
         this.time = time;
         this.background = background;
         this.stacks = 0;
         this.uuid = UUID.randomUUID();
         this.owner = owner;
-        this.rawText = originalText == null ? text : originalText;
+        this.originalText = originalText == null ? displayText : originalText;
         formatChildren(width);
     }
 
     public void formatChildren(int width) {
         this.lines = new ArrayList<>();
         if (width == 0) {
-            this.lines.add(new AdvancedChatLine(this, text));
+            this.lines.add(new AdvancedChatLine(this, displayText));
         } else {
-            for (Text t : StyleFormatter.wrapText(MinecraftClient.getInstance().textRenderer, width, text)) {
+            for (Text t : StyleFormatter.wrapText(MinecraftClient.getInstance().textRenderer, width, displayText)) {
                 this.lines.add(new AdvancedChatLine(this, t));
             }
         }
     }
 
     public boolean isSimilar(AdvancedChatMessage message) {
-        return message.getRawText().getString().equals(this.getRawText().getString());
+        return message.getOriginalText().getString().equals(this.getOriginalText().getString());
     }
 
     public int getLineCount() {

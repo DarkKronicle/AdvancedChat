@@ -1,4 +1,4 @@
-package net.darkkronicle.advancedchat.filters.textreplace;
+package net.darkkronicle.advancedchat.filters.matchreplace;
 
 import maow.owo.OwO;
 import maow.owo.util.ParsingUtil;
@@ -26,7 +26,7 @@ public class OwOTextReplace implements IMatchReplace {
         for (SearchUtils.StringMatch match : matches) {
             Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(match.match, "(?<!§)([A-Za-z]+)", Filter.FindType.REGEX);
             if (!omatches.isPresent()) {
-                return Optional.empty();
+                continue;
             }
             List<SearchUtils.StringMatch> foundMatches = omatches.get();
             foundMatches.forEach(stringMatch -> {

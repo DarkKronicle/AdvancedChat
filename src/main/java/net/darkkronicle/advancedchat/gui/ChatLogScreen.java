@@ -148,13 +148,13 @@ public class ChatLogScreen extends GuiBase {
                 if (searchFull.isChecked()) {
                     ArrayList<UUID> uuids = new ArrayList<>();
                     filteredLines.forEach(line -> {
-                        if (SearchUtils.isMatch(line.getText().getString(), searchText, findType)) {
+                        if (SearchUtils.isMatch(line.getDisplayText().getString(), searchText, findType)) {
                             uuids.add(line.getUuid());
                         }
                     });
                     filteredLines = filteredLines.stream().filter(filter -> uuids.contains(filter.getUuid())).collect(Collectors.toList());
                 } else {
-                    filteredLines = filteredLines.stream().filter(filter -> SearchUtils.isMatch(filter.getText().getString(), searchText, findType)).collect(Collectors.toList());
+                    filteredLines = filteredLines.stream().filter(filter -> SearchUtils.isMatch(filter.getDisplayText().getString(), searchText, findType)).collect(Collectors.toList());
                 }
             } catch (PatternSyntaxException e) {
                 drawStringWithShadow(matrices, client.textRenderer, "Bad search!", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
@@ -183,7 +183,7 @@ public class ChatLogScreen extends GuiBase {
                     endLine = i + scrolledLines;
                     break;
                 }
-                drawTextWithShadow(matrices, client.textRenderer, line.getText(), 20, height + 1, textColor.color());
+                drawTextWithShadow(matrices, client.textRenderer, line.getDisplayText(), 20, height + 1, textColor.color());
             }
             drawCenteredString(matrices, client.textRenderer, startLine + "-" + endLine + "/" + filteredLines.size(), client.getWindow().getScaledWidth() / 2, 10, ColorUtil.WHITE.color());
 
@@ -229,7 +229,7 @@ public class ChatLogScreen extends GuiBase {
                     int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double)this.scrolledLines);
                     if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
                         ChatLogMessage chatHudLine = AdvancedChat.getChatLogData().getMessages().get(lineNum);
-                        return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getText(), (int)trueX - 20);
+                        return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getDisplayText(), (int)trueX - 20);
                     }
                 }
             }
