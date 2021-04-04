@@ -16,77 +16,184 @@ import java.util.TreeMap;
 
 /**
  * A helper class that can take a Text, break it up, and put it back together.
- * This breaks up the Text into different {@link SimpleText}.
+ * This breaks up the Text into different {@link RawText}.
  * This allows for easy editing of text and can modify it in {@link net.darkkronicle.advancedchat.filters.ReplaceFilter}
  */
 @Environment(EnvType.CLIENT)
-public class SplitText {
+public class FluidText implements MutableText {
 
-    private ArrayList<SimpleText> siblings = new ArrayList<>();
+    private ArrayList<RawText> rawTexts = new ArrayList<>();
 
     /**
-     * Takes a Text and splits it into a list of {@link SimpleText}.
+     * Takes a Text and splits it into a list of {@link RawText}.
      *
-     * @param text text to split into different {@link SimpleText}
+     * @param text text to split into different {@link RawText}
      */
-    public SplitText(Text text) {
+    public FluidText(Text text) {
         text.visit((style, string) -> {
-            siblings.add(new SimpleText(string, style));
+            rawTexts.add(new RawText(string, style));
             return Optional.empty();
         }, Style.EMPTY);
     }
 
-    public SplitText() {
-
+    /**
+     * Constructs a FluidText from {@link OrderedText}
+     *
+     * @param text
+     */
+    public FluidText(OrderedText text) {
+        text.accept((index, style, codePoint) -> {
+            RawText last;
+            if (rawTexts.size() > 0 && (last = rawTexts.get(rawTexts.size() - 1)).getStyle().equals(style)) {
+                // Similar styles get grouped
+                last.setMessage(last.getMessage() + new String(Character.toChars(codePoint)));
+            } else {
+                rawTexts.add(new RawText(new String(Character.toChars(codePoint)), style));
+            }
+            return true;
+        });
     }
 
-    public SplitText(SimpleText base) {
-        siblings.add(base);
-    }
+    public FluidText() {
 
-    public SplitText(List<SimpleText> siblings) {
-        this.siblings.addAll(siblings);
     }
-
 
     /**
-     * Takes the SplitText that is stored inside of this class, and puts it into a plain string.
+     * Constructs FluidText from a single {@link RawText}'s
+     *
+     * @param base
+     */
+    public FluidText(RawText base) {
+        rawTexts.add(base);
+    }
+
+    /**
+     * Constructs FluidText from a list of {@link RawText}'s
+     *
+     * @param rawTexts
+     */
+    public FluidText(List<RawText> rawTexts) {
+        this.rawTexts.addAll(rawTexts);
+    }
+
+    /**
+     * Takes the FluidText that is stored inside of this class, and puts it into a plain string.
      * Used mainly for debugging and {@link SearchUtils}
      *
-     * @return Plain string of just the raw text of held {@link SimpleText}
+     * @return Plain string of just the raw text of held {@link RawText}
      */
-    public String getFullMessage() {
-        if (siblings.size() == 0) {
-            return null;
+    @Override
+    public String getString() {
+        if (rawTexts.size() == 0) {
+            return "";
         }
         StringBuilder stringBuilder = new StringBuilder();
-        for (SimpleText text : getSiblings()) {
+        for (RawText text : getRawTexts()) {
             stringBuilder.append(text.getMessage());
         }
         return stringBuilder.toString();
     }
 
     /**
-     * Links stored SimpleText into a Text that is then returned.
-     * After mutating text in here it can be brought back to a minecraft friendly
-     * object.
+     * Returns the first style. Not recommended to use.
      *
-     * @return Text that is composed of all the {@link SimpleText}
+     * @return Style of the first text
      */
-    public Text getText() {
-        LiteralText t = new LiteralText("");
-        for (SimpleText text : getSiblings()) {
-            t.append(new LiteralText(text.getMessage()).setStyle(text.getStyle()));
+    @Override
+    public Style getStyle() {
+        if (rawTexts.size() == 0) {
+            return null;
         }
-        return t;
+        return rawTexts.get(0).getStyle();
     }
 
-    public SplitText truncate(SearchUtils.StringMatch match) {
-        ArrayList<SimpleText> newSiblings = new ArrayList<>();
+    @Override
+    public String asString() {
+        return getString();
+    }
+
+    @Override
+    public List<Text> getSiblings() {
+        return new ArrayList<>(rawTexts);
+    }
+
+    @Override
+    public FluidText copy() {
+        FluidText newFluidText = new FluidText();
+        for (RawText t : rawTexts) {
+            newFluidText.append(t.copy(), false);
+        }
+        return newFluidText;
+    }
+
+    @Override
+    public MutableText shallowCopy() {
+        return null;
+    }
+
+    @Override
+    public <T> Optional<T> visit(StyledVisitor<T> styledVisitor, Style style) {
+        if (rawTexts.size() == 0) {
+            return Optional.empty();
+        }
+        Optional<T> optional;
+        for (RawText text : rawTexts) {
+            optional = styledVisitor.accept(text.getStyle().withParent(style), text.getMessage());
+            if (optional.isPresent()) {
+                return optional;
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public <T> Optional<T> visit(Visitor<T> visitor) {
+        Optional<T> optional;
+        for (RawText text : rawTexts) {
+            optional = visitor.accept(text.getMessage());
+            if (optional.isPresent()) {
+                return optional;
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public <T> Optional<T> visitSelf(StyledVisitor<T> visitor, Style style) {
+        return Optional.empty();
+    }
+
+    @Override
+    public <T> Optional<T> visitSelf(Visitor<T> visitor) {
+        return Optional.empty();
+    }
+
+    /**
+     * Constructs an {@link OrderedText} from the {@link RawText}'s
+     *
+     * @return OrderedText
+     */
+    @Override
+    public OrderedText asOrderedText() {
+        List<OrderedText> ordered = new ArrayList<>();
+        for (RawText t : rawTexts) {
+            ordered.add(t.asOrderedText());
+        }
+        return OrderedText.concat(ordered);
+    }
+
+    /**
+     * Splits off the text that is held by a {@link net.darkkronicle.advancedchat.util.SearchUtils.StringMatch}
+     *
+     * @param match Match to grab text from
+     * @return FluidText of text
+     */
+    public FluidText truncate(SearchUtils.StringMatch match) {
+        ArrayList<RawText> newSiblings = new ArrayList<>();
         boolean start = false;
         // Total number of chars went through. Used to find where the match end and beginning is.
         int totalchar = 0;
-        for (SimpleText text : getSiblings()) {
+        for (RawText text : getRawTexts()) {
             if (text.getMessage() == null || text.getMessage().length() <= 0) {
                 continue;
             }
@@ -101,7 +208,7 @@ public class SplitText {
                     } else {
                         newSiblings.add(text.withMessage(text.getMessage().substring(0, match.end - totalchar)));
                     }
-                    return new SplitText(newSiblings);
+                    return new FluidText(newSiblings);
                 } else {
                     if (!start) {
                         newSiblings.add(text.withMessage(text.getMessage().substring(match.start - totalchar)));
@@ -120,14 +227,34 @@ public class SplitText {
         return null;
     }
 
+    /**
+     * Set's the style of all the text
+     *
+     * @param style
+     * @return
+     */
+    @Override
+    public FluidText setStyle(Style style) {
+        for (RawText t : rawTexts) {
+            t.setStyle(style);
+        }
+        return this;
+    }
+
+    @Override
+    public MutableText append(Text text) {
+        append(new RawText(text.getString(), text.getStyle()), false);
+        return this;
+    }
+
     public interface StringInsert {
-        SplitText getText(SimpleText current, SearchUtils.StringMatch match);
+        FluidText getText(RawText current, SearchUtils.StringMatch match);
     }
 
     /**
      * Complex method used to split up the split text in this class and replace matches to a string.
      *
-     * @param matches Map containing a match and a SplitText provider
+     * @param matches Map containing a match and a FluidText provider
      */
     public void replaceStrings(Map<SearchUtils.StringMatch, StringInsert> matches) {
         // If there's no matches nothing should get replaced.
@@ -136,15 +263,15 @@ public class SplitText {
         }
         // Sort the matches and then get a nice easy iterator for navigation
         Iterator<Map.Entry<SearchUtils.StringMatch, StringInsert>> sortedMatches = new TreeMap<>(matches).entrySet().iterator();
-        // List of new SimpleText to form a new SplitText.
-        ArrayList<SimpleText> newSiblings = new ArrayList<>();
+        // List of new RawText to form a new FluidText.
+        ArrayList<RawText> newSiblings = new ArrayList<>();
         // What match this is currently on.
         Map.Entry<SearchUtils.StringMatch, StringInsert> match = sortedMatches.next();
 
         // Total number of chars went through. Used to find where the match end and beginning is.
         int totalchar = 0;
         boolean inMatch = false;
-        for (SimpleText text : getSiblings()) {
+        for (RawText text : getRawTexts()) {
             if (text.getMessage() == null || text.getMessage().length() <= 0) {
                 continue;
             }
@@ -182,7 +309,7 @@ public class SplitText {
                         newSiblings.add(text.withMessage(text.getMessage().substring(last, start)));
                     }
                     if (end >= length) {
-                        newSiblings.addAll(match.getValue().getText(text, match.getKey()).getSiblings());
+                        newSiblings.addAll(match.getValue().getText(text, match.getKey()).getRawTexts());
                         if (end == length) {
                             if (!sortedMatches.hasNext()) {
                                 match = null;
@@ -195,7 +322,7 @@ public class SplitText {
                         }
                         break;
                     }
-                    newSiblings.addAll(match.getValue().getText(text, match.getKey()).getSiblings());
+                    newSiblings.addAll(match.getValue().getText(text, match.getKey()).getRawTexts());
                     if (!sortedMatches.hasNext()) {
                         match = null;
                     } else {
@@ -218,12 +345,12 @@ public class SplitText {
         }
 
         // At the end we take the siblings created in this method and override the old ones.
-        siblings = newSiblings;
+        rawTexts = newSiblings;
 
     }
 
-    public List<SimpleText> getSiblings() {
-        return siblings;
+    public List<RawText> getRawTexts() {
+        return rawTexts;
     }
 
     /**
@@ -238,21 +365,21 @@ public class SplitText {
         Style style = Style.EMPTY;
         TextColor textColor = TextColor.fromRgb(color.color());
         style = style.withColor(textColor);
-        SimpleText text = new SimpleText(replaceFormat.replaceAll("%TIME%", time.format(format)), style);
-        siblings.add(0, text);
+        RawText text = new RawText(replaceFormat.replaceAll("%TIME%", time.format(format)), style);
+        rawTexts.add(0, text);
     }
 
-    public void append(SimpleText text, boolean copyIfEmpty) {
-        if (siblings.size() > 0) {
-            SimpleText last = siblings.get(siblings.size() - 1);
+    public void append(RawText text, boolean copyIfEmpty) {
+        if (rawTexts.size() > 0) {
+            RawText last = rawTexts.get(rawTexts.size() - 1);
             // Prevent having a ton of the same siblings in one...
             if (last.getStyle().equals(text.getStyle()) || (copyIfEmpty && text.getStyle().equals(Style.EMPTY))) {
                 last.setMessage(last.getMessage() + text.getMessage());
             } else {
-                siblings.add(text);
+                rawTexts.add(text);
             }
         } else {
-            siblings.add(text);
+            rawTexts.add(text);
         }
     }
 

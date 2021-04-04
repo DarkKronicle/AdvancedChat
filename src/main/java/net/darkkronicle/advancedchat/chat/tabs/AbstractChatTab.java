@@ -3,17 +3,15 @@ package net.darkkronicle.advancedchat.chat.tabs;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fi.dy.masa.malilib.render.RenderUtils;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
-import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
+import net.darkkronicle.advancedchat.chat.ChatMessage;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.EasingMethod;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.darkkronicle.advancedchat.util.LimitedInteger;
-import net.darkkronicle.advancedchat.util.SimpleText;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.RawText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -34,7 +32,7 @@ import java.util.List;
 public abstract class AbstractChatTab {
 
     // Each tab stores their own messages.
-    public final List<AdvancedChatMessage> messages = new ArrayList<>();
+    public final List<ChatMessage> messages = new ArrayList<>();
     private final String name;
     private final String abreviation;
     private final AdvancedChatHud hud;
@@ -50,7 +48,7 @@ public abstract class AbstractChatTab {
 
     public int getLineCount() {
         int i = 0;
-        for (AdvancedChatMessage message : messages) {
+        for (ChatMessage message : messages) {
             i += message.getLineCount();
         }
         return i;
@@ -74,9 +72,9 @@ public abstract class AbstractChatTab {
         }
     }
 
-    public AdvancedChatMessage.AdvancedChatLine getLine(int line) {
+    public ChatMessage.AdvancedChatLine getLine(int line) {
         int oldline = 0;
-        for (AdvancedChatMessage m : messages) {
+        for (ChatMessage m : messages) {
             int newline = oldline + m.getLineCount();
             if (oldline <= line && newline > line) {
                 return m.getLines().get(line - oldline);
@@ -86,9 +84,9 @@ public abstract class AbstractChatTab {
         return null;
     }
 
-    public AdvancedChatMessage getMessageFromLine(int line) {
+    public ChatMessage getMessageFromLine(int line) {
         int oldline = 0;
-        for (AdvancedChatMessage m : messages) {
+        for (ChatMessage m : messages) {
             int newline = oldline + m.getLineCount();
             if (oldline <= line && newline > line) {
                 return m;
@@ -98,7 +96,7 @@ public abstract class AbstractChatTab {
         return null;
     }
 
-    public void addMessage(AdvancedChatMessage line) {
+    public void addMessage(ChatMessage line) {
         if (!shouldAdd(line.getDisplayText())) {
             return;
         }
@@ -107,7 +105,7 @@ public abstract class AbstractChatTab {
             this.removeMessage(line.getId());
         }
         for (int i = 0; i < ConfigStorage.General.CHAT_STACK.config.getIntegerValue() && i < messages.size(); i++) {
-            AdvancedChatMessage chatLine = messages.get(i);
+            ChatMessage chatLine = messages.get(i);
             if (line.isSimilar(chatLine)) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
                 return;
@@ -128,9 +126,9 @@ public abstract class AbstractChatTab {
     public void removeMessage(int messageId) {
         Iterator iterator = this.messages.iterator();
 
-        AdvancedChatMessage chatHudLine2;
+        ChatMessage chatHudLine2;
         while (iterator.hasNext()) {
-            chatHudLine2 = (AdvancedChatMessage) iterator.next();
+            chatHudLine2 = (ChatMessage) iterator.next();
             if (chatHudLine2.getId() == messageId) {
                 iterator.remove();
             }
@@ -214,7 +212,7 @@ public abstract class AbstractChatTab {
         LimitedInteger y = new LimitedInteger(getScaledHeight() - ConfigStorage.ChatScreen.TOP_PAD.config.getIntegerValue(), ConfigStorage.ChatScreen.BOTTOM_PAD.config.getIntegerValue());
 
         for (int j = 0; j < messages.size(); j++) {
-            AdvancedChatMessage message = messages.get(j)  ;
+            ChatMessage message = messages.get(j)  ;
             // To get the proper index of reversed
             for (int i = message.getLineCount() - 1; i >= 0; i--) {
                 int lineIndex = message.getLineCount() - i - 1;
@@ -225,7 +223,7 @@ public abstract class AbstractChatTab {
                 if (!y.incrementIfPossible(ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue())) {
                     break;
                 }
-                AdvancedChatMessage.AdvancedChatLine line = message.getLines().get(i);
+                ChatMessage.AdvancedChatLine line = message.getLines().get(i);
                 drawLine(matrixStack, line, leftX, y.getValue(), padLX, padRX, lineIndex, j, renderedLines, chatFocused, ticks);
                 renderedLines++;
             }
@@ -252,7 +250,7 @@ public abstract class AbstractChatTab {
         RenderSystem.popMatrix();
     }
 
-    private void drawLine(MatrixStack matrixStack, AdvancedChatMessage.AdvancedChatLine line, int x, int y, int pLX, int pRX, int lineIndex, int messageIndex, int renderedLines, boolean focused, int ticks) {
+    private void drawLine(MatrixStack matrixStack, ChatMessage.AdvancedChatLine line, int x, int y, int pLX, int pRX, int lineIndex, int messageIndex, int renderedLines, boolean focused, int ticks) {
         int height = ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue();
         if (renderedLines == 0) {
             if (focused) {
@@ -299,12 +297,12 @@ public abstract class AbstractChatTab {
 
         Text render = line.getText();
         if (line.getParent().getStacks() > 0 && lineIndex == 0) {
-            SplitText toPrint = new SplitText(render);
+            FluidText toPrint = new FluidText(render);
             Style style = Style.EMPTY;
             TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
             style = style.withColor(color);
-            toPrint.getSiblings().add(new SimpleText(" (" + line.getParent().getStacks() + ")", style));
-            render = toPrint.getText();
+            toPrint.getRawTexts().add(new RawText(" (" + line.getParent().getStacks() + ")", style));
+            render = toPrint;
         }
 
         DrawableHelper.drawTextWithShadow(matrixStack, client.textRenderer, render, pLX, getActualY(y) + 1, text.color());
@@ -329,7 +327,7 @@ public abstract class AbstractChatTab {
         int lines = 0;
         int lineCount = getLineCount();
         LimitedInteger y = new LimitedInteger(getScaledHeight(), ConfigStorage.ChatScreen.BOTTOM_PAD.config.getIntegerValue());
-        for (AdvancedChatMessage message : messages) {
+        for (ChatMessage message : messages) {
             // To get the proper index of reversed
             for (int i = message.getLineCount() - 1; i >= 0; i--) {
                 lines++;
@@ -340,7 +338,7 @@ public abstract class AbstractChatTab {
                     break;
                 }
                 if (trueY <= y.getValue() && trueY >= y.getValue() - ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue()) {
-                    AdvancedChatMessage.AdvancedChatLine line = message.getLines().get(i);
+                    ChatMessage.AdvancedChatLine line = message.getLines().get(i);
                     return this.client.textRenderer.getTextHandler().getStyleAt(line.getText(), (int) trueX);
                 }
             }

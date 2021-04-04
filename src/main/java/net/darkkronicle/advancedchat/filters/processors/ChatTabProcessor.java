@@ -1,30 +1,30 @@
 package net.darkkronicle.advancedchat.filters.processors;
 
 import net.darkkronicle.advancedchat.AdvancedChat;
-import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
+import net.darkkronicle.advancedchat.chat.ChatMessage;
 import net.darkkronicle.advancedchat.chat.ChatDispatcher;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.filters.ColorFilter;
-import net.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.darkkronicle.advancedchat.chat.MessageOwner;
-import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
+import net.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.darkkronicle.advancedchat.util.SearchUtils;
-import net.darkkronicle.advancedchat.util.SplitText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nullable;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class ChatTabProcessor implements IMessageProcessor {
+public class ChatTabProcessor implements IMatchProcessor {
 
     @Override
-    public boolean process(Text text, Text unfiltered) {
+    public boolean process(FluidText text, FluidText unfiltered) {
         // Grab the background color
         if (unfiltered == null) {
             unfiltered = text;
@@ -41,18 +41,16 @@ public class ChatTabProcessor implements IMessageProcessor {
         LocalTime time = LocalTime.now();
         boolean showtime = ConfigStorage.ChatScreen.SHOW_TIME.config.getBooleanValue();
         // Store original so we can get stuff without the time
-        Text original = text;
+        Text original = text.copy();
         if (showtime) {
-            SplitText split = new SplitText(text);
             DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.General.TIME_FORMAT.config.getStringValue());
-            split.addTime(format, time);
-            text = split.getText();
+            text.addTime(format, time);
         }
 
         int width = 0;
         // Find player
-        MessageOwner player = SearchUtils.getAuthor(MinecraftClient.getInstance().getNetworkHandler(), unfiltered);
-        AdvancedChatMessage line = AdvancedChatMessage.builder()
+        MessageOwner player = SearchUtils.getAuthor(MinecraftClient.getInstance().getNetworkHandler(), unfiltered.getString());
+        ChatMessage line = ChatMessage.builder()
                 .displayText(text)
                 .originalText(original)
                 .owner(player)
@@ -64,6 +62,11 @@ public class ChatTabProcessor implements IMessageProcessor {
                 .build();
         AdvancedChat.chatTab.addMessage(line);
         return true;
+    }
+
+    @Override
+    public boolean processMatches(FluidText text, FluidText unfiltered, @Nullable List<SearchUtils.StringMatch> matches) {
+        return process(text, unfiltered);
     }
 
 }

@@ -5,9 +5,9 @@ import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.darkkronicle.advancedchat.util.SearchUtils;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +24,11 @@ public class ForwardFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<Text> filter(Text text) {
-        return filter(text, new ArrayList<>());
+    public Optional<FluidText> filter(FluidText text) {
+        return filter(text, text, new ArrayList<>());
     }
 
-    public Optional<Text> filter(Text text, ArrayList<IMessageProcessor> processed) {
+    public Optional<FluidText> filter(FluidText text, FluidText unfiltered, ArrayList<IMessageProcessor> processed) {
         Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(text.getString(), super.filterString, findType);
         boolean forward = true;
         for (IMatchProcessor p : processors) {
@@ -36,12 +36,12 @@ public class ForwardFilter extends AbstractFilter {
                 continue;
             }
             if (!p.matchesOnly() && !omatches.isPresent()) {
-                if (p.processMatches(text, null)) {
+                if (p.processMatches(text, unfiltered, null)) {
                     processed.add(p);
                     forward = false;
                 }
             } else if (omatches.isPresent()) {
-                if (p.processMatches(text, omatches.get())) {
+                if (p.processMatches(text, unfiltered, omatches.get())) {
                     processed.add(p);
                     forward = false;
                 }

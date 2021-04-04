@@ -18,4 +18,9 @@ public class WidgetToggle extends ButtonOnOff {
         this.updateDisplayString(this.currentlyOn);
         return super.onMouseClickedImpl(mouseX, mouseY, mouseButton);
     }
+
+    public void setOn(boolean on) {
+        this.currentlyOn = on;
+        this.updateDisplayString(on);
+    }
 }

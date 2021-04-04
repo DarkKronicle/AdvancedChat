@@ -1,11 +1,11 @@
 package net.darkkronicle.advancedchat.interfaces;
 
-import net.minecraft.text.Text;
+import net.darkkronicle.advancedchat.util.FluidText;
 
 import java.util.Optional;
 
 public interface IMessageFilter {
 
-    Optional<Text> filter(Text text);
+    Optional<FluidText> filter(FluidText text);
 
 }

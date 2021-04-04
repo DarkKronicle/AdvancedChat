@@ -1,12 +1,12 @@
 package net.darkkronicle.advancedchat.filters;
 
 import net.darkkronicle.advancedchat.config.Filter;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.darkkronicle.advancedchat.util.SearchUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.text.Text;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public class NotifyFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<Text> filter(Text text) {
+    public Optional<FluidText> filter(FluidText text) {
         if (notifySound != Filter.NotifySound.NONE) {
             if (SearchUtils.isMatch(text.getString(), filterString, findType)) {
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(notifySound.event, pitch, volume));

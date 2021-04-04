@@ -82,7 +82,9 @@ public class GuiConfig extends GuiConfigsBase {
         } else if (tab == ConfigGuiTab.CHAT_SCREEN) {
             configs = ConfigStorage.ChatScreen.OPTIONS;
         } else if (tab == ConfigGuiTab.CHAT_LOG) {
-            configs = ConfigStorage.ChatLogConfig.OPTIONS;
+            configs = ConfigStorage.ChatLog.OPTIONS;
+        } else if (tab == ConfigGuiTab.CHAT_SUGGESTOR) {
+            configs = ConfigStorage.ChatSuggestor.OPTIONS;
         } else {
             return Collections.emptyList();
         }
@@ -126,6 +128,7 @@ public class GuiConfig extends GuiConfigsBase {
         GENERAL("general"),
         CHAT_SCREEN("chatscreen"),
         CHAT_LOG("chatlog"),
+        CHAT_SUGGESTOR("chatsuggestor"),
         TABS("tabs"),
         FILTERS("filters");
 

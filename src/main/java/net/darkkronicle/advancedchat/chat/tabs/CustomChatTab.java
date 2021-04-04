@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.darkkronicle.advancedchat.config.ChatTab;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.SearchUtils;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.minecraft.text.Text;
 
 /**
@@ -36,7 +36,7 @@ public class CustomChatTab extends AbstractChatTab {
 
     @Override
     public boolean shouldAdd(Text text) {
-        SplitText newText = new SplitText(text);
-        return SearchUtils.isMatch(newText.getFullMessage(), findString, findType);
+        FluidText newText = new FluidText(text);
+        return SearchUtils.isMatch(newText.getString(), findString, findType);
     }
 }

@@ -2,7 +2,7 @@ package net.darkkronicle.advancedchat.chat;
 
 import net.darkkronicle.advancedchat.interfaces.IMessageFilter;
 import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.darkkronicle.advancedchat.util.StyleFormatter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -48,17 +48,18 @@ public class MessageDispatcher {
      * @param text Text that is received
      */
     public void handleText(Text text) {
-        text = preFilter(text);
-        if (text == null || new SplitText(text).getFullMessage().length() == 0) {
+        FluidText fluidText = new FluidText(text);
+        fluidText = preFilter(fluidText);
+        if (fluidText.getString().length() == 0) {
             // No more
             return;
         }
-        process(text);
+        process(fluidText);
     }
 
-    private Text preFilter(Text text) {
+    private FluidText preFilter(FluidText text) {
         for (IMessageFilter f : preFilters) {
-            Optional<Text> t = f.filter(text);
+            Optional<FluidText> t = f.filter(text);
             if (t.isPresent()) {
                 text = t.get();
             }
@@ -66,7 +67,7 @@ public class MessageDispatcher {
         return text;
     }
 
-    private void process(Text text) {
+    private void process(FluidText text) {
         for (IMessageFilter f : processors) {
             f.filter(text);
         }

@@ -74,8 +74,8 @@ public class ConfigUpdater {
     }
 
     private static void setLogConfig(JsonObject obj) {
-        ConfigStorage.ChatLogConfig.SHOW_TIME.config.setBooleanValue(obj.get("showTime").getAsBoolean());
-        ConfigStorage.ChatLogConfig.STORED_LINES.config.setIntegerValue(obj.get("storedLines").getAsInt());
+        ConfigStorage.ChatLog.SHOW_TIME.config.setBooleanValue(obj.get("showTime").getAsBoolean());
+        ConfigStorage.ChatLog.STORED_LINES.config.setIntegerValue(obj.get("storedLines").getAsInt());
     }
 
     private static Filter getFilter(JsonObject obj) {

@@ -4,6 +4,7 @@ import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.ChatSuggestor;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.gui.GuiConfig;
 import net.darkkronicle.advancedchat.gui.elements.CleanButton;
@@ -11,7 +12,6 @@ import net.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import net.darkkronicle.advancedchat.chat.tabs.CustomChatTab;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
@@ -24,7 +24,7 @@ public class AdvancedChatScreen extends GuiBase {
     private int messageHistorySize = -1;
     protected TextFieldWidget chatField;
     private String originalChatText = "";
-    private CommandSuggestor commandSuggestor;
+    private ChatSuggestor commandSuggestor;
 
     private static String last = "";
 
@@ -57,7 +57,11 @@ public class AdvancedChatScreen extends GuiBase {
                 return super.getNarrationMessage().append(AdvancedChatScreen.this.commandSuggestor.getNarration());
             }
         };
-        this.chatField.setMaxLength(256);
+        if (ConfigStorage.ChatScreen.MORE_TEXT.config.getBooleanValue()) {
+            this.chatField.setMaxLength(64000);
+        } else {
+            this.chatField.setMaxLength(256);
+        }
         this.chatField.setDrawsBackground(false);
         if (!this.originalChatText.equals("")) {
             this.chatField.setText(this.originalChatText);
@@ -125,7 +129,7 @@ public class AdvancedChatScreen extends GuiBase {
         }
 
 
-        this.commandSuggestor = new CommandSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, 10, true, new ColorUtil.SimpleColor(0, 0, 0, 208).color());
+        this.commandSuggestor = new ChatSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, ConfigStorage.ChatSuggestor.SUGGESTION_SIZE.config.getIntegerValue(), true);
         this.commandSuggestor.refresh();
         this.setInitialFocus(this.chatField);
 
@@ -156,30 +160,20 @@ public class AdvancedChatScreen extends GuiBase {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.commandSuggestor.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
-        } else if (super.keyPressed(keyCode, scanCode, modifiers)) {
+        }
+        if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
-        } else if (keyCode == KeyCodes.KEY_ESCAPE) {
+        }
+        if (keyCode == KeyCodes.KEY_ESCAPE) {
             this.client.openScreen(null);
             return true;
-        } else if (keyCode != KeyCodes.KEY_ENTER && keyCode != KeyCodes.KEY_KP_ENTER) {
-            if (keyCode == KeyCodes.KEY_UP) {
-                this.setChatFromHistory(-1);
-                return true;
-            } else if (keyCode == KeyCodes.KEY_DOWN) {
-                this.setChatFromHistory(1);
-                return true;
-            } else if (keyCode == KeyCodes.KEY_PAGE_UP) {
-                AdvancedChat.getAdvancedChatHud().scroll(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1);
-                return true;
-            } else if (keyCode == KeyCodes.KEY_PAGE_DOWN) {
-                AdvancedChat.getAdvancedChatHud().scroll(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+        }
+        if (keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_KP_ENTER) {
             String string = this.chatField.getText().trim();
             if (!string.isEmpty()) {
+                if (string.length() > 256) {
+                    string = string.substring(0, 256);
+                }
                 this.sendMessage(string);
             }
             this.chatField.setText("");
@@ -187,6 +181,23 @@ public class AdvancedChatScreen extends GuiBase {
             this.client.openScreen(null);
             return true;
         }
+        if (keyCode == KeyCodes.KEY_UP) {
+            this.setChatFromHistory(-1);
+            return true;
+        }
+        if (keyCode == KeyCodes.KEY_DOWN) {
+            this.setChatFromHistory(1);
+            return true;
+        }
+        if (keyCode == KeyCodes.KEY_PAGE_UP) {
+            AdvancedChat.getAdvancedChatHud().scroll(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1);
+            return true;
+        }
+        if (keyCode == KeyCodes.KEY_PAGE_DOWN) {
+            AdvancedChat.getAdvancedChatHud().scroll(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1);
+            return true;
+        }
+        return false;
     }
 
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {

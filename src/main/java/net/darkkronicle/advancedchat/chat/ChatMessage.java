@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 @Data
-public class AdvancedChatMessage {
+public class ChatMessage {
     protected int creationTick;
     protected Text displayText;
     protected Text originalText;
@@ -32,17 +32,17 @@ public class AdvancedChatMessage {
         formatChildren(width);
     }
 
-    public AdvancedChatMessage shallowClone(int width) {
-        return new AdvancedChatMessage(creationTick, displayText, originalText, id, time, background, width, owner);
+    public ChatMessage shallowClone(int width) {
+        return new ChatMessage(creationTick, displayText, originalText, id, time, background, width, owner);
     }
 
     @Data
     public static class AdvancedChatLine {
         private Text text;
-        private final AdvancedChatMessage parent;
+        private final ChatMessage parent;
         private int width;
 
-        private AdvancedChatLine(AdvancedChatMessage parent, Text text) {
+        private AdvancedChatLine(ChatMessage parent, Text text) {
             this.parent = parent;
             this.text = text;
             this.width = MinecraftClient.getInstance().textRenderer.getWidth(text);
@@ -50,7 +50,7 @@ public class AdvancedChatMessage {
     }
 
     @Builder
-    protected AdvancedChatMessage(int creationTick, Text displayText, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
+    protected ChatMessage(int creationTick, Text displayText, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
         this.creationTick = creationTick;
         this.displayText = displayText;
         this.id = id;
@@ -74,7 +74,7 @@ public class AdvancedChatMessage {
         }
     }
 
-    public boolean isSimilar(AdvancedChatMessage message) {
+    public boolean isSimilar(ChatMessage message) {
         return message.getOriginalText().getString().equals(this.getOriginalText().getString());
     }
 

@@ -1,9 +1,8 @@
 package net.darkkronicle.advancedchat.interfaces;
 
 import net.darkkronicle.advancedchat.filters.ReplaceFilter;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.darkkronicle.advancedchat.util.SearchUtils;
-import net.darkkronicle.advancedchat.util.SplitText;
-import net.minecraft.text.Text;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -15,9 +14,9 @@ public interface IMatchReplace extends IMessageFilter {
         return true;
     }
 
-    Optional<Text> filter(ReplaceFilter filter, SplitText text, @Nullable List<SearchUtils.StringMatch> matches);
+    Optional<FluidText> filter(ReplaceFilter filter, FluidText text, @Nullable List<SearchUtils.StringMatch> matches);
 
-    default Optional<Text> filter(Text text) {
+    default Optional<FluidText> filter(FluidText text) {
         return Optional.empty();
     }
 

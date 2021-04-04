@@ -1,17 +1,17 @@
 package net.darkkronicle.advancedchat.interfaces;
 
-import net.minecraft.text.Text;
+import net.darkkronicle.advancedchat.util.FluidText;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
 public interface IMessageProcessor extends IMessageFilter {
 
-    default Optional<Text> filter(Text text) {
+    default Optional<FluidText> filter(FluidText text) {
         process(text, null);
         return Optional.empty();
     }
 
-    boolean process(Text text, @Nullable Text unfiltered);
+    boolean process(FluidText text, @Nullable FluidText unfiltered);
 
 }

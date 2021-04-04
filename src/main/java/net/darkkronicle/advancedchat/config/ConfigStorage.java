@@ -25,20 +25,15 @@ import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.EasingMethod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -170,6 +165,8 @@ public class ConfigStorage implements IConfigHandler {
                 new ConfigInteger(translate("storedlines"), 200, 20, 1000, translate("info.storedlines")));
         public final static SaveableConfig<ConfigBoolean> PERSISTENT_TEXT = SaveableConfig.fromConfig("persistentText",
                 new ConfigBoolean(translate("persistenttext"), false, translate("info.persistenttext")));
+        public final static SaveableConfig<ConfigBoolean> MORE_TEXT = SaveableConfig.fromConfig("moreText",
+                new ConfigBoolean(translate("moretext"), false, translate("info.moretext")));
 
         public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
                 WIDTH,
@@ -195,9 +192,65 @@ public class ConfigStorage implements IConfigHandler {
                 ALTERNATE_LINES,
                 SHOW_TIME,
                 STORED_LINES,
-                PERSISTENT_TEXT
+                PERSISTENT_TEXT,
+                MORE_TEXT
         );
     }
+
+    public static class ChatLog {
+
+        public static final String NAME = "chatlog";
+
+        public static String translate(String key) {
+            return StringUtils.translate("advancedchat.config.chatlog." + key);
+        }
+
+        public final static SaveableConfig<ConfigInteger> STORED_LINES = SaveableConfig.fromConfig("storedlines",
+                new ConfigInteger(translate("storedlines"), 1000, 20, 5000, translate("info.storedlines")));
+        public final static SaveableConfig<ConfigBoolean> SHOW_TIME = SaveableConfig.fromConfig("showtime",
+                new ConfigBoolean(translate("showtime"), false, translate("info.showtime")));
+
+        public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
+                STORED_LINES,
+                SHOW_TIME
+        );
+
+    }
+
+
+
+    public static class ChatSuggestor {
+
+        public static final String NAME = "chatsuggestor";
+
+        private static String translate(String key) {
+            return "advancedchat.config.chatsuggestor." + key;
+        }
+
+
+
+        public final static SaveableConfig<ConfigSimpleColor> HIGHLIGHT_COLOR = SaveableConfig.fromConfig("highlightColor",
+                new ConfigSimpleColor(translate("highlightcolor"), new ColorUtil.SimpleColor(255, 255, 0, 255), translate("info.highlightcolor")));
+        public final static SaveableConfig<ConfigSimpleColor> UNHIGHLIGHT_COLOR = SaveableConfig.fromConfig("unhighlightColor",
+                new ConfigSimpleColor(translate("unhighlightcolor"), new ColorUtil.SimpleColor(170, 170, 170, 255), translate("info.unhighlightcolor")));
+        public final static SaveableConfig<ConfigSimpleColor> BACKGROUND_COLOR = SaveableConfig.fromConfig("backgroundColor",
+                new ConfigSimpleColor(translate("backgroundcolor"), new ColorUtil.SimpleColor(0, 0, 0, 170), translate("info.backgroundcolor")));
+        public final static SaveableConfig<ConfigInteger> SUGGESTION_SIZE = SaveableConfig.fromConfig("suggestionSize",
+                new ConfigInteger(translate("suggestionsize"), 10, 1, 50, translate("info.suggestionsize")));
+        public final static SaveableConfig<ConfigBoolean> REMOVE_IDENTIFIER = SaveableConfig.fromConfig("removeIdentifier",
+                new ConfigBoolean(translate("removeidentifier"), true, translate("info.removeidentifier")));
+
+
+        public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
+                HIGHLIGHT_COLOR,
+                UNHIGHLIGHT_COLOR,
+                BACKGROUND_COLOR,
+                SUGGESTION_SIZE,
+                REMOVE_IDENTIFIER
+        );
+
+    }
+
 
 
     public static void loadFromFile() {
@@ -230,6 +283,8 @@ public class ConfigStorage implements IConfigHandler {
 
                 readOptions(root, General.NAME, General.OPTIONS);
                 readOptions(root, ConfigStorage.ChatScreen.NAME, ConfigStorage.ChatScreen.OPTIONS);
+                readOptions(root, ConfigStorage.ChatSuggestor.NAME, ConfigStorage.ChatSuggestor.OPTIONS);
+                readOptions(root, ChatLog.NAME, ChatLog.OPTIONS);
 
                 JsonElement o = root.get(FILTER_KEY);
                 ConfigStorage.FILTERS.clear();
@@ -258,25 +313,6 @@ public class ConfigStorage implements IConfigHandler {
         ChatDispatcher.getInstance().loadFilters();
     }
 
-    public static class ChatLogConfig {
-        public static String translate(String key) {
-            return StringUtils.translate("advancedchat.config.chatlog." + key);
-        }
-
-        public final static SaveableConfig<ConfigInteger> STORED_LINES = SaveableConfig.fromConfig("storedlines",
-                new ConfigInteger(translate("storedlines"), 1000, 20, 5000, translate("info.storedlines")));
-        public final static SaveableConfig<ConfigBoolean> SHOW_TIME = SaveableConfig.fromConfig("showtime",
-                new ConfigBoolean(translate("showtime"), false, translate("info.showtime")));
-
-        public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
-                STORED_LINES,
-                SHOW_TIME
-        );
-
-    }
-
-
-
     public static void saveFromFile() {
         File dir = FileUtils.getConfigDirectory();
 
@@ -287,6 +323,8 @@ public class ConfigStorage implements IConfigHandler {
 
             writeOptions(root, General.NAME, General.OPTIONS);
             writeOptions(root, ConfigStorage.ChatScreen.NAME, ConfigStorage.ChatScreen.OPTIONS);
+            writeOptions(root, ChatLog.NAME, ChatLog.OPTIONS);
+            writeOptions(root, ChatSuggestor.NAME, ChatSuggestor.OPTIONS);
 
             JsonArray arr = new JsonArray();
             for (Filter f : ConfigStorage.FILTERS) {
@@ -338,6 +376,7 @@ public class ConfigStorage implements IConfigHandler {
                         element = parser.parse(reader);
                     } catch (Exception e) {
                         reader.close();
+                        MaLiLib.logger.error("Failed to parse the JSON file '{}'. Attempting different charset. ", fileName, e);
                         continue;
                     }
                     reader.close();

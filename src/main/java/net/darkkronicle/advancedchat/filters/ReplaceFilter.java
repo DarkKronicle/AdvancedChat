@@ -5,10 +5,9 @@ import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.darkkronicle.advancedchat.util.SearchUtils;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,20 +39,19 @@ public class ReplaceFilter extends AbstractFilter {
     }
 
     @Override
-    public Optional<Text> filter(Text text) {
-        // Grabs SplitText for easy mutability.
+    public Optional<FluidText> filter(FluidText text) {
+        // Grabs FluidText for easy mutability.
         if (type == null) {
             return Optional.empty();
         }
-        SplitText splitText = new SplitText(text);
         if (type.matchesOnly()) {
-            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(splitText.getFullMessage(), super.filterString, findType);
+            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(text.getString(), super.filterString, findType);
             if (!omatches.isPresent()) {
                 return Optional.empty();
             }
-            return type.filter(this, splitText, omatches.get());
+            return type.filter(this, text, omatches.get());
         } else {
-            return type.filter(this, splitText, null);
+            return type.filter(this, text, null);
         }
     }
 }

@@ -1,7 +1,7 @@
 package net.darkkronicle.advancedchat.chat;
 
 import lombok.Getter;
-import net.darkkronicle.advancedchat.AdvancedChat;
+import net.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.filters.AbstractFilter;
@@ -9,14 +9,12 @@ import net.darkkronicle.advancedchat.filters.ColorFilter;
 import net.darkkronicle.advancedchat.filters.ForwardFilter;
 import net.darkkronicle.advancedchat.filters.NotifyFilter;
 import net.darkkronicle.advancedchat.filters.ReplaceFilter;
-import net.darkkronicle.advancedchat.filters.processors.ChatTabProcessor;
 import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.darkkronicle.advancedchat.mixin.MixinChatHudInvoker;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ public class ChatDispatcher implements IMessageProcessor {
      * The "Terminate" text. It has a length of zero and is non-null so it will stop the process if
      * returned by the main filter.
      */
-    public final static Text TERMINATE = new LiteralText("");
+    public final static FluidText TERMINATE = new FluidText();
 
     /**
      * The final processor to go to if the process hasn't been terminated.
@@ -72,12 +70,12 @@ public class ChatDispatcher implements IMessageProcessor {
     }
 
     @Override
-    public boolean process(Text text, Text original) {
-        Text unfiltered = text;
+    public boolean process(FluidText text, FluidText original) {
+        FluidText unfiltered = text;
 
         // Filter text
         for (AbstractFilter filter : filters) {
-            Optional<Text> newtext = filter.filter(text);
+            Optional<FluidText> newtext = filter.filter(text);
             if (newtext.isPresent()) {
                 text = newtext.get();
             }
@@ -86,8 +84,7 @@ public class ChatDispatcher implements IMessageProcessor {
         ArrayList<IMessageProcessor> processed = new ArrayList<>();
         boolean forward = true;
         for (ForwardFilter f : forwardFilters) {
-            if (f.filter(text, processed).isPresent()) {
-                // Send the signal to stop
+            if (f.filter(text, original, processed).isPresent()) {
                 forward = false;
             }
         }
@@ -108,6 +105,7 @@ public class ChatDispatcher implements IMessageProcessor {
     public void loadFilters() {
         filters = new ArrayList<>();
         colorFilters = new ArrayList<>();
+        forwardFilters = new ArrayList<>();
         for (Filter filter : ConfigStorage.FILTERS) {
             // If it replaces anything.
             List<AbstractFilter> afilter = createFilter(filter);
@@ -115,12 +113,13 @@ public class ChatDispatcher implements IMessageProcessor {
                 for (AbstractFilter f : afilter) {
                     if (f instanceof ColorFilter) {
                         colorFilters.add((ColorFilter) f);
+                    } else if (f instanceof ForwardFilter) {
+                        forwardFilters.add((ForwardFilter) f);
                     } else {
                         filters.add(f);
                     }
                 }
             }
-
         }
     }
 
@@ -154,6 +153,16 @@ public class ChatDispatcher implements IMessageProcessor {
         }
         if (filter.getReplaceBackgroundColor().config.getBooleanValue()) {
             filters.add(new ColorFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getBackgroundColor().config.getSimpleColor()));
+        }
+        if (filter.getProcessors().size() > 0) {
+            if (filter.getProcessors().size() == 1) {
+                // If it's only the default, don't do anything
+                if (!filter.getProcessors().contains(MatchProcessorRegistry.getInstance().getDefaultOption().getOption())) {
+                    filters.add(new ForwardFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getProcessors()));
+                }
+            } else {
+                filters.add(new ForwardFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getProcessors()));
+            }
         }
         return filters;
     }

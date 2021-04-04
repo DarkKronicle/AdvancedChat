@@ -3,28 +3,35 @@ package net.darkkronicle.advancedchat.config.gui;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.gui.SliderCallbackDouble;
+import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
+import fi.dy.masa.malilib.gui.button.ButtonOnOff;
 import fi.dy.masa.malilib.gui.button.ConfigButtonOptionList;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.ISliderCallback;
 import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList;
 import fi.dy.masa.malilib.gui.widgets.WidgetSlider;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.chat.ChatDispatcher;
-import net.darkkronicle.advancedchat.config.ConfigStorage;
+import net.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetColor;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetLabelHoverable;
 import net.darkkronicle.advancedchat.config.gui.widgets.WidgetToggle;
 import net.darkkronicle.advancedchat.gui.SharingScreen;
+import net.darkkronicle.advancedchat.interfaces.IMatchProcessor;
+import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class GuiFilterEditor extends GuiBase {
@@ -39,6 +46,7 @@ public class GuiFilterEditor extends GuiBase {
     private WidgetToggle setBackgroundColor;
     private WidgetColor backgroundColor;
     private WidgetDropDownList<Filter.NotifySound> widgetDropDown;
+    private OnOffListListener<MatchProcessorRegistry.MatchProcessorOption> processors;
 
     public FilterTab tab = FilterTab.CONFIG;
 
@@ -106,6 +114,11 @@ public class GuiFilterEditor extends GuiBase {
         filter.getBackgroundColor().config.setIntegerValue(backgroundColor.getAndRefreshColor().color());
         filter.getReplaceBackgroundColor().config.setBooleanValue(setBackgroundColor.isCurrentlyOn());
         filter.getNotifySound().config.setOptionListValue(widgetDropDown.getSelectedEntry());
+        ArrayList<IMatchProcessor> newProcessors = new ArrayList<>();
+        for (MatchProcessorRegistry.MatchProcessorOption option : processors.getOn()) {
+            newProcessors.add(option.getOption());
+        }
+        filter.setProcessors(newProcessors);
         ChatDispatcher.getInstance().loadFilters();
     }
 
@@ -140,6 +153,22 @@ public class GuiFilterEditor extends GuiBase {
         replaceString = this.addStringConfigButton(x, y, getWidth() / 2 - 1, 18, filter.getReplaceTo().config);
         ConfigButtonOptionList replaceType = new ConfigButtonOptionList(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, 20, filter.getReplaceType().config);
         this.addButton(replaceType, null);
+        y += findType.getHeight() + 2;
+
+        ConfigOptionList processorOptions = new ConfigOptionList("advancedchat.config.filter.processor", MatchProcessorRegistry.getInstance().getDefaultOption(), "advancedchat.config.filter.info.processor");
+        this.addLabel(x + getWidth() / 2 + 1, y, "advancedchat.config.filter.processortoggle", "advancedchat.config.filter.info.processortoggle");
+        y += this.addLabel(x, y, processorOptions) + 1;
+        WidgetToggle onOff = new WidgetToggle(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, false, "advancedchat.config.filter.processoron", filter.getProcessors().contains(MatchProcessorRegistry.getInstance().getDefaultOption().getOption()));
+        ButtonGeneric processorType = new ButtonGeneric(x, y, getWidth() / 2 - 1, 20, MatchProcessorRegistry.getInstance().getDefaultOption().translate());
+
+        HashMap<MatchProcessorRegistry.MatchProcessorOption, Boolean> on = new HashMap<>();
+        for (MatchProcessorRegistry.MatchProcessorOption option : MatchProcessorRegistry.getInstance().getAll()) {
+            on.put(option, filter.getProcessors().contains(option.getOption()));
+        }
+
+        processors = new OnOffListListener<>(processorType, onOff, on);
+        this.addButton(processorType, processors);
+        this.addButton(onOff, processors.getButtonListener());
         y += findType.getHeight() + 2;
 
         // Text color
@@ -178,6 +207,15 @@ public class GuiFilterEditor extends GuiBase {
         int width = StringUtils.getStringWidth(config.getConfigGuiDisplayName());
         WidgetLabelHoverable label = new WidgetLabelHoverable(x, y, width, 8, ColorUtil.WHITE.color(), config.getConfigGuiDisplayName());
         label.setHoverLines(StringUtils.translate(config.getComment()));
+        this.addWidget(label);
+        return 8;
+    }
+
+    private int addLabel(int x, int y, String nameTranslation, String hoverTranslation) {
+        String display = StringUtils.translate(nameTranslation);
+        int width = StringUtils.getStringWidth(display);
+        WidgetLabelHoverable label = new WidgetLabelHoverable(x, y, width, 8, ColorUtil.WHITE.color(), display);
+        label.setHoverLines(StringUtils.translate(hoverTranslation));
         this.addWidget(label);
         return 8;
     }

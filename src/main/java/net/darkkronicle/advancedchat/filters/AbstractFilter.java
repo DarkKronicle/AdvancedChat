@@ -3,7 +3,7 @@ package net.darkkronicle.advancedchat.filters;
 import lombok.Getter;
 import lombok.Setter;
 import net.darkkronicle.advancedchat.config.Filter;
-import net.minecraft.text.Text;
+import net.darkkronicle.advancedchat.util.FluidText;
 
 import java.util.Optional;
 
@@ -45,6 +45,6 @@ public abstract class AbstractFilter {
      * @param text Text to be filtered.
      * @return An {@link Optional} that if not empty will override the filtered text.
      */
-    public abstract Optional<Text> filter(Text text);
+    public abstract Optional<FluidText> filter(FluidText text);
 
 }

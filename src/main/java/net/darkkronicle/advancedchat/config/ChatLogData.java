@@ -2,7 +2,7 @@ package net.darkkronicle.advancedchat.config;
 
 import lombok.Data;
 import net.darkkronicle.advancedchat.chat.ChatLogMessage;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -13,16 +13,16 @@ import java.util.ArrayList;
 @Data
 public class ChatLogData {
     private ArrayList<ChatLogMessage> messages = new ArrayList<>();
-    private boolean chatLogTime = ConfigStorage.ChatLogConfig.SHOW_TIME.config.getBooleanValue();
+    private boolean chatLogTime = ConfigStorage.ChatLog.SHOW_TIME.config.getBooleanValue();
     private boolean chatHudTime = ConfigStorage.ChatScreen.SHOW_TIME.config.getBooleanValue();
 
     public void addMessage(ChatLogMessage message) {
-        boolean showtime = ConfigStorage.ChatLogConfig.SHOW_TIME.config.getBooleanValue();
+        boolean showtime = ConfigStorage.ChatLog.SHOW_TIME.config.getBooleanValue();
         if (showtime) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern(ConfigStorage.General.TIME_FORMAT.config.getStringValue());
-            SplitText split = new SplitText(message.getOriginalText());
+            FluidText split = new FluidText(message.getOriginalText());
             split.addTime(format, message.getTime());
-            message.setDisplayText(split.getText(), 600);
+            message.setDisplayText(split, 600);
         }
 
         messages.add(message);

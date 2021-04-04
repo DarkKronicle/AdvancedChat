@@ -4,10 +4,9 @@ import net.darkkronicle.advancedchat.filters.ReplaceFilter;
 import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import net.darkkronicle.advancedchat.config.Filter;
 import net.darkkronicle.advancedchat.util.SearchUtils;
-import net.darkkronicle.advancedchat.util.SplitText;
+import net.darkkronicle.advancedchat.util.FluidText;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
@@ -41,8 +40,8 @@ public class RainbowTextReplace implements IMatchReplace {
     }
 
     @Override
-    public Optional<Text> filter(ReplaceFilter filter, SplitText text, List<SearchUtils.StringMatch> matches) {
-        HashMap<SearchUtils.StringMatch, SplitText.StringInsert> toReplace = new HashMap<>();
+    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, List<SearchUtils.StringMatch> matches) {
+        HashMap<SearchUtils.StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();
         for (SearchUtils.StringMatch m : matches) {
             Optional<List<SearchUtils.StringMatch>> ocharMatches = SearchUtils.findMatches(m.match, "(?<!§)[^§]", Filter.FindType.REGEX);
             if (!ocharMatches.isPresent()) {
@@ -50,10 +49,10 @@ public class RainbowTextReplace implements IMatchReplace {
             }
             for (SearchUtils.StringMatch match : ocharMatches.get()) {
                 toReplace.put(new SearchUtils.StringMatch(match.match, match.start + m.start, match.end + m.start), (current1, match1) ->
-                        new SplitText(current1.withMessage(match1.match).withStyle(current1.getStyle().withColor(next()))));
+                        new FluidText(current1.withMessage(match1.match).withStyle(current1.getStyle().withColor(next()))));
             }
         }
         text.replaceStrings(toReplace);
-        return Optional.of(text.getText());
+        return Optional.of(text);
     }
 }

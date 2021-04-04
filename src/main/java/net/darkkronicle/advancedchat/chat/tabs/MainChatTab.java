@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.darkkronicle.advancedchat.AdvancedChat;
 import net.darkkronicle.advancedchat.chat.ChatLogMessage;
 import net.darkkronicle.advancedchat.config.ConfigStorage;
-import net.darkkronicle.advancedchat.chat.AdvancedChatMessage;
+import net.darkkronicle.advancedchat.chat.ChatMessage;
 import net.darkkronicle.advancedchat.config.ChatTab;
 import net.minecraft.text.*;
 
@@ -30,7 +30,7 @@ public class MainChatTab extends AbstractChatTab {
     }
 
     @Override
-    public void addMessage(AdvancedChatMessage line) {
+    public void addMessage(ChatMessage line) {
 
         boolean forward = true;
         ArrayList<AbstractChatTab> added = new ArrayList<>();

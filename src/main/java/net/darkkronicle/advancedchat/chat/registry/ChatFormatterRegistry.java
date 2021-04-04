@@ -2,41 +2,36 @@ package net.darkkronicle.advancedchat.chat.registry;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
-import lombok.Getter;
-import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import net.darkkronicle.advancedchat.interfaces.IMessageFormatter;
 import net.darkkronicle.advancedchat.interfaces.RegistryOption;
 
-import java.util.ArrayList;
+public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, ChatFormatterRegistry.ChatFormatterOption> {
 
-public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchReplaceRegistry.MatchReplaceOption> {
+    private final static ChatFormatterRegistry INSTANCE = new ChatFormatterRegistry();
 
-    private MatchReplaceRegistry() {
-
-    }
-
-    private static final MatchReplaceRegistry INSTANCE = new MatchReplaceRegistry();
-
-
-    public static MatchReplaceRegistry getInstance() {
+    public static ChatFormatterRegistry getInstance() {
         return INSTANCE;
     }
 
+    private ChatFormatterRegistry() {
 
-    @Override
-    public MatchReplaceOption constructOption(IMatchReplace iMatchReplace, String saveString, String translation, boolean setDefault) {
-        return new MatchReplaceOption(iMatchReplace, saveString, translation, this);
     }
 
-    public static class MatchReplaceOption implements IConfigOptionListEntry, RegistryOption<IMatchReplace> {
+    @Override
+    public ChatFormatterOption constructOption(IMessageFormatter iMessageFormatter, String saveString, String translation, boolean setDefault) {
+        return new ChatFormatterOption(iMessageFormatter, saveString, translation, this);
+    }
 
-        private final IMatchReplace replace;
+    public static class ChatFormatterOption implements IConfigOptionListEntry, RegistryOption<IMessageFormatter> {
+
+        private final IMessageFormatter formatter;
         private final String saveString;
         private final String translation;
-        private final MatchReplaceRegistry registry;
+        private final ChatFormatterRegistry registry;
 
         // Only register
-        private MatchReplaceOption(IMatchReplace replace, String saveString, String translation, MatchReplaceRegistry registry) {
-            this.replace = replace;
+        private ChatFormatterOption(IMessageFormatter formatter, String saveString, String translation, ChatFormatterRegistry registry) {
+            this.formatter = formatter;
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
@@ -64,8 +59,8 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
 
 
         @Override
-        public IMatchReplace getOption() {
-            return replace;
+        public IMessageFormatter getOption() {
+            return formatter;
         }
 
         @Override

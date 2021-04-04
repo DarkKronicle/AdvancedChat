@@ -4,8 +4,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.ChatMessages;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
@@ -16,7 +14,6 @@ import net.minecraft.util.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Class to format text without losing data
@@ -220,15 +217,15 @@ public class StyleFormatter {
      * @param text Text to reformat
      * @return Formatted text
      */
-    public static Text formatText(Text text) {
-        SplitText t = new SplitText();
-        int length = new SplitText(text).getFullMessage().length();
+    public static FluidText formatText(FluidText text) {
+        FluidText t = new FluidText();
+        int length = text.getString().length();
         StyleFormatter formatter = new StyleFormatter((c, index, formattedIndex, style, formattedStyle) -> {
-            t.append(new SimpleText(String.valueOf(c), formattedStyle), false);
+            t.append(new RawText(String.valueOf(c), formattedStyle), false);
             return true;
         }, length);
         text.visit(formatter::updateStyle, Style.EMPTY);
-        return t.getText();
+        return t;
     }
 
     /**
@@ -239,33 +236,10 @@ public class StyleFormatter {
      * @param text Text to break up
      * @return List of MutableText of the new lines
      */
-    public static List<MutableText> wrapText(TextRenderer textRenderer, int scaledWidth, Text text) {
-        ArrayList<MutableText> lines = new ArrayList<>();
+    public static List<Text> wrapText(TextRenderer textRenderer, int scaledWidth, Text text) {
+        ArrayList<Text> lines = new ArrayList<>();
         for (OrderedText breakRenderedChatMessageLine : ChatMessages.breakRenderedChatMessageLines(text, scaledWidth, textRenderer)) {
-            MutableText newLine = new LiteralText("");
-
-            AtomicReference<Style> oldStyle = new AtomicReference<>(null);
-            AtomicReference<String> s = new AtomicReference<>("");
-
-            breakRenderedChatMessageLine.accept((index, style, codePoint) -> {
-                if (oldStyle.get() == null) {
-                    oldStyle.set(style);
-                }
-
-                if (oldStyle.get() != style) {
-                    newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
-                    oldStyle.set(style);
-                    s.set("");
-                }
-
-                s.set(s.get() + (char) codePoint);
-                return true;
-            });
-
-            if (!s.get().isEmpty()) {
-                newLine.append(new LiteralText(s.get()).setStyle(oldStyle.get()));
-            }
-            lines.add(newLine);
+            lines.add(new FluidText(breakRenderedChatMessageLine));
         }
         return lines;
     }

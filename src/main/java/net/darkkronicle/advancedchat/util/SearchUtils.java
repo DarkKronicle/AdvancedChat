@@ -93,16 +93,33 @@ public class SearchUtils {
         }
         Set<StringMatch> matches = new TreeSet<>();
         Matcher matcher = pattern.matcher(input);
-        addMatches(matches, matcher);
+        addMatches(matches, matcher, 1000);
         if (matches.size() != 0) {
             return Optional.of(new ArrayList<>(matches));
         }
         return Optional.empty();
     }
 
-    private void addMatches(Set<StringMatch> matches, Matcher matcher) {
+    public Optional<StringMatch> getMatch(String input, String toMatch, Filter.FindType type) {
+        if (type == Filter.FindType.ALL) {
+            return Optional.of(new StringMatch(input, 0, input.length()));
+        }
+        Pattern pattern = compilePattern(toMatch, type);
+        if (pattern == null) {
+            return Optional.empty();
+        }
+        Set<StringMatch> matches = new TreeSet<>();
+        Matcher matcher = pattern.matcher(input);
+        addMatches(matches, matcher, 1);
+        if (matches.size() != 0) {
+            return Optional.of(matches.toArray(new StringMatch[0])[0]);
+        }
+        return Optional.empty();
+    }
+
+    private void addMatches(Set<StringMatch> matches, Matcher matcher, int limit) {
         int i = 0;
-        while (matcher.find() && i < 1000) {
+        while (matcher.find() && i < limit) {
             matches.add(new StringMatch(matcher.group(), matcher.start(), matcher.end()));
             i++;
         }
@@ -141,11 +158,11 @@ public class SearchUtils {
      * @param text Text to search
      * @return Owner of the message
      */
-    public MessageOwner getAuthor(ClientPlayNetworkHandler networkHandler, Text text) {
+    public MessageOwner getAuthor(ClientPlayNetworkHandler networkHandler, String text) {
         if (networkHandler == null) {
             return null;
         }
-        Optional<List<SearchUtils.StringMatch>> words = SearchUtils.findMatches(stripColorCodes(text.getString()), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+        Optional<List<SearchUtils.StringMatch>> words = SearchUtils.findMatches(stripColorCodes(text), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
         if (!words.isPresent()) {
             return null;
         }

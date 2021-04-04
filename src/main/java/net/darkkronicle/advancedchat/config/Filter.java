@@ -12,10 +12,12 @@ import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
 import lombok.Data;
+import net.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import net.darkkronicle.advancedchat.chat.registry.MatchReplaceRegistry;
 import net.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
 import net.darkkronicle.advancedchat.filters.processors.ChatTabProcessor;
 import net.darkkronicle.advancedchat.interfaces.IJsonSave;
+import net.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import net.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import net.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.darkkronicle.advancedchat.util.ColorUtil;
@@ -83,10 +85,10 @@ public class Filter implements Comparable<Filter> {
      * FULLLINE replaces the full message.
      */
     private ConfigStorage.SaveableConfig<ConfigOptionList> replaceType = ConfigStorage.SaveableConfig.fromConfig("replaceType",
-            new ConfigOptionList(translate("replacetype"), MatchReplaceRegistry.getInstance().getDefaultReplace(), translate("info.replacetype")));
+            new ConfigOptionList(translate("replacetype"), MatchReplaceRegistry.getInstance().getDefaultOption(), translate("info.replacetype")));
 
     public IMatchReplace getReplace() {
-        return ((MatchReplaceRegistry.MatchReplaceOption) replaceType.config.getOptionListValue()).getReplace();
+        return ((MatchReplaceRegistry.MatchReplaceOption) replaceType.config.getOptionListValue()).getOption();
     }
 
     /**
@@ -125,7 +127,7 @@ public class Filter implements Comparable<Filter> {
 
     private ArrayList<Filter> children = new ArrayList<>();
 
-    private ArrayList<IMessageProcessor> processors = new ArrayList<>(Collections.singleton(new ChatTabProcessor()));
+    private ArrayList<IMatchProcessor> processors = new ArrayList<>(Collections.singleton(MatchProcessorRegistry.getInstance().getDefaultOption().getOption()));
 
     private final ImmutableList<ConfigStorage.SaveableConfig<?>> options = ImmutableList.of(
             name,
@@ -173,6 +175,20 @@ public class Filter implements Comparable<Filter> {
                     option.setValueFromJsonElement(obj.get(conf.key));
                 }
             }
+
+            JsonElement processors = obj.get("processors");
+            if (processors != null && processors.isJsonArray()) {
+                ArrayList<IMatchProcessor> newProcessors = new ArrayList<>();
+                for (JsonElement o : processors.getAsJsonArray()) {
+                    String s = o.getAsString();
+                    MatchProcessorRegistry.MatchProcessorOption option = MatchProcessorRegistry.getInstance().get(s);
+                    if (option != null) {
+                        newProcessors.add(option.getOption());
+                    }
+                }
+                f.setProcessors(newProcessors);
+            }
+
             JsonElement children = obj.get("children");
             if (children != null && children.isJsonArray()) {
                 ArrayList<Filter> child = new ArrayList<>();
@@ -193,6 +209,15 @@ public class Filter implements Comparable<Filter> {
             for (ConfigStorage.SaveableConfig<?> option : filter.getOptions()) {
                 obj.add(option.key, option.config.getAsJsonElement());
             }
+
+            JsonArray processors = new JsonArray();
+            for (MatchProcessorRegistry.MatchProcessorOption o : MatchProcessorRegistry.getInstance().getAll()) {
+                if (filter.getProcessors().contains(o.getOption())) {
+                    processors.add(o.getStringValue());
+                }
+            }
+            obj.add("processors", processors);
+
             for (Filter c : filter.getChildren()) {
                 children.add(save(c));
             }
