@@ -46,6 +46,9 @@ dependencies {
     implementation "com.github.maowcraft:owo:${project.owo_version}"
     include "com.github.maowcraft:owo:${project.owo_version}"
 
+    implementation "org.mariuszgromada.math:MathParser.org-mXparser:4.4.2"
+    include "org.mariuszgromada.math:MathParser.org-mXparser:${project.mxparser_version}"
+
 }
 
 processResources {

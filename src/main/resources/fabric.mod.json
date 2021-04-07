@@ -15,10 +15,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "net.darkkronicle.advancedchat.AdvancedChat"
+      "io.github.darkkronicle.advancedchat.AdvancedChat"
     ],
     "modmenu": [
-      "net.darkkronicle.advancedchat.config.gui.ModMenuImpl"
+      "io.github.darkkronicle.advancedchat.config.gui.ModMenuImpl"
     ]
   },
   "mixins": [
