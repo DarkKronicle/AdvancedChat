@@ -1,17 +1,22 @@
 package io.github.darkkronicle.advancedchat.chat;
 
-import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.context.StringRange;
+import com.mojang.brigadier.suggestion.Suggestions;
+import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.chat.registry.ChatFormatterRegistry;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.RawText;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.command.CommandSource;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
@@ -20,19 +25,39 @@ public class ChatFormatter {
     private String current = null;
     private FluidText last = null;
     private final TextFieldWidget widget;
+    private final ChatSuggestor suggestor;
 
-    public ChatFormatter(TextFieldWidget widget) {
+    public ChatFormatter(TextFieldWidget widget, ChatSuggestor suggestor) {
         this.widget = widget;
+        this.suggestor = suggestor;
     }
 
 
-    public FluidText format(String string, ParseResults<CommandSource> parse) {
+    public FluidText format(String string) {
         FluidText text = new FluidText(new RawText(string, Style.EMPTY));
         if (string.length() == 0) {
             return text;
         }
+        if (suggestor.getAllSuggestions() != null) {
+            HashMap<StringMatch, FluidText.StringInsert> format = new HashMap<>();
+            for (Suggestions suggestions : suggestor.getAllSuggestions()) {
+                StringRange range = suggestions.getRange();
+                String matchString = string.subSequence(range.getStart(), range.getEnd()).toString();
+                format.put(new StringMatch(matchString, range.getStart(), range.getEnd()), (current, match) -> {
+                    Style style = Style.EMPTY;
+                    style = style.withFormatting(Formatting.UNDERLINE);
+                    TextColor textColor = TextColor.fromRgb(ConfigStorage.ChatSuggestor.AVAILABLE_SUGGESTION_COLOR.config.getSimpleColor().color());
+                    style = style.withColor(textColor);
+                    return new FluidText(new RawText(matchString, style));
+                });
+            }
+            text.replaceStrings(format);
+        }
         for (ChatFormatterRegistry.ChatFormatterOption option : ChatFormatterRegistry.getInstance().getAll()) {
-            Optional<FluidText> otext = option.getOption().format(text, parse);
+            if (!option.isActive()) {
+                continue;
+            }
+            Optional<FluidText> otext = option.getOption().format(text, suggestor.getParse());
             if (otext.isPresent()) {
                 text = otext.get();
             }
@@ -45,17 +70,17 @@ public class ChatFormatter {
         if (length == 0) {
             return OrderedText.EMPTY;
         }
-        return last.truncate(new SearchUtils.StringMatch(s, integer, integer + length)).asOrderedText();
+        return last.truncate(new StringMatch(s, integer, integer + length)).asOrderedText();
     }
 
 
-    public OrderedText apply(String s, Integer integer, ParseResults<CommandSource> parse) {
+    public OrderedText apply(String s, Integer integer) {
         String text = widget.getText();
         if (text.equals(current)) {
             return set(s, integer);
         }
         current = text;
-        last = format(text, parse);
+        last = format(text);
         return set(s, integer);
     }
 }

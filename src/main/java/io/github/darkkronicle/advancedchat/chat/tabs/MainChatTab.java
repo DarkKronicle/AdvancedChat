@@ -2,10 +2,12 @@ package io.github.darkkronicle.advancedchat.chat.tabs;
 
 import io.github.darkkronicle.advancedchat.chat.ChatMessage;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
+import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import lombok.Getter;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
 import io.github.darkkronicle.advancedchat.chat.ChatLogMessage;
 import io.github.darkkronicle.advancedchat.config.ChatTab;
+import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.text.*;
 
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ public class MainChatTab extends AbstractChatTab {
     private ArrayList<AbstractChatTab> allChatTabs = new ArrayList<>();
     @Getter
     private ArrayList<CustomChatTab> customChatTabs = new ArrayList<>();
+
+    public static boolean nextSend = false;
 
     public MainChatTab() {
         super("Main", "Main");
@@ -34,9 +38,21 @@ public class MainChatTab extends AbstractChatTab {
 
         boolean forward = true;
         ArrayList<AbstractChatTab> added = new ArrayList<>();
+        if (nextSend) {
+            nextSend = false;
+            AbstractChatTab defaultTo = AdvancedChatHud.getInstance().getCurrentTab();
+            defaultTo.addMessage(line, true);
+            if (defaultTo.equals(this)) {
+                forward = false;
+            }
+            added.add(defaultTo);
+        }
         if (customChatTabs.size() > 0) {
             for (CustomChatTab tab : customChatTabs) {
                 if (!tab.shouldAdd(line.getOriginalText())) {
+                    continue;
+                }
+                if (added.contains(tab)) {
                     continue;
                 }
                 tab.addMessage(line);
@@ -50,6 +66,7 @@ public class MainChatTab extends AbstractChatTab {
         if (forward) {
             added.add(this);
         }
+
         AdvancedChat.getChatLogData().addMessage(new ChatLogMessage(line, added.toArray(new AbstractChatTab[0])));
         if (!forward) {
             return;

@@ -35,7 +35,10 @@ public class EmotesSuggestor implements IMessageSuggestor {
                     break;
                 }
                 char n = string.charAt(i);
-                if (n == ' ' || n == ':') {
+                if (n == ' ') {
+                    end = i;
+                    break;
+                } else if (n == ':') {
                     i--;
                     end = i;
                     break;

@@ -97,7 +97,11 @@ public abstract class AbstractChatTab {
     }
 
     public void addMessage(ChatMessage line) {
-        if (!shouldAdd(line.getDisplayText())) {
+        addMessage(line, false);
+    }
+
+    public void addMessage(ChatMessage line, boolean force) {
+        if (!force && !shouldAdd(line.getDisplayText())) {
             return;
         }
         // Whether or not to override one
@@ -151,7 +155,7 @@ public abstract class AbstractChatTab {
     }
 
     public int getPaddedWidth() {
-        return getScaledWidth() - ConfigStorage.ChatScreen.LEFT_PAD.config.getIntegerValue() - ConfigStorage.ChatScreen.RIGHT_PAD.config.getIntegerValue();
+        return getScaledWidth() - ConfigStorage.ChatScreen.LEFT_PAD.config.getIntegerValue() - ConfigStorage.ChatScreen.RIGHT_PAD.config.getIntegerValue() - headOffset();
     }
 
     private int getActualY(int y) {
@@ -163,7 +167,11 @@ public abstract class AbstractChatTab {
     }
 
     private int getPaddedLeftX() {
-        return getLeftX() + (int) Math.ceil(ConfigStorage.ChatScreen.LEFT_PAD.config.getIntegerValue() + (ConfigStorage.General.CHAT_HEADS.config.getBooleanValue() ? 10 : 0) / getScale());
+        return getLeftX() + (int) Math.ceil(ConfigStorage.ChatScreen.LEFT_PAD.config.getIntegerValue() + headOffset() / getScale());
+    }
+
+    private int headOffset() {
+        return ConfigStorage.General.CHAT_HEADS.config.getBooleanValue() ? 10 : 0;
     }
 
     private double getScale() {
@@ -279,6 +287,7 @@ public abstract class AbstractChatTab {
             int timeAlive = ticks - line.getParent().getCreationTick();
             float percent = (float) Math.min(1, (double) (timeAlive - fadeStart) / (double) (fadeStop - fadeStart));
             applied = 1 - (float) ((EasingMethod) ConfigStorage.ChatScreen.FADE_TYPE.config.getOptionListValue()).apply(percent);
+            applied = Math.max(0, applied);
             if (applied <= 0) {
                 return;
             }

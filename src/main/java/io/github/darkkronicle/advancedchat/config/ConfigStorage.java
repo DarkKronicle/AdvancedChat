@@ -167,6 +167,8 @@ public class ConfigStorage implements IConfigHandler {
                 new ConfigBoolean(translate("persistenttext"), false, translate("info.persistenttext")));
         public final static SaveableConfig<ConfigBoolean> MORE_TEXT = SaveableConfig.fromConfig("moreText",
                 new ConfigBoolean(translate("moretext"), false, translate("info.moretext")));
+        public final static SaveableConfig<ConfigBoolean> SEND_TO_CURRENT_TAB = SaveableConfig.fromConfig("sendToCurrentTab",
+                new ConfigBoolean(translate("sendtocurrenttab"), false, translate("info.sendtocurrenttab")));
 
         public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
                 WIDTH,
@@ -193,7 +195,8 @@ public class ConfigStorage implements IConfigHandler {
                 SHOW_TIME,
                 STORED_LINES,
                 PERSISTENT_TEXT,
-                MORE_TEXT
+                MORE_TEXT,
+                SEND_TO_CURRENT_TAB
         );
     }
 
@@ -239,6 +242,10 @@ public class ConfigStorage implements IConfigHandler {
                 new ConfigInteger(translate("suggestionsize"), 10, 1, 50, translate("info.suggestionsize")));
         public final static SaveableConfig<ConfigBoolean> REMOVE_IDENTIFIER = SaveableConfig.fromConfig("removeIdentifier",
                 new ConfigBoolean(translate("removeidentifier"), true, translate("info.removeidentifier")));
+        public final static SaveableConfig<ConfigBoolean> PRUNE_PLAYER_SUGGESTIONS = SaveableConfig.fromConfig("prunePlayerSuggestions",
+                new ConfigBoolean(translate("pruneplayersuggestions"), true, translate("info.pruneplayersuggestions")));
+        public final static SaveableConfig<ConfigSimpleColor> AVAILABLE_SUGGESTION_COLOR = SaveableConfig.fromConfig("availableSuggestionColor",
+                new ConfigSimpleColor(translate("availablesuggestioncolor"), new ColorUtil.SimpleColor(150, 150, 150, 255), translate("info.availablesuggestioncolor")));
 
 
         public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
@@ -246,7 +253,9 @@ public class ConfigStorage implements IConfigHandler {
                 UNHIGHLIGHT_COLOR,
                 BACKGROUND_COLOR,
                 SUGGESTION_SIZE,
-                REMOVE_IDENTIFIER
+                REMOVE_IDENTIFIER,
+                PRUNE_PLAYER_SUGGESTIONS,
+                AVAILABLE_SUGGESTION_COLOR
         );
 
     }

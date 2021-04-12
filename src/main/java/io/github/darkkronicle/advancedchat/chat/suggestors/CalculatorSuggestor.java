@@ -6,6 +6,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.mariuszgromada.math.mxparser.Expression;
@@ -26,13 +27,13 @@ public class CalculatorSuggestor implements IMessageSuggestor {
         if (!text.contains("[") || !text.contains("]")) {
             return Optional.empty();
         }
-        List<SearchUtils.StringMatch> matches = SearchUtils.findMatches(text, BRACKET_REGEX, Filter.FindType.REGEX).orElse(null);
+        List<StringMatch> matches = SearchUtils.findMatches(text, BRACKET_REGEX, Filter.FindType.REGEX).orElse(null);
         if (matches == null) {
             return Optional.empty();
         }
         int last = -1;
         ArrayList<Suggestions> suggest = new ArrayList<>();
-        for (SearchUtils.StringMatch m : matches) {
+        for (StringMatch m : matches) {
             if (m.start < last || m.end - m.start < 1) {
                 // Don't want overlapping matches (just in case) or too small
                 continue;

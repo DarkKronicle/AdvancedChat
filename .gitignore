@@ -2,6 +2,7 @@
 *.iml
 *.ipr
 *.iws
+lib/
 run/
 out/
 build/

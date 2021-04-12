@@ -56,9 +56,14 @@ This isn't all the features, so try it out for yourself!
 
 ## What do all the branches and versioning mean?
 
-- v2 - *Master branch, all work goes to here.*
-- v2-1.15 - *Back port of the main branch. For features to be added, it gets added to v2 first.*
+- v3 - *Master branch, all work goes here.*
+- v2 - *Second main version, also bad code*
+- v2-1.15 - *Back port of the v2 branch*
 - v1 - *First version of AdvancedChat. Old and bad code.*
+
+## How to build?
+
+Build it like other Fabric mods. Run `./gradlew build` to have gradle build the source. You'll need to put [suggester-basic/lib/suggester-1.1.2.jar](http://www.softcorporation.com/products/suggester/) in `./lib/suggester-1.1.2.jar` as well as `english.jar` in `./lib/english.jar`
 
 ## Credits and other
 
@@ -66,7 +71,9 @@ Code & Mastermind: DarkKronicle
 
 Update to 1.16.3: Imichaelis
 
-Logo & Proofreading: Chronos22Gamer
+Logo & Proofreading: Chronos22
+
+SpellChecking Algoirthm: [SoftCorporationLLC](http://www.softcorporation.com/products/suggester/)
 
 Idea of Chat Heads: [dzwdz](https://github.com/dzwdz/chat_heads/blob/fabric-1.16.x/)
 

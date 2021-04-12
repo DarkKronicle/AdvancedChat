@@ -1,8 +1,16 @@
 package io.github.darkkronicle.advancedchat.chat.registry;
 
+import fi.dy.masa.malilib.config.IConfigOptionListEntry;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
+import fi.dy.masa.malilib.util.StringUtils;
+import io.github.darkkronicle.advancedchat.config.ConfigStorage;
+import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
 import io.github.darkkronicle.advancedchat.interfaces.RegistryOption;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
+@Environment(EnvType.CLIENT)
 public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, ChatSuggestorRegistry.ChatSuggestorOption> {
 
     private static final ChatSuggestorRegistry INSTANCE = new ChatSuggestorRegistry();
@@ -13,20 +21,41 @@ public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, C
 
 
     @Override
-    public ChatSuggestorOption constructOption(IMessageSuggestor iMessageSuggestor, String saveString, String translation, boolean setDefault) {
-        return new ChatSuggestorOption(iMessageSuggestor, saveString, translation);
+    public ChatSuggestorOption constructOption(IMessageSuggestor iMessageSuggestor, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+        return new ChatSuggestorOption(iMessageSuggestor, saveString, translation, infoTranslation, active, this);
     }
 
-    public static class ChatSuggestorOption implements RegistryOption<IMessageSuggestor> {
+    @Override
+    public ChatSuggestorRegistry clone() {
+        ChatSuggestorRegistry registry = new ChatSuggestorRegistry();
+        for (ChatSuggestorOption o : getAll()) {
+            registry.add(o.copy(registry));
+        }
+        return registry;
+    }
+
+    public static class ChatSuggestorOption implements ConfigRegistryOption<IMessageSuggestor> {
 
         public final String translation;
         public final String saveString;
-        private final IMessageSuggestor suggestor;
+        private final String infoTranslation;
+        private final ChatSuggestorRegistry registry;
 
-        public ChatSuggestorOption(IMessageSuggestor suggestor, String saveString, String translation) {
+        private final IMessageSuggestor suggestor;
+        private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
+
+        public ChatSuggestorOption(IMessageSuggestor suggestor, String saveString, String translation, String infoTranslation, boolean active, ChatSuggestorRegistry registry) {
             this.saveString = saveString;
             this.suggestor = suggestor;
             this.translation = translation;
+            this.infoTranslation = infoTranslation;
+            this.registry = registry;
+            this.active = ConfigStorage.SaveableConfig.fromConfig(saveString, new ConfigBoolean(translation, active, infoTranslation));
+        }
+
+        @Override
+        public ConfigStorage.SaveableConfig<ConfigBoolean> getActive() {
+            return active;
         }
 
         @Override
@@ -37,6 +66,31 @@ public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, C
         @Override
         public String getSaveString() {
             return saveString;
+        }
+
+        @Override
+        public ChatSuggestorOption copy(AbstractRegistry<IMessageSuggestor, ?> registry) {
+            return new ChatSuggestorOption(getOption(), saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (ChatSuggestorRegistry) registry);
+        }
+
+        @Override
+        public String getStringValue() {
+            return saveString;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return StringUtils.translate(translation);
+        }
+
+        @Override
+        public IConfigOptionListEntry cycle(boolean forward) {
+            return registry.getNext(this, forward);
+        }
+
+        @Override
+        public IConfigOptionListEntry fromString(String value) {
+            return null;
         }
     }
 }

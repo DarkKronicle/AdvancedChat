@@ -1,6 +1,8 @@
 package io.github.darkkronicle.advancedchat.filters;
 
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import lombok.Getter;
 import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
@@ -45,11 +47,11 @@ public class ReplaceFilter extends AbstractFilter {
             return Optional.empty();
         }
         if (type.matchesOnly()) {
-            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(text.getString(), super.filterString, findType);
-            if (!omatches.isPresent()) {
+            SearchResult search = SearchResult.searchOf(text.getString(), super.filterString, findType);
+            if (search.size() == 0) {
                 return Optional.empty();
             }
-            return type.filter(this, text, omatches.get());
+            return type.filter(this, text, search);
         } else {
             return type.filter(this, text, null);
         }

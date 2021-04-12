@@ -3,8 +3,10 @@ package io.github.darkkronicle.advancedchat.filters.matchreplace;
 import io.github.darkkronicle.advancedchat.filters.AbstractFilter;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.util.FluidText;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -16,12 +18,12 @@ import java.util.Optional;
 public class ChildrenTextReplace implements IMatchReplace {
 
     @Override
-    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, List<SearchUtils.StringMatch> matches) {
+    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, SearchResult search) {
         // We don't want new filters to modify what old filters would already have done.
         // It would lead to repeats of words, and just other kinds of messes.
         // To combat this we modify all the matches that haven't been matched yet based off of the new string length.
-        for (int i = 0; i < matches.size(); i++) {
-            SearchUtils.StringMatch match = matches.get(i);
+        for (int i = 0; i < search.getMatches().size(); i++) {
+            StringMatch match = search.getMatches().get(i);
             FluidText current = text.truncate(match);
             if (current == null) {
                 continue;
@@ -29,7 +31,7 @@ public class ChildrenTextReplace implements IMatchReplace {
             for (AbstractFilter f : filter.getChildren()) {
                 Optional<FluidText> filteredText = f.filter(current);
                 if (filteredText.isPresent()) {
-                    HashMap<SearchUtils.StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();
+                    HashMap<StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();
 
                     // Get old length and new length. As well as modify the message that is currently being modified
                     // in the match
@@ -38,8 +40,8 @@ public class ChildrenTextReplace implements IMatchReplace {
                     int newLength = current.getString().length();
                     int modifyLength = newLength - oldLength;
                     // Take the new length and figure out how much each match needs to move to have it work.
-                    for (int j = i + 1; j < matches.size(); j++) {
-                        SearchUtils.StringMatch m = matches.get(j);
+                    for (int j = i + 1; j < search.getMatches().size(); j++) {
+                        StringMatch m = search.getMatches().get(j);
                         m.start += modifyLength;
                         m.end += modifyLength;
                     }

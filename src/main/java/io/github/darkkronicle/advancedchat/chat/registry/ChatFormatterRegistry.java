@@ -1,10 +1,16 @@
 package io.github.darkkronicle.advancedchat.chat.registry;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.util.StringUtils;
+import io.github.darkkronicle.advancedchat.config.ConfigStorage;
+import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageFormatter;
 import io.github.darkkronicle.advancedchat.interfaces.RegistryOption;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
+@Environment(EnvType.CLIENT)
 public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, ChatFormatterRegistry.ChatFormatterOption> {
 
     private final static ChatFormatterRegistry INSTANCE = new ChatFormatterRegistry();
@@ -18,23 +24,41 @@ public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, C
     }
 
     @Override
-    public ChatFormatterOption constructOption(IMessageFormatter iMessageFormatter, String saveString, String translation, boolean setDefault) {
-        return new ChatFormatterOption(iMessageFormatter, saveString, translation, this);
+    public ChatFormatterRegistry clone() {
+        ChatFormatterRegistry registry = new ChatFormatterRegistry();
+        for (ChatFormatterOption o : getAll()) {
+            registry.add(o.copy(registry));
+        }
+        return registry;
     }
 
-    public static class ChatFormatterOption implements IConfigOptionListEntry, RegistryOption<IMessageFormatter> {
+    @Override
+    public ChatFormatterOption constructOption(IMessageFormatter iMessageFormatter, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+        return new ChatFormatterOption(iMessageFormatter, saveString, translation, infoTranslation, active, this);
+    }
+
+    public static class ChatFormatterOption implements ConfigRegistryOption<IMessageFormatter> {
 
         private final IMessageFormatter formatter;
         private final String saveString;
         private final String translation;
+        private final String infoTranslation;
         private final ChatFormatterRegistry registry;
+        private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
 
         // Only register
-        private ChatFormatterOption(IMessageFormatter formatter, String saveString, String translation, ChatFormatterRegistry registry) {
+        private ChatFormatterOption(IMessageFormatter formatter, String saveString, String translation, String infoTranslation, boolean active, ChatFormatterRegistry registry) {
             this.formatter = formatter;
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
+            this.infoTranslation = infoTranslation;
+            this.active = ConfigStorage.SaveableConfig.fromConfig(saveString, new ConfigBoolean(translation, active, infoTranslation));
+        }
+
+        @Override
+        public ConfigStorage.SaveableConfig<ConfigBoolean> getActive() {
+            return active;
         }
 
         @Override
@@ -67,6 +91,13 @@ public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, C
         public String getSaveString() {
             return saveString;
         }
+
+        @Override
+        public ChatFormatterOption copy(AbstractRegistry<IMessageFormatter, ?> registry) {
+            return new ChatFormatterOption(formatter, saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (ChatFormatterRegistry) registry);
+        }
+
+
     }
 
 }

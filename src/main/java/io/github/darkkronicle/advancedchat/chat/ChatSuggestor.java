@@ -8,7 +8,6 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.darkkronicle.advancedchat.chat.registry.ChatSuggestorRegistry;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
 import lombok.Getter;
@@ -21,7 +20,6 @@ import net.minecraft.command.CommandSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -95,6 +93,9 @@ public class ChatSuggestor {
         int wordIndex = getLastWord(startToCursor);
         ArrayList<Suggestions> suggestions = new ArrayList<>();
         for (ChatSuggestorRegistry.ChatSuggestorOption option : ChatSuggestorRegistry.getInstance().getAll()) {
+            if (!option.isActive()) {
+                continue;
+            }
             IMessageSuggestor suggestor = option.getOption();
             Optional<List<Suggestions>> suggestion = suggestor.suggest(textField.getText());
             suggestion.ifPresent(suggestions::addAll);
@@ -110,6 +111,9 @@ public class ChatSuggestor {
         String lastWord = input.substring(start);
         StringRange r = new StringRange(start, input.length());
         for (ChatSuggestorRegistry.ChatSuggestorOption option : ChatSuggestorRegistry.getInstance().getAll()) {
+            if (!option.isActive()) {
+                continue;
+            }
             Optional<List<Suggestion>> s = option.getOption().suggestCurrentWord(lastWord, r);
             s.ifPresent(newSuggestions::addAll);
         }

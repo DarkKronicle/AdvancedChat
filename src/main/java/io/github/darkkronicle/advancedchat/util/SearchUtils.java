@@ -124,31 +124,7 @@ public class SearchUtils {
         }
     }
 
-    /**
-     * Storage class that contains Matcher.match info. Used with {@link #findMatches(String, String, Filter.FindType)} and {@link #isMatch(String, String, Filter.FindType)}
-     */
-    @AllArgsConstructor
-    public static class StringMatch implements Comparable<StringMatch> {
-        /**
-         * The content that was matched
-         */
-        public String match;
 
-        /**
-         * The index of the start of the match
-         */
-        public Integer start;
-
-        /**
-         * The index of the end of the match
-         */
-        public Integer end;
-
-        @Override
-        public int compareTo(StringMatch o) {
-            return start.compareTo(o.start);
-        }
-    }
 
     /**
      * Get the author of a message using regex
@@ -161,14 +137,14 @@ public class SearchUtils {
         if (networkHandler == null) {
             return null;
         }
-        Optional<List<SearchUtils.StringMatch>> words = SearchUtils.findMatches(stripColorCodes(text), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+        Optional<List<StringMatch>> words = SearchUtils.findMatches(stripColorCodes(text), ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
         if (!words.isPresent()) {
             return null;
         }
         // Start by just checking names and such
         PlayerListEntry player = null;
         StringMatch match = null;
-        for (SearchUtils.StringMatch m : words.get()) {
+        for (StringMatch m : words.get()) {
             if (player != null) {
                 break;
             }
@@ -185,15 +161,15 @@ public class SearchUtils {
         HashMap<PlayerListEntry, List<StringMatch>> entryMatches = new HashMap<>();
         for (PlayerListEntry e : networkHandler.getPlayerList()) {
             String name = stripColorCodes(e.getDisplayName() == null ? e.getProfile().getName() : e.getDisplayName().getString());
-            Optional<List<SearchUtils.StringMatch>> nameWords = SearchUtils.findMatches(name, ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
+            Optional<List<StringMatch>> nameWords = SearchUtils.findMatches(name, ConfigStorage.General.MESSAGE_OWNER_REGEX.config.getStringValue(), Filter.FindType.REGEX);
             if (!nameWords.isPresent()) {
                 continue;
             }
             entryMatches.put(e, nameWords.get());
         }
-        for (SearchUtils.StringMatch m : words.get()) {
+        for (StringMatch m : words.get()) {
             for (Map.Entry<PlayerListEntry, List<StringMatch>> entry : entryMatches.entrySet()) {
-                for (SearchUtils.StringMatch nm : entry.getValue()) {
+                for (StringMatch nm : entry.getValue()) {
                     if (nm.match.equals(m.match)) {
                         if (player != null && match.start <= m.start) {
                             return new MessageOwner(match.match, player);

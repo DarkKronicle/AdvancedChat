@@ -73,9 +73,9 @@ public class ChatSuggestorGui {
         this.inWindowIndexOffset = inWindowIndexOffset;
         this.maxSuggestionSize = maxSuggestionSize;
         this.chatScreenSized = chatScreenSized;
-        this.formatter = new ChatFormatter(textField);
-        this.textField.setRenderTextProvider(this::provideRenderText);
         this.suggestor = new ChatSuggestor(textField);
+        this.formatter = new ChatFormatter(textField, suggestor);
+        this.textField.setRenderTextProvider(this::provideRenderText);
     }
 
     public void setWindowActive(boolean windowActive) {
@@ -226,7 +226,7 @@ public class ChatSuggestorGui {
     }
 
     private OrderedText provideRenderText(String original, int firstCharacterIndex) {
-        return this.formatter.apply(original, firstCharacterIndex, suggestor.getParse());
+        return this.formatter.apply(original, firstCharacterIndex);
     }
 
     @Nullable

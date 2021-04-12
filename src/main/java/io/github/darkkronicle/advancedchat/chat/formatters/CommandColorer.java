@@ -8,6 +8,7 @@ import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.RawText;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.command.CommandSource;
@@ -34,13 +35,13 @@ public class CommandColorer implements IMessageFormatter {
             return Optional.empty();
         }
         CommandContextBuilder<CommandSource> commandContextBuilder = parse.getContext().getLastChild();
-        HashMap<SearchUtils.StringMatch, FluidText.StringInsert> replace = new HashMap<>();
+        HashMap<StringMatch, FluidText.StringInsert> replace = new HashMap<>();
         int color = -1;
         int lowest = -1;
         for (ParsedArgument<CommandSource, ?> commandSourceParsedArgument : commandContextBuilder.getArguments().values()) {
             int start = commandSourceParsedArgument.getRange().getStart();
             int end = commandSourceParsedArgument.getRange().getEnd();
-            SearchUtils.StringMatch match = new SearchUtils.StringMatch(text.getString().subSequence(start, end).toString(), start, end);
+            StringMatch match = new StringMatch(text.getString().subSequence(start, end).toString(), start, end);
             if (lowest == -1 || start < lowest) {
                 lowest = start;
             }
@@ -60,7 +61,7 @@ public class CommandColorer implements IMessageFormatter {
         if (lowest == -1) {
             lowest = text.getString().length();
         }
-        replace.put(new SearchUtils.StringMatch(text.getString().substring(0, lowest), 0, lowest), (current, match) -> {
+        replace.put(new StringMatch(text.getString().substring(0, lowest), 0, lowest), (current, match) -> {
             if (current.getStyle().equals(Style.EMPTY)) {
                 return new FluidText(RawText.withColor(match.match, INFO));
             }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * A helper class that can take a Text, break it up, and put it back together.
@@ -184,12 +185,12 @@ public class FluidText implements MutableText {
     }
 
     /**
-     * Splits off the text that is held by a {@link SearchUtils.StringMatch}
+     * Splits off the text that is held by a {@link StringMatch}
      *
      * @param match Match to grab text from
      * @return FluidText of text
      */
-    public FluidText truncate(SearchUtils.StringMatch match) {
+    public FluidText truncate(StringMatch match) {
         ArrayList<RawText> newSiblings = new ArrayList<>();
         boolean start = false;
         // Total number of chars went through. Used to find where the match end and beginning is.
@@ -249,7 +250,22 @@ public class FluidText implements MutableText {
     }
 
     public interface StringInsert {
-        FluidText getText(RawText current, SearchUtils.StringMatch match);
+        FluidText getText(RawText current, StringMatch match);
+    }
+
+    private TreeMap<StringMatch, StringInsert> filterMatches(Map<StringMatch, StringInsert> matches) {
+        TreeMap<StringMatch, StringInsert> map = new TreeMap<>(matches);
+        Iterator<StringMatch> search = map.keySet().iterator();
+        int lastEnd = 0;
+        while (search.hasNext()) {
+            StringMatch m = search.next();
+            if (m.start < lastEnd) {
+                map.remove(m);
+            } else {
+                lastEnd = m.end;
+            }
+        }
+        return map;
     }
 
     /**
@@ -257,17 +273,20 @@ public class FluidText implements MutableText {
      *
      * @param matches Map containing a match and a FluidText provider
      */
-    public void replaceStrings(Map<SearchUtils.StringMatch, StringInsert> matches) {
+    public void replaceStrings(Map<StringMatch, StringInsert> matches) {
         // If there's no matches nothing should get replaced.
         if (matches.size() == 0) {
             return;
         }
         // Sort the matches and then get a nice easy iterator for navigation
-        Iterator<Map.Entry<SearchUtils.StringMatch, StringInsert>> sortedMatches = new TreeMap<>(matches).entrySet().iterator();
+        Iterator<Map.Entry<StringMatch, StringInsert>> sortedMatches = filterMatches(matches).entrySet().iterator();
+        if (!sortedMatches.hasNext()) {
+            return;
+        }
         // List of new RawText to form a new FluidText.
         ArrayList<RawText> newSiblings = new ArrayList<>();
         // What match this is currently on.
-        Map.Entry<SearchUtils.StringMatch, StringInsert> match = sortedMatches.next();
+        Map.Entry<StringMatch, StringInsert> match = sortedMatches.next();
 
         // Total number of chars went through. Used to find where the match end and beginning is.
         int totalchar = 0;

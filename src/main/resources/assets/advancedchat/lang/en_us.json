@@ -167,6 +167,7 @@
   "advancedchat.config.filter.info.processor": "The message processor that will handle the §6filter output§r\nIn other words, where the filtered text will be sent to\n§bChat§r - The text will be sent to the §9Chat HUD§r\n§eAction Bar§r - The text will be sent to the §eaction bar§r",
   "advancedchat.config.processor.actionbar": "§eAction Bar",
   "advancedchat.config.processor.chat": "§bChat",
+  "advancedchat.config.filter.processoron": "%s",
   "advancedchat.config.filter.processortoggle": "Use Other Message Processor",
   "advancedchat.config.filter.info.processortoggle": "Whether or not the §6message processor§r should be forced\nIf this option is §cOFF§r, then §bChat§r will be used by default",
   "advancedchat.config.filter.textcolor": "Text Color",

@@ -23,7 +23,7 @@ public class AdvancedSleepingChatScreen extends AdvancedChatScreen {
     }
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256) {
+        if (keyCode == KeyCodes.KEY_ESCAPE) {
             this.stopSleeping();
         } else if (keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_KP_ENTER) {
             String string = this.chatField.getText().trim();

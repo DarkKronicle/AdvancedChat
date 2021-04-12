@@ -7,6 +7,7 @@ import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.RawText;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import net.fabricmc.api.EnvType;
@@ -54,20 +55,20 @@ public class JSONFormatter implements IMessageFormatter {
     @Value
     @AllArgsConstructor
     public static class JSONToken {
-        SearchUtils.StringMatch match;
+        StringMatch match;
         JSONType type;
     }
 
     @Override
     public Optional<FluidText> format(FluidText text, @Nullable ParseResults<CommandSource> parse) {
         String content = text.getString();
-        Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(content, "\\{.+\\}", Filter.FindType.REGEX);
+        Optional<List<StringMatch>> omatches = SearchUtils.findMatches(content, "\\{.+\\}", Filter.FindType.REGEX);
         if (!omatches.isPresent()) {
             return Optional.empty();
         }
-        List<SearchUtils.StringMatch> matches = omatches.get();
-        HashMap<SearchUtils.StringMatch, FluidText.StringInsert> replace = new HashMap<>();
-        for (SearchUtils.StringMatch m : matches) {
+        List<StringMatch> matches = omatches.get();
+        HashMap<StringMatch, FluidText.StringInsert> replace = new HashMap<>();
+        for (StringMatch m : matches) {
             replace.put(m, (current, match) -> colorJson(match.match));
         }
         text.replaceStrings(replace);
@@ -88,11 +89,11 @@ public class JSONFormatter implements IMessageFormatter {
         int index = 0;
         while (string.length() > 0) {
             for (JSONType type : JSONType.values()) {
-                Optional<SearchUtils.StringMatch> omatch = SearchUtils.getMatch(string, type.regex, Filter.FindType.REGEX);
+                Optional<StringMatch> omatch = SearchUtils.getMatch(string, type.regex, Filter.FindType.REGEX);
                 if (!omatch.isPresent()) {
                     continue;
                 }
-                SearchUtils.StringMatch match = omatch.get();
+                StringMatch match = omatch.get();
                 string = string.substring(match.end);
                 match.end += index;
                 match.start += index;

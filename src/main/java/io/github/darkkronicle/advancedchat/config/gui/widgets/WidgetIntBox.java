@@ -1,6 +1,7 @@
 package io.github.darkkronicle.advancedchat.config.gui.widgets;
 
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import lombok.Getter;
 import lombok.Setter;
 import io.github.darkkronicle.advancedchat.config.Filter;
@@ -42,11 +43,11 @@ public class WidgetIntBox extends GuiTextFieldGeneric {
             return Integer.parseInt(text);
         } catch (NumberFormatException e) {
             // Extra catch
-            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(text, "[0-9]+", Filter.FindType.REGEX);
+            Optional<List<StringMatch>> omatches = SearchUtils.findMatches(text, "[0-9]+", Filter.FindType.REGEX);
             if (!omatches.isPresent()) {
                 return null;
             }
-            for (SearchUtils.StringMatch m : omatches.get()) {
+            for (StringMatch m : omatches.get()) {
                 try {
                     return Integer.parseInt(m.match);
                 } catch (NumberFormatException err) {

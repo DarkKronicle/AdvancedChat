@@ -6,6 +6,7 @@ import io.github.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageProcessor;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -29,7 +30,7 @@ public class ForwardFilter extends AbstractFilter {
     }
 
     public Optional<FluidText> filter(FluidText text, FluidText unfiltered, ArrayList<IMessageProcessor> processed) {
-        Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(text.getString(), super.filterString, findType);
+        Optional<List<StringMatch>> omatches = SearchUtils.findMatches(text.getString(), super.filterString, findType);
         boolean forward = true;
         for (IMatchProcessor p : processors) {
             if (processed.contains(p)) {

@@ -8,7 +8,8 @@
     "DarkKronicle"
   ],
   "contact": {
-    "sources": "https://github.com/DarkKronicle/AdvancedChat"
+    "sources": "https://github.com/DarkKronicle/AdvancedChat",
+    "discord": "https://discord.gg/WnaE3uZxDA"
   },
   "license": "GPL-3.0",
   "icon": "assets/advancedchat/icon.png",
@@ -27,7 +28,8 @@
   "depends": {
     "fabricloader": ">=0.8.9+build.204",
     "fabric": "*",
-    "minecraft": ">=1.16.3"
+    "minecraft": ">=1.16.3",
+    "malilib": ">=0.10.0-dev.20"
   },
   "custom": {
     "modmenu:clientsideOnly": true,

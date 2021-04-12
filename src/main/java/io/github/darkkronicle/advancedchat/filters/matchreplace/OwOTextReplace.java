@@ -1,5 +1,7 @@
 package io.github.darkkronicle.advancedchat.filters.matchreplace;
 
+import io.github.darkkronicle.advancedchat.util.SearchResult;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import maow.owo.OwO;
 import maow.owo.util.ParsingUtil;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
@@ -20,19 +22,19 @@ import java.util.Optional;
 public class OwOTextReplace implements IMatchReplace {
 
     @Override
-    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, List<SearchUtils.StringMatch> matches) {
-        HashMap<SearchUtils.StringMatch, FluidText.StringInsert> replaceMatches = new HashMap<>();
-        for (SearchUtils.StringMatch match : matches) {
-            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(match.match, "(?<!§)([A-Za-z]+)", Filter.FindType.REGEX);
+    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, SearchResult search) {
+        HashMap<StringMatch, FluidText.StringInsert> replaceMatches = new HashMap<>();
+        for (StringMatch match : search.getMatches()) {
+            Optional<List<StringMatch>> omatches = SearchUtils.findMatches(match.match, "(?<!§)([A-Za-z]+)", Filter.FindType.REGEX);
             if (!omatches.isPresent()) {
                 continue;
             }
-            List<SearchUtils.StringMatch> foundMatches = omatches.get();
+            List<StringMatch> foundMatches = omatches.get();
             foundMatches.forEach(stringMatch -> {
                 stringMatch.start += match.start;
                 stringMatch.end += match.start;
             });
-            for (SearchUtils.StringMatch m : foundMatches) {
+            for (StringMatch m : foundMatches) {
                 replaceMatches.put(m, (current, match1) -> new FluidText(current.withMessage(OwO.INSTANCE.translate(match1.match))));
             }
         }

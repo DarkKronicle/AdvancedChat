@@ -39,7 +39,7 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
     private final List<String> hoverLines;
     private final int buttonStartX;
     private final Filter filter;
-    private TextFieldWrapper<WidgetIntBox> num;
+    private final TextFieldWrapper<WidgetIntBox> num;
 
     public WidgetFilterEntry(int x, int y, int width, int height, boolean isOdd, Filter filter, int listIndex, WidgetListFilters parent) {
         super(x, y, width, height, filter, listIndex);
@@ -59,7 +59,11 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
                 order = 0;
             }
             this.filter.setOrder(order);
-            Collections.sort(ConfigStorage.FILTERS);
+            if (parent.filter == null) {
+                Collections.sort(ConfigStorage.FILTERS);
+            } else {
+                Collections.sort(parent.filter.getChildren());
+            }
             ChatDispatcher.getInstance().loadFilters();
             this.parent.refreshEntries();
         });

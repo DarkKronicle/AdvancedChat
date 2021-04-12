@@ -34,6 +34,10 @@ public class GuiConfig extends GuiConfigsBase {
             GuiBase.openGui(new GuiTabManager());
             return;
         }
+        if (GuiConfig.tab == ConfigGuiTab.CHAT_SUGGESTOR) {
+            GuiBase.openGui(new GuiSuggesterConfig());
+            return;
+        }
 
         super.initGui();
         this.clearOptions();
@@ -113,8 +117,10 @@ public class GuiConfig extends GuiConfigsBase {
 
             if (this.tab == ConfigGuiTab.FILTERS) {
                 GuiBase.openGui(new GuiFilterManager());
-            } else if (this.tab == ConfigGuiTab.TABS)  {
+            } else if (this.tab == ConfigGuiTab.TABS) {
                 GuiBase.openGui(new GuiTabManager());
+            } else if (this.tab == ConfigGuiTab.CHAT_SUGGESTOR) {
+                GuiBase.openGui(new GuiSuggesterConfig());
             } else {
                 this.parent.reCreateListWidget(); // apply the new config width
                 this.parent.getListWidget().resetScrollbarPosition();

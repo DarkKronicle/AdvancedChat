@@ -5,6 +5,7 @@ import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
 import io.github.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import io.github.darkkronicle.advancedchat.chat.tabs.CustomChatTab;
+import io.github.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.gui.elements.CleanButton;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
@@ -154,6 +155,14 @@ public class AdvancedChatScreen extends GuiBase {
         String string = this.chatField.getText();
         this.commandSuggestor.setWindowActive(!string.equals(this.originalChatText));
         this.commandSuggestor.refresh();
+    }
+
+    @Override
+    public void sendMessage(String message, boolean toHud) {
+        if (ConfigStorage.ChatScreen.SEND_TO_CURRENT_TAB.config.getBooleanValue()) {
+            MainChatTab.nextSend = true;
+        }
+        super.sendMessage(message, toHud);
     }
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

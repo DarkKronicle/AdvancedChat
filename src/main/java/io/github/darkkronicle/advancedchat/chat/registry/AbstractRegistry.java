@@ -18,12 +18,16 @@ public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>
     @Getter
     private OPTION defaultOption;
 
-    public void register(TYPE replace, String saveString, String translation) {
-        register(replace, saveString, translation, false);
+    protected void add(OPTION option) {
+        options.add(option);
     }
 
-    public void register(TYPE replace, String saveString, String translation, boolean setDefault) {
-        OPTION option = constructOption(replace, saveString, translation, setDefault);
+    public void register(TYPE replace, String saveString, String translation, String infoTranslation) {
+        register(replace, saveString, translation, infoTranslation, true, false);
+    }
+
+    public void register(TYPE replace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+        OPTION option = constructOption(replace, saveString, translation, infoTranslation, active, setDefault);
         options.add(option);
         if (setDefault) {
             defaultOption = option;
@@ -33,7 +37,9 @@ public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>
         }
     }
 
-    public abstract OPTION constructOption(TYPE type, String saveString, String translation, boolean setDefault);
+    public abstract AbstractRegistry<TYPE, OPTION> clone();
+
+    public abstract OPTION constructOption(TYPE type, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault);
 
     public void setDefaultOption(@NonNull OPTION newDefault) {
         defaultOption = newDefault;

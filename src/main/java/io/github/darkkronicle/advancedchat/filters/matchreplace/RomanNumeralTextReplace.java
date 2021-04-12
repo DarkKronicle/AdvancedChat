@@ -4,7 +4,9 @@ import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import io.github.darkkronicle.advancedchat.util.FluidText;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -16,19 +18,18 @@ import java.util.Optional;
 public class RomanNumeralTextReplace implements IMatchReplace {
 
     @Override
-    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, List<SearchUtils.StringMatch> matches) {
-        HashMap<SearchUtils.StringMatch, FluidText.StringInsert> replaceMatches = new HashMap<>();
-        for (SearchUtils.StringMatch match : matches) {
-            Optional<List<SearchUtils.StringMatch>> omatches = SearchUtils.findMatches(match.match, "[0-9]+", Filter.FindType.REGEX);
-            if (!omatches.isPresent()) {
+    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, SearchResult search) {
+        HashMap<StringMatch, FluidText.StringInsert> replaceMatches = new HashMap<>();
+        for (StringMatch match : search.getMatches()) {
+            List<StringMatch> matches = SearchUtils.findMatches(match.match, "[0-9]+", Filter.FindType.REGEX).orElse(null);
+            if (matches == null) {
                 continue;
             }
-            List<SearchUtils.StringMatch> foundMatches = omatches.get();
-            foundMatches.forEach(stringMatch -> {
+            matches.forEach(stringMatch -> {
                 stringMatch.start += match.start;
                 stringMatch.end += match.start;
             });
-            for (SearchUtils.StringMatch m : foundMatches) {
+            for (StringMatch m : matches) {
                 try {
                     replaceMatches.put(m, (current, match1) -> new FluidText(current.withMessage(SearchUtils.toRoman(Integer.parseInt(m.match)))));
                 } catch (Exception e) {

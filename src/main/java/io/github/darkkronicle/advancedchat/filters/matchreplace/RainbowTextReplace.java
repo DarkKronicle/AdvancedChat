@@ -3,8 +3,10 @@ package io.github.darkkronicle.advancedchat.filters.matchreplace;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
 import io.github.darkkronicle.advancedchat.config.Filter;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.util.FluidText;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.TextColor;
@@ -40,15 +42,15 @@ public class RainbowTextReplace implements IMatchReplace {
     }
 
     @Override
-    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, List<SearchUtils.StringMatch> matches) {
-        HashMap<SearchUtils.StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();
-        for (SearchUtils.StringMatch m : matches) {
-            Optional<List<SearchUtils.StringMatch>> ocharMatches = SearchUtils.findMatches(m.match, "(?<!§)[^§]", Filter.FindType.REGEX);
-            if (!ocharMatches.isPresent()) {
+    public Optional<FluidText> filter(ReplaceFilter filter, FluidText text, SearchResult search) {
+        HashMap<StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();
+        for (StringMatch m : search.getMatches()) {
+            List<StringMatch> charMatches = SearchUtils.findMatches(m.match, "(?<!§)[^§]", Filter.FindType.REGEX).orElse(null);
+            if (charMatches == null) {
                 continue;
             }
-            for (SearchUtils.StringMatch match : ocharMatches.get()) {
-                toReplace.put(new SearchUtils.StringMatch(match.match, match.start + m.start, match.end + m.start), (current1, match1) ->
+            for (StringMatch match : charMatches) {
+                toReplace.put(new StringMatch(match.match, match.start + m.start, match.end + m.start), (current1, match1) ->
                         new FluidText(current1.withMessage(match1.match).withStyle(current1.getStyle().withColor(next()))));
             }
         }

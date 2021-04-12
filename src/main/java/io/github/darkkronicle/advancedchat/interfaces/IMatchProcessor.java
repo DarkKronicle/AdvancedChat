@@ -2,6 +2,7 @@ package io.github.darkkronicle.advancedchat.interfaces;
 
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -13,7 +14,7 @@ public interface IMatchProcessor extends IMessageProcessor {
         return processMatches(text, unfiltered, null);
     }
 
-    boolean processMatches(FluidText text, @Nullable FluidText unfiltered, @Nullable List<SearchUtils.StringMatch> matches);
+    boolean processMatches(FluidText text, @Nullable FluidText unfiltered, @Nullable List<StringMatch> matches);
 
     default boolean matchesOnly() {
         return true;

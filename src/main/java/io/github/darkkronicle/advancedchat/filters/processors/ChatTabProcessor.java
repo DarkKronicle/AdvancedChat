@@ -10,6 +10,7 @@ import io.github.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -65,7 +66,7 @@ public class ChatTabProcessor implements IMatchProcessor {
     }
 
     @Override
-    public boolean processMatches(FluidText text, FluidText unfiltered, @Nullable List<SearchUtils.StringMatch> matches) {
+    public boolean processMatches(FluidText text, FluidText unfiltered, @Nullable List<StringMatch> matches) {
         return process(text, unfiltered);
     }
 

@@ -14,7 +14,17 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import org.apache.commons.compress.utils.IOUtils;
 import org.lwjgl.glfw.GLFW;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 @Environment(EnvType.CLIENT)
 public class AdvancedChat implements ClientModInitializer {
@@ -43,6 +53,21 @@ public class AdvancedChat implements ClientModInitializer {
                 client.openScreen(null);
             }
         });
+        File english = new File("./config/advancedchat/english.zip");
+        if (!english.exists()) {
+            new File("./config/advancedchat/").mkdirs();
+            // Move dictionary so that we can access it easier
+            try (FileOutputStream output = new FileOutputStream(english)){
+                InputStream stream = getResource("english.zip");
+                IOUtils.copy(stream, output);
+                stream.close();
+                System.out.println("Moved english jar!");
+            } catch (Exception e) {
+                System.out.println("Couldn't load english.jar");
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public static AdvancedChatHud getAdvancedChatHud() {
@@ -55,6 +80,22 @@ public class AdvancedChat implements ClientModInitializer {
             chatLogData = new ChatLogData();
         }
         return chatLogData;
+    }
+
+
+
+    public static InputStream getResource(String path) throws URISyntaxException, IOException {
+        URI uri = Thread.currentThread().getContextClassLoader().getResource(path).toURI();
+        if(uri.getScheme().contains("jar")){
+            // Not IDE
+            //jar.toString() begins with file:
+            //i want to trim it out...
+            return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        } else{
+            // IDE
+            return new FileInputStream(Paths.get(uri).toFile());
+
+        }
     }
 
 }
