@@ -8,11 +8,14 @@ import com.softcorporation.suggester.dictionary.BasicDictionary;
 import com.softcorporation.suggester.tools.SpellCheck;
 import com.softcorporation.suggester.util.SuggesterException;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class SpellCheckSuggestor implements IMessageSuggestor {
 
@@ -23,6 +26,17 @@ public class SpellCheckSuggestor implements IMessageSuggestor {
         dictionary = new BasicDictionary("file://" + new File("./config/advancedchat/english.zip").getAbsolutePath().replace("./", ""));
         suggester = new BasicSuggester();
         suggester.attach(dictionary);
+    }
+
+    public static Supplier<IMessageSuggestor> newWithCatch() {
+        return () -> {
+            try {
+                return new SpellCheckSuggestor();
+            } catch (Exception e) {
+                LogManager.getLogger().log(Level.ERROR, "[AdvancedChat] {}", "Couldn't load SpellCheckSuggestor", e);
+                return null;
+            }
+        };
     }
 
     @Override

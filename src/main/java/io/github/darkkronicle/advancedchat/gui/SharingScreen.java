@@ -57,8 +57,13 @@ public class SharingScreen extends GuiBase {
         text.setEditable(true);
         text.changeFocus(true);
         this.addTextField(text, null);
-        this.addButton(new ButtonGeneric(x, y, 50, 22, ButtonListener.Type.IMPORT_FILTER.getDisplayName()), new ButtonListener(ButtonListener.Type.IMPORT_FILTER, this));
-        this.addButton(new ButtonGeneric(x + 52, y, 50, 22, ButtonListener.Type.IMPORT_TAB.getDisplayName()), new ButtonListener(ButtonListener.Type.IMPORT_TAB, this));
+        String filterName = ButtonListener.Type.IMPORT_FILTER.getDisplayName();
+        int filterWidth = StringUtils.getStringWidth(filterName) + 10;
+        String tabName = ButtonListener.Type.IMPORT_TAB.getDisplayName();
+        int tabWidth = StringUtils.getStringWidth(tabName) + 10;
+        this.addButton(new ButtonGeneric(x, y, filterWidth, 20, filterName), new ButtonListener(ButtonListener.Type.IMPORT_FILTER, this));
+        x += filterWidth + 2;
+        this.addButton(new ButtonGeneric(x, y, tabWidth, 20, tabName), new ButtonListener(ButtonListener.Type.IMPORT_TAB, this));
     }
 
     private static class ButtonListener implements IButtonActionListener {

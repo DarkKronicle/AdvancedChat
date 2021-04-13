@@ -5,11 +5,14 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>> {
 
-    private ArrayList<OPTION> options = new ArrayList<>();
+    private List<OPTION> options = new ArrayList<>();
 
     public List<OPTION> getAll() {
         return options;
@@ -19,27 +22,27 @@ public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>
     private OPTION defaultOption;
 
     protected void add(OPTION option) {
+        if (defaultOption == null) {
+            defaultOption = option;
+        }
         options.add(option);
     }
 
-    public void register(TYPE replace, String saveString, String translation, String infoTranslation) {
+    public void register(Supplier<TYPE> replace, String saveString, String translation, String infoTranslation) {
         register(replace, saveString, translation, infoTranslation, true, false);
     }
 
-    public void register(TYPE replace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+    public void register(Supplier<TYPE> replace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
         OPTION option = constructOption(replace, saveString, translation, infoTranslation, active, setDefault);
         options.add(option);
-        if (setDefault) {
-            defaultOption = option;
-        } else if (defaultOption == null) {
-            // If none get set, set it.
+        if (setDefault || defaultOption == null) {
             defaultOption = option;
         }
     }
 
     public abstract AbstractRegistry<TYPE, OPTION> clone();
 
-    public abstract OPTION constructOption(TYPE type, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault);
+    public abstract OPTION constructOption(Supplier<TYPE> type, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault);
 
     public void setDefaultOption(@NonNull OPTION newDefault) {
         defaultOption = newDefault;

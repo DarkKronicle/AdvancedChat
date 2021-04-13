@@ -10,6 +10,10 @@ import io.github.darkkronicle.advancedchat.interfaces.RegistryOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
+
 @Environment(EnvType.CLIENT)
 public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, ChatSuggestorRegistry.ChatSuggestorOption> {
 
@@ -19,9 +23,11 @@ public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, C
         return INSTANCE;
     }
 
+    public final static String NAME = "suggestors";
+
 
     @Override
-    public ChatSuggestorOption constructOption(IMessageSuggestor iMessageSuggestor, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+    public ChatSuggestorOption constructOption(Supplier<IMessageSuggestor> iMessageSuggestor, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
         return new ChatSuggestorOption(iMessageSuggestor, saveString, translation, infoTranslation, active, this);
     }
 
@@ -44,13 +50,22 @@ public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, C
         private final IMessageSuggestor suggestor;
         private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
 
+        public ChatSuggestorOption(Supplier<IMessageSuggestor> suggestor, String saveString, String translation, String infoTranslation, boolean active, ChatSuggestorRegistry registry) {
+            this(suggestor.get(), saveString, translation, infoTranslation, active, registry);
+        }
+
         public ChatSuggestorOption(IMessageSuggestor suggestor, String saveString, String translation, String infoTranslation, boolean active, ChatSuggestorRegistry registry) {
             this.saveString = saveString;
             this.suggestor = suggestor;
             this.translation = translation;
             this.infoTranslation = infoTranslation;
             this.registry = registry;
-            this.active = ConfigStorage.SaveableConfig.fromConfig(saveString, new ConfigBoolean(translation, active, infoTranslation));
+            this.active = ConfigStorage.SaveableConfig.fromConfig("active", new ConfigBoolean(translation, active, infoTranslation));
+        }
+
+        @Override
+        public List<String> getHoverLines() {
+            return Arrays.asList(StringUtils.translate(infoTranslation).split("\n"));
         }
 
         @Override

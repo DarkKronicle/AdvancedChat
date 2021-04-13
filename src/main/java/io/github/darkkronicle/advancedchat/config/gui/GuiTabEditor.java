@@ -35,6 +35,12 @@ public class GuiTabEditor extends GuiBase {
     }
 
     @Override
+    public void onClose() {
+        save();
+        super.onClose();
+    }
+
+    @Override
     protected void closeGui(boolean showParent) {
         // Save the changes :)
         save();

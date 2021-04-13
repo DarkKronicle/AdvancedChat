@@ -10,8 +10,14 @@ import io.github.darkkronicle.advancedchat.interfaces.RegistryOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
+
 @Environment(EnvType.CLIENT)
 public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchReplaceRegistry.MatchReplaceOption> {
+
+    public final static String NAME = "matchreplace";
 
     private MatchReplaceRegistry() {
 
@@ -35,13 +41,14 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
     }
 
     @Override
-    public MatchReplaceOption constructOption(IMatchReplace iMatchReplace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+    public MatchReplaceOption constructOption(Supplier<IMatchReplace> iMatchReplace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
         return new MatchReplaceOption(iMatchReplace, saveString, translation, infoTranslation, active, this);
     }
 
     public static class MatchReplaceOption implements ConfigRegistryOption<IMatchReplace> {
 
-        private final IMatchReplace replace;
+        private IMatchReplace replace;
+        private final Supplier<IMatchReplace> repl;
         private final String saveString;
         private final String translation;
         private final String infoTranslation;
@@ -49,13 +56,19 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
         private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
 
         // Only register
-        private MatchReplaceOption(IMatchReplace replace, String saveString, String translation, String infoTranslation, boolean active, MatchReplaceRegistry registry) {
-            this.replace = replace;
+        private MatchReplaceOption(Supplier<IMatchReplace> replace, String saveString, String translation, String infoTranslation, boolean active, MatchReplaceRegistry registry) {
+            this.repl = replace;
+            this.replace = repl.get();
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
             this.infoTranslation = infoTranslation;
-            this.active = ConfigStorage.SaveableConfig.fromConfig(saveString, new ConfigBoolean(translation, active, infoTranslation));
+            this.active = ConfigStorage.SaveableConfig.fromConfig("active", new ConfigBoolean(translation, active, infoTranslation));
+        }
+
+        @Override
+        public List<String> getHoverLines() {
+            return Arrays.asList(StringUtils.translate(infoTranslation).split("\n"));
         }
 
         @Override
@@ -96,7 +109,7 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
 
         @Override
         public MatchReplaceOption copy(AbstractRegistry<IMatchReplace, ?> registry) {
-            return new MatchReplaceOption(replace, saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (MatchReplaceRegistry) registry);
+            return new MatchReplaceOption(repl, saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (MatchReplaceRegistry) registry);
         }
     }
 

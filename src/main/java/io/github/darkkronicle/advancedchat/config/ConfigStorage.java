@@ -18,6 +18,11 @@ import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import io.github.darkkronicle.advancedchat.chat.ChatFormatter;
+import io.github.darkkronicle.advancedchat.chat.registry.AbstractRegistry;
+import io.github.darkkronicle.advancedchat.chat.registry.ChatFormatterRegistry;
+import io.github.darkkronicle.advancedchat.chat.registry.ChatSuggestorRegistry;
+import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.util.EasingMethod;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
 import io.github.darkkronicle.advancedchat.chat.ChatDispatcher;
@@ -264,6 +269,14 @@ public class ConfigStorage implements IConfigHandler {
 
     public static void loadFromFile() {
 
+        File v3 = FileUtils.getConfigDirectory().toPath().resolve(CONFIG_FILE_NAME).toFile();
+        File configFile;
+        if (v3.exists() && !FileUtils.getConfigDirectory().toPath().resolve("advancedchat").resolve(CONFIG_FILE_NAME).toFile().exists()) {
+            configFile = v3;
+        } else {
+            configFile = FileUtils.getConfigDirectory().toPath().resolve("advancedchat").resolve(CONFIG_FILE_NAME).toFile();
+        }
+
         if (ConfigUpdater.checkForOutdated()) {
             Logger LOGGER = LogManager.getLogger();
             try {
@@ -279,8 +292,6 @@ public class ConfigStorage implements IConfigHandler {
                 e.printStackTrace();
             }
         }
-
-        File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
 
         if (configFile.exists() && configFile.isFile() && configFile.canRead()) {
             Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
@@ -314,6 +325,9 @@ public class ConfigStorage implements IConfigHandler {
                     }
                 }
 
+                applyRegistry(root.get(ChatFormatterRegistry.NAME), ChatFormatterRegistry.getInstance());
+                applyRegistry(root.get(ChatSuggestorRegistry.NAME), ChatSuggestorRegistry.getInstance());
+
                 int version = JsonUtils.getIntegerOrDefault(root, "configVersion", 0);
 
            }
@@ -322,8 +336,28 @@ public class ConfigStorage implements IConfigHandler {
         ChatDispatcher.getInstance().loadFilters();
     }
 
+    private static void applyRegistry(JsonElement element, AbstractRegistry<?, ? extends ConfigRegistryOption<?>> registry) {
+        if (element == null || !element.isJsonObject()) {
+            return;
+        }
+        JsonObject obj = element.getAsJsonObject();
+        for (ConfigRegistryOption<?> option : registry.getAll()) {
+            if (obj.has(option.getSaveString())) {
+                option.load(obj.get(option.getSaveString()));
+            }
+        }
+    }
+
+    private static JsonObject saveRegistry(AbstractRegistry<?, ? extends ConfigRegistryOption<?>> registry) {
+        JsonObject object = new JsonObject();
+        for (ConfigRegistryOption<?> option : registry.getAll()) {
+            object.add(option.getSaveString(), option.save());
+        }
+        return object;
+    }
+
     public static void saveFromFile() {
-        File dir = FileUtils.getConfigDirectory();
+        File dir = FileUtils.getConfigDirectory().toPath().resolve("advancedchat").toFile();
 
         if ((dir.exists() && dir.isDirectory()) || dir.mkdirs()) {
             Filter.FilterJsonSave filterSave = new Filter.FilterJsonSave();
@@ -346,6 +380,9 @@ public class ConfigStorage implements IConfigHandler {
                 tabs.add(tabSave.save(t));
             }
             root.add(TABS_KEY, tabs);
+
+            root.add(ChatFormatterRegistry.NAME, saveRegistry(ChatFormatterRegistry.getInstance()));
+            root.add(ChatSuggestorRegistry.NAME, saveRegistry(ChatSuggestorRegistry.getInstance()));
 
             root.add("config_version", new JsonPrimitive(CONFIG_VERSION));
 

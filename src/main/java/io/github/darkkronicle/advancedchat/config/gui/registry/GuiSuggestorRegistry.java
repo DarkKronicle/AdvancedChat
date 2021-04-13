@@ -6,18 +6,17 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
-import io.github.darkkronicle.advancedchat.chat.registry.ChatFormatterRegistry;
+import io.github.darkkronicle.advancedchat.chat.registry.ChatSuggestorRegistry;
 import io.github.darkkronicle.advancedchat.config.gui.widgets.WidgetListRegistryOption;
 import io.github.darkkronicle.advancedchat.config.gui.widgets.WidgetRegistryOptionEntry;
 import net.minecraft.client.gui.screen.Screen;
 
+public class GuiSuggestorRegistry extends GuiListBase<ChatSuggestorRegistry.ChatSuggestorOption, WidgetRegistryOptionEntry<ChatSuggestorRegistry.ChatSuggestorOption>, WidgetListRegistryOption<ChatSuggestorRegistry.ChatSuggestorOption>> {
 
-public class GuiFormatterRegistry extends GuiListBase<ChatFormatterRegistry.ChatFormatterOption, WidgetRegistryOptionEntry<ChatFormatterRegistry.ChatFormatterOption>, WidgetListRegistryOption<ChatFormatterRegistry.ChatFormatterOption>> {
-
-    public GuiFormatterRegistry(Screen parent) {
+    public GuiSuggestorRegistry(Screen parent) {
         super(10, 60);
         setParent(parent);
-        this.title = StringUtils.translate("advancedchat.screen.formatters");
+        this.title = StringUtils.translate("advancedchat.screen.suggestors");
     }
 
     @Override
@@ -33,8 +32,8 @@ public class GuiFormatterRegistry extends GuiListBase<ChatFormatterRegistry.Chat
     }
 
     @Override
-    protected WidgetListRegistryOption<ChatFormatterRegistry.ChatFormatterOption> createListWidget(int listX, int listY) {
-        return new WidgetListRegistryOption<>(listX, listY, this.getBrowserWidth(), this.getBrowserHeight(), null, ChatFormatterRegistry.getInstance(), this);
+    protected WidgetListRegistryOption<ChatSuggestorRegistry.ChatSuggestorOption> createListWidget(int listX, int listY) {
+        return new WidgetListRegistryOption<>(listX, listY, this.getBrowserWidth(), this.getBrowserHeight(), null, ChatSuggestorRegistry.getInstance(), this);
     }
 
     @Override
@@ -53,10 +52,10 @@ public class GuiFormatterRegistry extends GuiListBase<ChatFormatterRegistry.Chat
 
     public static class ButtonListener implements IButtonActionListener {
 
-        private final GuiFormatterRegistry parent;
+        private final GuiSuggestorRegistry parent;
         private final ButtonListener.Type type;
 
-        public ButtonListener(ButtonListener.Type type, GuiFormatterRegistry parent) {
+        public ButtonListener(ButtonListener.Type type, GuiSuggestorRegistry parent) {
             this.type = type;
             this.parent = parent;
         }

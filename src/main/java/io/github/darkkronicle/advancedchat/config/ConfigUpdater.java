@@ -86,9 +86,6 @@ public class ConfigUpdater {
         f.getFindType().config.setValueFromString(obj.get("findType").getAsString().toLowerCase());
         f.getReplaceType().config.setValueFromString(obj.get("replaceType").getAsString().toLowerCase().replaceAll("_", ""));
         f.getReplaceTo().config.setValueFromString(obj.get("replaceTo").getAsString());
-        f.getNotifySound().config.setOptionListValue(Filter.NotifySound.fromNotifySoundName(obj.get("notifySound").getAsString().toLowerCase()));
-        f.getSoundPitch().config.setDoubleValue(obj.get("soundPitch").getAsDouble());
-        f.getSoundVolume().config.setDoubleValue(obj.get("soundVol").getAsDouble());
         f.getBackgroundColor().config.setIntegerValue(getSimpleColor(obj.get("color")).color());
         f.getTextColor().config.setIntegerValue(getSimpleColor(obj.get("color")).color());
         f.getReplaceBackgroundColor().config.setBooleanValue(obj.get("replaceBackgroundColor").getAsBoolean());
@@ -116,7 +113,7 @@ public class ConfigUpdater {
     }
 
     public static boolean checkForOutdated() {
-        File dir = FileUtils.getConfigDirectory();
+        File dir = FileUtils.getConfigDirectory().toPath().resolve("advancedchat").toFile();
         File newF = new File(dir, ConfigStorage.CONFIG_FILE_NAME);
         if (newF.exists()) {
             return false;

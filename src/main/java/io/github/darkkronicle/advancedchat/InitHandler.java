@@ -26,6 +26,7 @@ import io.github.darkkronicle.advancedchat.filters.matchreplace.OnlyMatchTextRep
 import io.github.darkkronicle.advancedchat.filters.matchreplace.OwOTextReplace;
 import io.github.darkkronicle.advancedchat.filters.matchreplace.RainbowTextReplace;
 import io.github.darkkronicle.advancedchat.filters.matchreplace.RomanNumeralTextReplace;
+import io.github.darkkronicle.advancedchat.filters.processors.SoundProcessor;
 import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -44,29 +45,30 @@ public class InitHandler implements IInitializationHandler {
         MessageDispatcher.getInstance().register(ChatDispatcher.getInstance(), -1);
 
         MatchReplaceRegistry matchRegistry = MatchReplaceRegistry.getInstance();
-        matchRegistry.register(null, "none", "advancedchat.config.replacetype.none", "advancedchat.config.replacetype.info.none", true, true);
-        matchRegistry.register(new ChildrenTextReplace(), "children", "advancedchat.config.replacetype.children", "advancedchat.config.replacetype.info.children", true, false);
-        matchRegistry.register(new FullMessageTextReplace(), "fullmessage", "advancedchat.config.replacetype.fullmessage", "advancedchat.config.replacetype.info.fullmessage", true, false);
-        matchRegistry.register(new OnlyMatchTextReplace(), "onlymatch", "advancedchat.config.replacetype.onlymatch", "advancedchat.config.replacetype.info.onlymatch", true, false);
-        matchRegistry.register(new OwOTextReplace(), "owo", "advancedchat.config.replacetype.owo", "advancedchat.config.replacetype.info.owo", true, false);
-        matchRegistry.register(new RainbowTextReplace(), "rainbow", "advancedchat.config.replacetype.rainbow", "advancedchat.config.replacetype.info.rainbow", true, false);
-        matchRegistry.register(new RomanNumeralTextReplace(), "romannumeral", "advancedchat.config.replacetype.romannumeral", "advancedchat.config.replacetype.info.romannumeral", true, false);
-        matchRegistry.register(new ReverseTextReplace(), "reverse", "advancedchat.config.replacetype.reverse", "advancedchat.config.replacetype.info.reverse", true, false);
+        matchRegistry.register(() -> null, "none", "advancedchat.config.replacetype.none", "advancedchat.config.replacetype.info.none", true, true);
+        matchRegistry.register(ChildrenTextReplace::new, "children", "advancedchat.config.replacetype.children", "advancedchat.config.replacetype.info.children", true, false);
+        matchRegistry.register(FullMessageTextReplace::new, "fullmessage", "advancedchat.config.replacetype.fullmessage", "advancedchat.config.replacetype.info.fullmessage", true, false);
+        matchRegistry.register(OnlyMatchTextReplace::new, "onlymatch", "advancedchat.config.replacetype.onlymatch", "advancedchat.config.replacetype.info.onlymatch", true, false);
+        matchRegistry.register(OwOTextReplace::new, "owo", "advancedchat.config.replacetype.owo", "advancedchat.config.replacetype.info.owo", true, false);
+        matchRegistry.register(RainbowTextReplace::new, "rainbow", "advancedchat.config.replacetype.rainbow", "advancedchat.config.replacetype.info.rainbow", true, false);
+        matchRegistry.register(RomanNumeralTextReplace::new, "romannumeral", "advancedchat.config.replacetype.romannumeral", "advancedchat.config.replacetype.info.romannumeral", true, false);
+        matchRegistry.register(ReverseTextReplace::new, "reverse", "advancedchat.config.replacetype.reverse", "advancedchat.config.replacetype.info.reverse", true, false);
 
         MatchProcessorRegistry processorRegistry = MatchProcessorRegistry.getInstance();
-        processorRegistry.register(new ChatTabProcessor(), "chat", "advancedchat.config.processor.chat", "advancedchat.config.processor.info.chat", true, true);
-        processorRegistry.register(new ActionBarProcessor(), "actionbar", "advancedchat.config.processor.actionbar", "advancedchat.config.processor.actionbar", true, false);
+        processorRegistry.register(ChatTabProcessor::new, "chat", "advancedchat.config.processor.chat", "advancedchat.config.processor.info.chat", true, true);
+        processorRegistry.register(ActionBarProcessor::new, "actionbar", "advancedchat.config.processor.actionbar", "advancedchat.config.processor.actionbar", false, false);
+        processorRegistry.register(SoundProcessor::new, "sound", "advancedchat.config.processor.sound", "advancedchat.config.processor.sound", false, false);
 
         ChatFormatterRegistry chatRegistry = ChatFormatterRegistry.getInstance();
-        chatRegistry.register(new CommandColorer(), "commandcolorer", "advancedchat.config.formatter.commandcolorer", "advancedchat.config.formatter.info.commandcolorer", true, true);
-        chatRegistry.register(new JSONFormatter(), "jsonformatter", "advancedchat.config.formatter.jsonformatter", "advancedchat.config.formatter.info.jsonformatter", true, false);
+        chatRegistry.register(CommandColorer::new, "commandcolorer", "advancedchat.config.formatter.commandcolorer", "advancedchat.config.formatter.info.commandcolorer", true, true);
+        chatRegistry.register(JSONFormatter::new, "jsonformatter", "advancedchat.config.formatter.jsonformatter", "advancedchat.config.formatter.info.jsonformatter", true, false);
 
         ChatSuggestorRegistry suggestorRegistry = ChatSuggestorRegistry.getInstance();
-        suggestorRegistry.register(new PlayerSuggestor(), "players", "advancedchat.config.suggestor.players", "advancedchat.config.suggestor.info.players", true, true);
-        suggestorRegistry.register(new EmotesSuggestor(), "emotes", "advancedchat.config.suggestor.emotes", "advancedchat.config.suggestor.info.emotes", true, false);
-        suggestorRegistry.register(new CalculatorSuggestor(), "calculator", "advancedchat.config.suggestor.calculator", "advancedchat.config.suggestor.info.calculator", true, false);
+        suggestorRegistry.register(PlayerSuggestor::new, "players", "advancedchat.config.suggestor.players", "advancedchat.config.suggestor.info.players", true, true);
+        suggestorRegistry.register(EmotesSuggestor::new, "emotes", "advancedchat.config.suggestor.emotes", "advancedchat.config.suggestor.info.emotes", true, false);
+        suggestorRegistry.register(CalculatorSuggestor::new, "calculator", "advancedchat.config.suggestor.calculator", "advancedchat.config.suggestor.info.calculator", true, false);
         try {
-            suggestorRegistry.register(new SpellCheckSuggestor(), "spellcheck", "advancedchat.config.suggestor.spellcheck", "advancedchat.config.suggestor.info.spellcheck", true, false);
+            suggestorRegistry.register(SpellCheckSuggestor.newWithCatch(), "spellcheck", "advancedchat.config.suggestor.spellcheck", "advancedchat.config.suggestor.info.spellcheck", true, false);
         } catch (Exception e) {
             LogManager.getLogger().log(Level.ERROR, "[AdvancedChat] {}", "Couldn't load SpellCheckSuggestor", e);
         }

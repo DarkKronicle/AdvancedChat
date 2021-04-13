@@ -16,19 +16,15 @@ import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList;
 import fi.dy.masa.malilib.gui.widgets.WidgetSlider;
 import fi.dy.masa.malilib.util.StringUtils;
 import io.github.darkkronicle.advancedchat.config.Filter;
+import io.github.darkkronicle.advancedchat.config.gui.registry.GuiFilterProcessors;
 import io.github.darkkronicle.advancedchat.config.gui.widgets.WidgetLabelHoverable;
 import io.github.darkkronicle.advancedchat.config.gui.widgets.WidgetToggle;
 import io.github.darkkronicle.advancedchat.gui.SharingScreen;
-import io.github.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.chat.ChatDispatcher;
-import io.github.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import io.github.darkkronicle.advancedchat.config.gui.widgets.WidgetColor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class GuiFilterEditor extends GuiBase {
@@ -42,8 +38,6 @@ public class GuiFilterEditor extends GuiBase {
     private WidgetColor textColor;
     private WidgetToggle setBackgroundColor;
     private WidgetColor backgroundColor;
-    private WidgetDropDownList<Filter.NotifySound> widgetDropDown;
-    private OnOffListListener<MatchProcessorRegistry.MatchProcessorOption> processors;
 
     public FilterTab tab = FilterTab.CONFIG;
 
@@ -51,8 +45,13 @@ public class GuiFilterEditor extends GuiBase {
         this.filter = filter;
         this.title = filter.getName().config.getStringValue();
         this.setParent(parent);
-        this.widgetDropDown = new WidgetDropDownList<>(0, 0, getWidth(), 20, 200, 10, ImmutableList.copyOf(Filter.NotifySound.values()), Filter.NotifySound::getDisplayName);
-        this.widgetDropDown.setZLevel(this.getZOffset() + 100);
+
+    }
+
+    @Override
+    public void onClose() {
+        save();
+        super.onClose();
     }
 
     @Override
@@ -110,12 +109,6 @@ public class GuiFilterEditor extends GuiBase {
         filter.getReplaceTextColor().config.setBooleanValue(setTextColor.isCurrentlyOn());
         filter.getBackgroundColor().config.setIntegerValue(backgroundColor.getAndRefreshColor().color());
         filter.getReplaceBackgroundColor().config.setBooleanValue(setBackgroundColor.isCurrentlyOn());
-        filter.getNotifySound().config.setOptionListValue(widgetDropDown.getSelectedEntry());
-        ArrayList<IMatchProcessor> newProcessors = new ArrayList<>();
-        for (MatchProcessorRegistry.MatchProcessorOption option : processors.getOn()) {
-            newProcessors.add(option.getOption());
-        }
-        filter.setProcessors(newProcessors);
         ChatDispatcher.getInstance().loadFilters();
     }
 
@@ -152,22 +145,6 @@ public class GuiFilterEditor extends GuiBase {
         this.addButton(replaceType, null);
         y += findType.getHeight() + 2;
 
-        ConfigOptionList processorOptions = new ConfigOptionList("advancedchat.config.filter.processor", MatchProcessorRegistry.getInstance().getDefaultOption(), "advancedchat.config.filter.info.processor");
-        this.addLabel(x + getWidth() / 2 + 1, y, "advancedchat.config.filter.processortoggle", "advancedchat.config.filter.info.processortoggle");
-        y += this.addLabel(x, y, processorOptions) + 1;
-        WidgetToggle onOff = new WidgetToggle(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, false, "advancedchat.config.filter.processoron", filter.getProcessors().contains(MatchProcessorRegistry.getInstance().getDefaultOption().getOption()));
-        ButtonGeneric processorType = new ButtonGeneric(x, y, getWidth() / 2 - 1, 20, MatchProcessorRegistry.getInstance().getDefaultOption().translate());
-
-        HashMap<MatchProcessorRegistry.MatchProcessorOption, Boolean> on = new HashMap<>();
-        for (MatchProcessorRegistry.MatchProcessorOption option : MatchProcessorRegistry.getInstance().getAll()) {
-            on.put(option, filter.getProcessors().contains(option.getOption()));
-        }
-
-        processors = new OnOffListListener<>(processorType, onOff, on);
-        this.addButton(processorType, processors);
-        this.addButton(onOff, processors.getButtonListener());
-        y += findType.getHeight() + 2;
-
         // Text color
         this.addLabel(x, y, filter.getTextColor().config);
         y += this.addLabel(x + getWidth() / 2, y, filter.getReplaceTextColor().config) + 1;
@@ -185,19 +162,7 @@ public class GuiFilterEditor extends GuiBase {
         setBackgroundColor = new WidgetToggle(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, false, "advancedchat.config.filter.backgroundcoloractive", filter.getReplaceBackgroundColor().config.getBooleanValue());
         this.addButton(setBackgroundColor, null);
         y += findType.getHeight() + 2;
-        this.addLabel(x + getWidth() / 2, y, filter.getSoundPitch().config);
-        y += this.addLabel(x, y, filter.getSoundVolume().config) + 1;
-        ISliderCallback volumeCallback = new SliderCallbackDouble(filter.getSoundVolume().config, null);
-        this.addWidget(new WidgetSlider(x, y, getWidth() / 2 - 1, 20, volumeCallback));
-        ISliderCallback pitchCallback = new SliderCallbackDouble(filter.getSoundPitch().config, null);
-        this.addWidget(new WidgetSlider(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, 20, pitchCallback));
-        y += 22;
-        // Add this last so it's on top with the drop down
-        y += this.addLabel(x, y, filter.getNotifySound().config) + 1;
-        this.widgetDropDown.setPosition(x, y + 1);
-        this.widgetDropDown.setSelectedEntry(filter.getSound());
-        y += widgetDropDown.getHeight() + 2;
-        this.addWidget(this.widgetDropDown);
+
     }
 
     private int addLabel(int x, int y, IConfigBase config) {
@@ -273,6 +238,7 @@ public class GuiFilterEditor extends GuiBase {
 
     public enum FilterTab {
         CONFIG("config"),
+        PROCESSORS("processors"),
         CHILDREN("children")
         ;
 
@@ -308,6 +274,8 @@ public class GuiFilterEditor extends GuiBase {
                 GuiBase.openGui(new GuiFilterEditor(parent.filter, parent.getParent()));
             } else if (tab == FilterTab.CHILDREN) {
                 GuiBase.openGui(new GuiChildrenManager(this.parent));
+            } else if (tab == FilterTab.PROCESSORS) {
+                GuiBase.openGui(new GuiFilterProcessors(this.parent));
             }
         }
     }

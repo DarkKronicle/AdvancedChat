@@ -10,6 +10,7 @@ import fi.dy.masa.malilib.util.StringUtils;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.config.gui.registry.GuiFormatterRegistry;
+import io.github.darkkronicle.advancedchat.config.gui.registry.GuiSuggestorRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,12 @@ public class GuiSuggesterConfig extends GuiConfigsBase {
         int w = StringUtils.getStringWidth(name) + 10;
         ButtonGeneric format = new ButtonGeneric(x - w, y, w, 20, name);
         this.addButton(format, new ButtonListener(ButtonListener.Type.CONFIG_FORMATTERS, this));
-
+        x -= w + 2;
+        name = ButtonListener.Type.CONFIG_SUGGESTORS.getDisplayName();
+        w = StringUtils.getStringWidth(name) + 10;
+        ButtonGeneric suggest = new ButtonGeneric(x - w, y, w, 20, name);
+        this.addButton(suggest, new ButtonListener(ButtonListener.Type.CONFIG_SUGGESTORS, this));
+        x -= w + 2;
         if (rows > 1) {
             int scrollbarPosition = this.getListWidget().getScrollbar().getValue();
             this.setListPosition(this.getListX(), 80 + (rows - 1) * 22);
@@ -93,11 +99,14 @@ public class GuiSuggesterConfig extends GuiConfigsBase {
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (type == Type.CONFIG_FORMATTERS) {
                 GuiBase.openGui(new GuiFormatterRegistry(parent));
+            } else if (type == Type.CONFIG_SUGGESTORS) {
+                GuiBase.openGui(new GuiSuggestorRegistry(parent));
             }
         }
 
         public enum Type {
-            CONFIG_FORMATTERS("config_formatters")
+            CONFIG_FORMATTERS("chat_formatters"),
+            CONFIG_SUGGESTORS("chat_suggestors")
             ;
 
             private static String translate(String key) {

@@ -4,12 +4,10 @@ import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.filters.AbstractFilter;
 import io.github.darkkronicle.advancedchat.filters.ColorFilter;
-import io.github.darkkronicle.advancedchat.filters.NotifyFilter;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
 import io.github.darkkronicle.advancedchat.mixin.MixinChatHudInvoker;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import lombok.Getter;
-import io.github.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import io.github.darkkronicle.advancedchat.filters.ForwardFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.fabricmc.api.EnvType;
@@ -148,16 +146,13 @@ public class ChatDispatcher implements IMessageProcessor {
                 filters.add(new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), null));
             }
         }
-        if (filter.getSound() != Filter.NotifySound.NONE) {
-            filters.add(new NotifyFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getSound(), (float) filter.getSoundVolume().config.getDoubleValue(), (float) filter.getSoundPitch().config.getDoubleValue()));
-        }
         if (filter.getReplaceBackgroundColor().config.getBooleanValue()) {
             filters.add(new ColorFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getBackgroundColor().config.getSimpleColor()));
         }
-        if (filter.getProcessors().size() > 0) {
-            if (filter.getProcessors().size() == 1) {
+        if (filter.getProcessors().activeAmount() > 0) {
+            if (filter.getProcessors().activeAmount() == 1) {
                 // If it's only the default, don't do anything
-                if (!filter.getProcessors().contains(MatchProcessorRegistry.getInstance().getDefaultOption().getOption())) {
+                if (!filter.getProcessors().getDefaultOption().isActive()) {
                     filters.add(new ForwardFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getProcessors()));
                 }
             } else {

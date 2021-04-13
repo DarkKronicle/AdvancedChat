@@ -11,8 +11,14 @@ import io.github.darkkronicle.advancedchat.interfaces.Translatable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
+
 @Environment(EnvType.CLIENT)
 public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, MatchProcessorRegistry.MatchProcessorOption> {
+
+    public final static String NAME = "processors";
 
     private MatchProcessorRegistry() {
 
@@ -25,6 +31,15 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
         return INSTANCE;
     }
 
+    public int activeAmount() {
+        int amount = 0;
+        for (MatchProcessorOption option : getAll()) {
+            if (option.isActive()) {
+                amount++;
+            }
+        }
+        return amount;
+    }
 
     public MatchProcessorOption get(String string) {
         for (MatchProcessorOption option : getAll()) {
@@ -45,13 +60,14 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
     }
 
     @Override
-    public MatchProcessorOption constructOption(IMatchProcessor iMatchProcessor, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
+    public MatchProcessorOption constructOption(Supplier<IMatchProcessor> iMatchProcessor, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
         return new MatchProcessorOption(iMatchProcessor, saveString, translation, infoTranslation, active, this);
     }
 
     public static class MatchProcessorOption implements Translatable, ConfigRegistryOption<IMatchProcessor> {
 
-        private final IMatchProcessor processor;
+        private final Supplier<IMatchProcessor> processor;
+        private IMatchProcessor process;
         private final String saveString;
         private final String translation;
         private final MatchProcessorRegistry registry;
@@ -59,13 +75,19 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
         private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
 
         // Only register
-        private MatchProcessorOption(IMatchProcessor processor, String saveString, String translation, String infoTranslation, boolean active, MatchProcessorRegistry registry) {
+        protected MatchProcessorOption(Supplier<IMatchProcessor> processor, String saveString, String translation, String infoTranslation, boolean active, MatchProcessorRegistry registry) {
             this.processor = processor;
+            this.process = processor.get();
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
             this.infoTranslation = infoTranslation;
-            this.active = ConfigStorage.SaveableConfig.fromConfig(saveString, new ConfigBoolean(translation, active, infoTranslation));
+            this.active = ConfigStorage.SaveableConfig.fromConfig("active", new ConfigBoolean(translation, active, infoTranslation));
+        }
+
+        @Override
+        public List<String> getHoverLines() {
+            return Arrays.asList(StringUtils.translate(infoTranslation).split("\n"));
         }
 
         @Override
@@ -101,12 +123,12 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
 
         @Override
         public IMatchProcessor getOption() {
-            return processor;
+            return process;
         }
 
         @Override
         public String getSaveString() {
-            return null;
+            return saveString;
         }
 
         @Override

@@ -1,6 +1,7 @@
 package io.github.darkkronicle.advancedchat.filters;
 
 import io.github.darkkronicle.advancedchat.chat.ChatDispatcher;
+import io.github.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import io.github.darkkronicle.advancedchat.util.FluidText;
@@ -17,11 +18,11 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class ForwardFilter extends AbstractFilter {
 
-    private final ArrayList<IMatchProcessor> processors;
+    private final MatchProcessorRegistry registry;
 
-    public ForwardFilter(String findString, Filter.FindType findType, List<IMatchProcessor> processors) {
+    public ForwardFilter(String findString, Filter.FindType findType, MatchProcessorRegistry registry) {
         super(findString, findType);
-        this.processors = new ArrayList<>(processors);
+        this.registry = registry;
     }
 
     @Override
@@ -32,18 +33,18 @@ public class ForwardFilter extends AbstractFilter {
     public Optional<FluidText> filter(FluidText text, FluidText unfiltered, ArrayList<IMessageProcessor> processed) {
         Optional<List<StringMatch>> omatches = SearchUtils.findMatches(text.getString(), super.filterString, findType);
         boolean forward = true;
-        for (IMatchProcessor p : processors) {
-            if (processed.contains(p)) {
+        for (MatchProcessorRegistry.MatchProcessorOption p : registry.getAll()) {
+            if (!p.isActive() || processed.contains(p.getOption())) {
                 continue;
             }
-            if (!p.matchesOnly() && !omatches.isPresent()) {
-                if (p.processMatches(text, unfiltered, null)) {
-                    processed.add(p);
+            if (!p.getOption().matchesOnly() && !omatches.isPresent()) {
+                if (p.getOption().processMatches(text, unfiltered, null)) {
+                    processed.add(p.getOption());
                     forward = false;
                 }
             } else if (omatches.isPresent()) {
-                if (p.processMatches(text, unfiltered, omatches.get())) {
-                    processed.add(p);
+                if (p.getOption().processMatches(text, unfiltered, omatches.get())) {
+                    processed.add(p.getOption());
                     forward = false;
                 }
             }

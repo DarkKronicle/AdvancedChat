@@ -11,6 +11,7 @@ import fi.dy.masa.malilib.config.options.ConfigDouble;
 import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
+import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import lombok.Data;
 import io.github.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
@@ -95,22 +96,6 @@ public class Filter implements Comparable<Filter> {
     private ConfigStorage.SaveableConfig<ConfigString> replaceTo = ConfigStorage.SaveableConfig.fromConfig("replaceTo",
             new ConfigString(translate("replaceto"), "Welcome", translate("info.replaceto")));
 
-    /** How the filter notifies the client of a found string.
-     * SOUND plays a sound when the filter is triggered.
-     */
-    private ConfigStorage.SaveableConfig<ConfigOptionList> notifySound = ConfigStorage.SaveableConfig.fromConfig("notifySound",
-            new ConfigOptionList(translate("notifysound"), NotifySound.NONE, translate("info.notifysound")));
-
-    public NotifySound getSound() {
-        return NotifySound.fromNotifySoundString(notifySound.config.getStringValue());
-    }
-
-    private ConfigStorage.SaveableConfig<ConfigDouble> soundPitch = ConfigStorage.SaveableConfig.fromConfig("soundPitch",
-            new ConfigDouble(translate("soundpitch"), 1, 0.5, 3, translate("info.soundpitch")));
-
-    private ConfigStorage.SaveableConfig<ConfigDouble> soundVolume = ConfigStorage.SaveableConfig.fromConfig("soundVolume",
-            new ConfigDouble(translate("soundvolume"), 1, 0.5, 3, translate("info.soundvolume")));
-
     private ConfigStorage.SaveableConfig<ConfigBoolean> replaceTextColor = ConfigStorage.SaveableConfig.fromConfig("replaceTextColor",
             new ConfigBoolean(translate("replacetextcolor"), false, translate("info.replacetextcolor")));
 
@@ -125,7 +110,7 @@ public class Filter implements Comparable<Filter> {
 
     private ArrayList<Filter> children = new ArrayList<>();
 
-    private ArrayList<IMatchProcessor> processors = new ArrayList<>(Collections.singleton(MatchProcessorRegistry.getInstance().getDefaultOption().getOption()));
+    private MatchProcessorRegistry processors = MatchProcessorRegistry.getInstance().clone();
 
     private final ImmutableList<ConfigStorage.SaveableConfig<?>> options = ImmutableList.of(
             name,
@@ -134,9 +119,6 @@ public class Filter implements Comparable<Filter> {
             findType,
             replaceType,
             replaceTo,
-            notifySound,
-            soundPitch,
-            soundVolume,
             replaceTextColor,
             textColor,
             replaceBackgroundColor,
@@ -175,16 +157,11 @@ public class Filter implements Comparable<Filter> {
             }
 
             JsonElement processors = obj.get("processors");
-            if (processors != null && processors.isJsonArray()) {
-                ArrayList<IMatchProcessor> newProcessors = new ArrayList<>();
-                for (JsonElement o : processors.getAsJsonArray()) {
-                    String s = o.getAsString();
-                    MatchProcessorRegistry.MatchProcessorOption option = MatchProcessorRegistry.getInstance().get(s);
-                    if (option != null) {
-                        newProcessors.add(option.getOption());
-                    }
+            if (processors != null && processors.isJsonObject()) {
+                JsonObject processorsObj = processors.getAsJsonObject();
+                for (ConfigRegistryOption<IMatchProcessor> o : f.processors.getAll()) {
+                    o.load(processorsObj.get(o.getSaveString()));
                 }
-                f.setProcessors(newProcessors);
             }
 
             JsonElement children = obj.get("children");
@@ -208,11 +185,9 @@ public class Filter implements Comparable<Filter> {
                 obj.add(option.key, option.config.getAsJsonElement());
             }
 
-            JsonArray processors = new JsonArray();
-            for (MatchProcessorRegistry.MatchProcessorOption o : MatchProcessorRegistry.getInstance().getAll()) {
-                if (filter.getProcessors().contains(o.getOption())) {
-                    processors.add(o.getStringValue());
-                }
+            JsonObject processors = new JsonObject();
+            for (MatchProcessorRegistry.MatchProcessorOption o : filter.processors.getAll()) {
+                processors.add(o.getSaveString(), o.save());
             }
             obj.add("processors", processors);
 
