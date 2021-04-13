@@ -2,6 +2,8 @@ package io.github.darkkronicle.advancedchat.util;
 
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
+import lombok.Getter;
+import lombok.Setter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.*;
@@ -25,6 +27,10 @@ import java.util.TreeSet;
 public class FluidText implements MutableText {
 
     private ArrayList<RawText> rawTexts = new ArrayList<>();
+
+    @Setter
+    @Getter
+    private ColorUtil.SimpleColor backgroundColor = null;
 
     /**
      * Takes a Text and splits it into a list of {@link RawText}.

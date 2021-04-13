@@ -105,18 +105,15 @@ public class GuiSuggesterConfig extends GuiConfigsBase {
         }
 
         public enum Type {
-            CONFIG_FORMATTERS("chat_formatters"),
-            CONFIG_SUGGESTORS("chat_suggestors")
+            CONFIG_FORMATTERS("advancedchat.config.chatsuggestor.button.config_formatters"),
+            CONFIG_SUGGESTORS("advancedchat.config.chatsuggestor.button.config_suggestors")
             ;
 
-            private static String translate(String key) {
-                return "advancedchat.config.suggester.button." + key;
-            }
 
             private final String translationKey;
 
             Type(String translationKey) {
-                this.translationKey = translate(translationKey);
+                this.translationKey = translationKey;
             }
 
             public String getDisplayName() {

@@ -1,5 +1,6 @@
 package io.github.darkkronicle.advancedchat.filters;
 
+import io.github.darkkronicle.advancedchat.interfaces.IFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import io.github.darkkronicle.advancedchat.util.SearchResult;
 import io.github.darkkronicle.advancedchat.util.StringMatch;
@@ -19,35 +20,32 @@ import java.util.Optional;
  * Filter used for replacing matches in a Text
  */
 @Environment(EnvType.CLIENT)
-public class ReplaceFilter extends AbstractFilter {
+public class ReplaceFilter implements IFilter {
 
     public final String replaceTo;
     public final IMatchReplace type;
     public final ColorUtil.SimpleColor color;
 
     @Getter
-    private ArrayList<AbstractFilter> children = new ArrayList<>();
+    private ArrayList<IFilter> children = new ArrayList<>();
 
-    public void addChild(AbstractFilter filter) {
+    public void addChild(IFilter filter) {
         children.add(filter);
     }
 
-    public ReplaceFilter(String filterString, String replaceTo, Filter.FindType findType, IMatchReplace type, ColorUtil.SimpleColor color) {
-        super.filterString = filterString;
+    public ReplaceFilter(String replaceTo, IMatchReplace type, ColorUtil.SimpleColor color) {
         this.replaceTo = replaceTo;
         this.type = type;
         this.color = color;
-        super.findType = findType;
     }
 
     @Override
-    public Optional<FluidText> filter(FluidText text) {
+    public Optional<FluidText> filter(ParentFilter filter, FluidText text, FluidText unfiltered, SearchResult search) {
         // Grabs FluidText for easy mutability.
         if (type == null) {
             return Optional.empty();
         }
         if (type.matchesOnly()) {
-            SearchResult search = SearchResult.searchOf(text.getString(), super.filterString, findType);
             if (search.size() == 0) {
                 return Optional.empty();
             }

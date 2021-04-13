@@ -1,6 +1,8 @@
 package io.github.darkkronicle.advancedchat.filters;
 
 import io.github.darkkronicle.advancedchat.config.Filter;
+import io.github.darkkronicle.advancedchat.interfaces.IFilter;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
 import lombok.NonNull;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.FluidText;
@@ -14,29 +16,24 @@ import java.util.Optional;
  * Filter used to change the background color of a message.
  */
 @Environment(EnvType.CLIENT)
-public class ColorFilter extends AbstractFilter {
+public class ColorFilter implements IFilter {
     /**
      * {@link ColorUtil.SimpleColor} that will change the background color.
      */
     private final ColorUtil.SimpleColor color;
 
-    public ColorFilter(String filterString, Filter.FindType findType, @NonNull ColorUtil.SimpleColor color) {
-        super(filterString, findType);
+    public ColorFilter(@NonNull ColorUtil.SimpleColor color) {
         this.color = color;
     }
 
-    // Doesn't change anything in text. Only happens after it goes through other filters.
     @Override
-    public Optional<FluidText> filter(FluidText text) {
+    public Optional<FluidText> filter(ParentFilter filter, FluidText text, FluidText unfiltered, SearchResult search) {
         return Optional.empty();
     }
 
     // if returned null it won't do anything, but if not null then it will have the default color.
-    // Probably not perfect to use null, may come back later.
-    public ColorUtil.SimpleColor getBackgroundColor(FluidText text) {
-        if (SearchUtils.isMatch(text.getString(), filterString, findType)) {
-            return color;
-        }
-        return null;
+    @Override
+    public Optional<ColorUtil.SimpleColor> getColor() {
+        return Optional.of(color);
     }
 }

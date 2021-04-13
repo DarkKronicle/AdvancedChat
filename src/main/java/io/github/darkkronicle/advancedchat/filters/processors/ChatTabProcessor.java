@@ -30,13 +30,7 @@ public class ChatTabProcessor implements IMatchProcessor {
         if (unfiltered == null) {
             unfiltered = text;
         }
-        ColorUtil.SimpleColor backcolor = null;
-        for (ColorFilter colorFilter : ChatDispatcher.getInstance().getColorFilters()) {
-            backcolor = colorFilter.getBackgroundColor(text);
-            if (backcolor != null) {
-                break;
-            }
-        }
+        ColorUtil.SimpleColor backcolor = text.getBackgroundColor();
 
         // Put the time in
         LocalTime time = LocalTime.now();

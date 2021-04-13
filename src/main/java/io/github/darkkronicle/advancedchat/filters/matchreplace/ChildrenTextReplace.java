@@ -1,17 +1,15 @@
 package io.github.darkkronicle.advancedchat.filters.matchreplace;
 
-import io.github.darkkronicle.advancedchat.filters.AbstractFilter;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
+import io.github.darkkronicle.advancedchat.interfaces.IFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import io.github.darkkronicle.advancedchat.util.SearchResult;
-import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
@@ -28,7 +26,7 @@ public class ChildrenTextReplace implements IMatchReplace {
             if (current == null) {
                 continue;
             }
-            for (AbstractFilter f : filter.getChildren()) {
+            for (IFilter f : filter.getChildren()) {
                 Optional<FluidText> filteredText = f.filter(current);
                 if (filteredText.isPresent()) {
                     HashMap<StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();

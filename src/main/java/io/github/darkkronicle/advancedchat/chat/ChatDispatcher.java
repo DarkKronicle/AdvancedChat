@@ -2,10 +2,12 @@ package io.github.darkkronicle.advancedchat.chat;
 
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.config.Filter;
-import io.github.darkkronicle.advancedchat.filters.AbstractFilter;
 import io.github.darkkronicle.advancedchat.filters.ColorFilter;
+import io.github.darkkronicle.advancedchat.filters.ParentFilter;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
+import io.github.darkkronicle.advancedchat.interfaces.IFilter;
 import io.github.darkkronicle.advancedchat.mixin.MixinChatHudInvoker;
+import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.FluidText;
 import lombok.Getter;
 import io.github.darkkronicle.advancedchat.filters.ForwardFilter;
@@ -27,9 +29,7 @@ public class ChatDispatcher implements IMessageProcessor {
     @Getter
     private ArrayList<ColorFilter> colorFilters = new ArrayList<>();
 
-    private ArrayList<AbstractFilter> filters = new ArrayList<>();
-
-    private ArrayList<ForwardFilter> forwardFilters = new ArrayList<>();
+    private ArrayList<ParentFilter> filters = new ArrayList<>();
 
     private final static ChatDispatcher INSTANCE = new ChatDispatcher();
 
@@ -71,24 +71,18 @@ public class ChatDispatcher implements IMessageProcessor {
     public boolean process(FluidText text, FluidText original) {
         FluidText unfiltered = text;
 
+        ColorUtil.SimpleColor backgroundColor = null;
         // Filter text
-        for (AbstractFilter filter : filters) {
-            Optional<FluidText> newtext = filter.filter(text);
-            if (newtext.isPresent()) {
-                text = newtext.get();
+        for (ParentFilter filter : filters) {
+            ParentFilter.FilterResult result = filter.filter(text, unfiltered);
+            if (result.getColor().isPresent()) {
+                backgroundColor = result.getColor().get();
+            }
+            if (result.getText().isPresent()) {
+                text = result.getText().get();
             }
         }
-
-        ArrayList<IMessageProcessor> processed = new ArrayList<>();
-        boolean forward = true;
-        for (ForwardFilter f : forwardFilters) {
-            if (f.filter(text, original, processed).isPresent()) {
-                forward = false;
-            }
-        }
-        if (!forward) {
-            return true;
-        }
+        text.setBackgroundColor(backgroundColor);
 
         if (text.getString().length() != 0) {
             finalProcessor.process(text, unfiltered);
@@ -98,67 +92,57 @@ public class ChatDispatcher implements IMessageProcessor {
 
     /**
      * Loads filters that are stored in ConfigStorage.
-     * Converts {@link Filter} into an {@link AbstractFilter}
      */
     public void loadFilters() {
         filters = new ArrayList<>();
         colorFilters = new ArrayList<>();
-        forwardFilters = new ArrayList<>();
         for (Filter filter : ConfigStorage.FILTERS) {
             // If it replaces anything.
-            List<AbstractFilter> afilter = createFilter(filter);
-            if (afilter != null) {
-                for (AbstractFilter f : afilter) {
-                    if (f instanceof ColorFilter) {
-                        colorFilters.add((ColorFilter) f);
-                    } else if (f instanceof ForwardFilter) {
-                        forwardFilters.add((ForwardFilter) f);
-                    } else {
-                        filters.add(f);
-                    }
-                }
+            ParentFilter filt = createFilter(filter);
+            if (filt != null) {
+                filters.add(filt);
             }
         }
     }
 
-    public static List<AbstractFilter> createFilter(Filter filter) {
+    public static ParentFilter createFilter(Filter filter) {
         if (!filter.getActive().config.getBooleanValue()) {
             return null;
         }
-        ArrayList<AbstractFilter> filters = new ArrayList<>();
+        ParentFilter filt = new ParentFilter(filter.getFind(), filter.getFindString().config.getStringValue());
         if (filter.getReplace() != null) {
             if (filter.getReplace().useChildren()) {
-                ReplaceFilter f = new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), null);
+                ReplaceFilter f = new ReplaceFilter(filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getReplace(), null);
                 if (filter.getChildren() != null) {
                     for (Filter child : filter.getChildren()) {
-                        List<AbstractFilter> childf = createFilter(child);
+                        ParentFilter childf = createFilter(child);
                         if (childf != null) {
-                            for (AbstractFilter childfilter : childf) {
+                            for (IFilter childfilter : childf.getFilters()) {
                                 f.addChild(childfilter);
                             }
                         }
                     }
                 }
-                filters.add(f);
+                filt.addFilter(f);
             } else if (filter.getReplaceTextColor().config.getBooleanValue()) {
-                filters.add(new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), filter.getTextColor().config.getSimpleColor()));
+                filt.addFilter(new ReplaceFilter(filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getReplace(), filter.getTextColor().config.getSimpleColor()));
             } else {
-                filters.add(new ReplaceFilter(filter.getFindString().config.getStringValue(), filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getFind(), filter.getReplace(), null));
+                filt.addFilter(new ReplaceFilter(filter.getReplaceTo().config.getStringValue().replaceAll("&", "§"), filter.getReplace(), null));
             }
         }
         if (filter.getReplaceBackgroundColor().config.getBooleanValue()) {
-            filters.add(new ColorFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getBackgroundColor().config.getSimpleColor()));
+            filt.addFilter(new ColorFilter(filter.getBackgroundColor().config.getSimpleColor()));
         }
         if (filter.getProcessors().activeAmount() > 0) {
             if (filter.getProcessors().activeAmount() == 1) {
                 // If it's only the default, don't do anything
                 if (!filter.getProcessors().getDefaultOption().isActive()) {
-                    filters.add(new ForwardFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getProcessors()));
+                    filt.addFilter(new ForwardFilter(filter.getProcessors()));
                 }
             } else {
-                filters.add(new ForwardFilter(filter.getFindString().config.getStringValue(), filter.getFind(), filter.getProcessors()));
+                filt.addForwardFilter(new ForwardFilter(filter.getProcessors()));
             }
         }
-        return filters;
+        return filt;
     }
 }

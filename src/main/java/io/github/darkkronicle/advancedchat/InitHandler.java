@@ -56,19 +56,19 @@ public class InitHandler implements IInitializationHandler {
 
         MatchProcessorRegistry processorRegistry = MatchProcessorRegistry.getInstance();
         processorRegistry.register(ChatTabProcessor::new, "chat", "advancedchat.config.processor.chat", "advancedchat.config.processor.info.chat", true, true);
-        processorRegistry.register(ActionBarProcessor::new, "actionbar", "advancedchat.config.processor.actionbar", "advancedchat.config.processor.actionbar", false, false);
-        processorRegistry.register(SoundProcessor::new, "sound", "advancedchat.config.processor.sound", "advancedchat.config.processor.sound", false, false);
+        processorRegistry.register(ActionBarProcessor::new, "actionbar", "advancedchat.config.processor.actionbar", "advancedchat.config.processor.info.actionbar", false, false);
+        processorRegistry.register(SoundProcessor::new, "sound", "advancedchat.config.processor.sound", "advancedchat.config.processor.info.sound", false, false);
 
         ChatFormatterRegistry chatRegistry = ChatFormatterRegistry.getInstance();
-        chatRegistry.register(CommandColorer::new, "commandcolorer", "advancedchat.config.formatter.commandcolorer", "advancedchat.config.formatter.info.commandcolorer", true, true);
-        chatRegistry.register(JSONFormatter::new, "jsonformatter", "advancedchat.config.formatter.jsonformatter", "advancedchat.config.formatter.info.jsonformatter", true, false);
+        chatRegistry.register(CommandColorer::new, "commandcolorer", "advancedchat.config.chatformatter.commandcolorer", "advancedchat.config.chatformatter.info.commandcolorer", true, true);
+        chatRegistry.register(JSONFormatter::new, "jsonformatter", "advancedchat.config.chatformatter.jsonformatter", "advancedchat.config.chatformatter.info.jsonformatter", true, false);
 
         ChatSuggestorRegistry suggestorRegistry = ChatSuggestorRegistry.getInstance();
-        suggestorRegistry.register(PlayerSuggestor::new, "players", "advancedchat.config.suggestor.players", "advancedchat.config.suggestor.info.players", true, true);
-        suggestorRegistry.register(EmotesSuggestor::new, "emotes", "advancedchat.config.suggestor.emotes", "advancedchat.config.suggestor.info.emotes", true, false);
-        suggestorRegistry.register(CalculatorSuggestor::new, "calculator", "advancedchat.config.suggestor.calculator", "advancedchat.config.suggestor.info.calculator", true, false);
+        suggestorRegistry.register(PlayerSuggestor::new, "players", "advancedchat.config.chatsuggestor.players", "advancedchat.config.chatsuggestor.info.players", true, true);
+//        suggestorRegistry.register(EmotesSuggestor::new, "emotes", "advancedchat.config.chatsuggestor.emotes", "advancedchat.config.chatsuggestor.info.emotes", true, false);
+        suggestorRegistry.register(CalculatorSuggestor::new, "calculator", "advancedchat.config.chatsuggestor.calculator", "advancedchat.config.chatsuggestor.info.calculator", true, false);
         try {
-            suggestorRegistry.register(SpellCheckSuggestor.newWithCatch(), "spellcheck", "advancedchat.config.suggestor.spellcheck", "advancedchat.config.suggestor.info.spellcheck", true, false);
+            suggestorRegistry.register(SpellCheckSuggestor.newWithCatch(), "spellcheck", "advancedchat.config.chatsuggestor.spellcheck", "advancedchat.config.chatsuggestor.info.spellcheck", true, false);
         } catch (Exception e) {
             LogManager.getLogger().log(Level.ERROR, "[AdvancedChat] {}", "Couldn't load SpellCheckSuggestor", e);
         }
