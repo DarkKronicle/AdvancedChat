@@ -261,7 +261,7 @@ public class FluidText implements MutableText {
 
     private TreeMap<StringMatch, StringInsert> filterMatches(Map<StringMatch, StringInsert> matches) {
         TreeMap<StringMatch, StringInsert> map = new TreeMap<>(matches);
-        Iterator<StringMatch> search = map.keySet().iterator();
+        Iterator<StringMatch> search = new TreeMap<>(map).keySet().iterator();
         int lastEnd = 0;
         while (search.hasNext()) {
             StringMatch m = search.next();

@@ -52,6 +52,16 @@ public class SearchResult {
         }
     }
 
+    public static SearchResult searchOf(String input, Matcher oldMatcher) {
+        Pattern pattern = oldMatcher.pattern();
+        Matcher matcher = pattern.matcher(input);
+        List<StringMatch> matches = new ArrayList<>();
+        while (matcher.find()) {
+            matches.add(new StringMatch(matcher.group(), matcher.start(), matcher.end()));
+        }
+        matcher.reset();
+        return new SearchResult(input, pattern.pattern(), matcher, matches);
+    }
 
     public static SearchResult searchOf(String input, String match, Filter.FindType type) {
         Pattern pattern = SearchUtils.compilePattern(match, type);
@@ -64,4 +74,7 @@ public class SearchResult {
         return new SearchResult(input, match, matcher, matches);
     }
 
+    public Matcher getMatcher() {
+        return matcher;
+    }
 }

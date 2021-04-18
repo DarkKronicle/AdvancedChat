@@ -102,7 +102,7 @@ public class GuiChildrenManager extends GuiListBase<Filter, WidgetFilterEntry, W
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (this.type == Type.ADD_FILTER) {
-                this.gui.parent.filter.getChildren().add(new Filter());
+                this.gui.parent.filter.getChildren().add(Filter.getRandomFilter());
                 Collections.sort(this.gui.parent.filter.getChildren());
                 this.gui.getListWidget().refreshEntries();
             } else if (this.type == Type.BACK) {

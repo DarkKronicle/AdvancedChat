@@ -4,6 +4,8 @@
   "advancedchat.screen.main": "§3Advanced§5Chat§f Config",
   "advancedchat.screen.chatlog": "§3Advanced§5Chat§f ChatLog",
   "advancedchat.screen.sound": "Sound Settings",
+  "advancedchat.screen.suggestors": "Suggestors Settings",
+  "advancedchat.screen.shortcut": "Shortcut Settings",
   "advancedchat.gui.button.save": "Save",
   "advancedchat.gui.button.addtab": "New Chat Tab",
   "advancedchat.gui.button.addfilter": "New Filter",
@@ -14,6 +16,7 @@
   "advancedchat.gui.button.importtab": "Import Tab",
   "advancedchat.gui.button.settings": "Settings",
   "advancedchat.gui.button.chatlog": "Chat Log",
+  "advancedchat.gui.button.addshortcut": "Add New Shortcut",
   "advancedchat.gui.menu.import": "Import/Export Filters and Chat Tabs",
   "advancedchat.gui.message.successful": "Successfully imported!",
   "advancedchat.gui.message.error": "Could not import",
@@ -24,6 +27,7 @@
   "advancedchat.config.tab.tabs": "§bChat Tabs",
   "advancedchat.config.tab.filters": "§cChat Filters",
   "advancedchat.config.processoron": "%s",
+  "advancedchat.config.shortcutmenu.remove": "§cRemove",
 
 
   "advancedchat.config.general.timeformat": "Time Format",
@@ -112,8 +116,8 @@
   "advancedchat.config.chatsuggestor.button.config_suggestors": "Configure Suggestors",
   "advancedchat.config.chatsuggestor.players": "Suggest Players",
   "advancedchat.config.chatsuggestor.info.players": "Whether or not §6player names§r are suggested in chat\nThese show up by pressing tab",
-  "advancedchat.config.chatsuggestor.emotes": "Suggest Emotes",
-  "advancedchat.config.chatsuggestor.info.emotes": "Whether or not §6emotes§r are suggested as you type\nTo use emotes, put a §6colon (§f:§6)§r and the emote name",
+  "advancedchat.config.chatsuggestor.shortcuts": "Suggest Shortcuts",
+  "advancedchat.config.chatsuggestor.info.shortcuts": "Whether or not §6shortcuts§r are suggested as you type\nShortcuts are a way to bind a memorable phrase to a string of text, such as for emoticons\nTo use shortcuts, put a §6colon (§f:§6)§r and the shortcut name, and press §6tab",
   "advancedchat.config.chatsuggestor.calculator": "In-Chat Calculator",
   "advancedchat.config.chatsuggestor.info.calculator": "Whether or not the §6chat calculator§r is active\nTo use the chat calculator, put a §6math expression§r inside of §6[§fBrackets§6]§r\nExpressions follow the format of §6mXParser",
   "advancedchat.config.chatsuggestor.spellcheck": "Spell Checker",
@@ -187,7 +191,6 @@
   "advancedchat.config.replacetype.rainbow": "§9Rainbow",
   "advancedchat.config.replacetype.romannumeral": "§bRoman Numeral",
   "advancedchat.config.replacetype.none": "§cNone",
-
 
   "advancedchat.config.filter.editor.processors": "Message Processor Settings",
   "advancedchat.config.processor.chat": "§bChat",

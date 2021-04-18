@@ -11,7 +11,7 @@
     "sources": "https://github.com/DarkKronicle/AdvancedChat",
     "discord": "https://discord.gg/WnaE3uZxDA"
   },
-  "license": "GPL-3.0",
+  "license": "MPL-v2",
   "icon": "assets/advancedchat/icon.png",
   "environment": "*",
   "entrypoints": {

@@ -25,6 +25,7 @@ import io.github.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import io.github.darkkronicle.advancedchat.interfaces.IScreenSupplier;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.FluidText;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
 import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -61,9 +62,10 @@ public class SoundProcessor implements IMatchProcessor, IJsonApplier, IScreenSup
 
 
     @Override
-    public boolean processMatches(FluidText text, @Nullable FluidText unfiltered, List<StringMatch> matches) {
+    public boolean processMatches(FluidText text, @Nullable FluidText unfiltered, SearchResult search) {
         if (getSound() != Filter.NotifySound.NONE) {
             MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(getSound().event, (float) soundPitch.config.getDoubleValue(), (float) soundVolume.config.getDoubleValue()));
+            return true;
         }
         return false;
     }

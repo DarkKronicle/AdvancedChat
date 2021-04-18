@@ -41,7 +41,7 @@ public class ForwardFilter implements IFilter {
                     forward = false;
                 }
             } else if (!search.getMatches().isEmpty()) {
-                if (p.getOption().processMatches(text, unfiltered, search.getMatches())) {
+                if (p.getOption().processMatches(text, unfiltered, search)) {
                     forward = false;
                 }
             }

@@ -3,7 +3,7 @@ name: Publish to CurseForge
 on:
   push:
     tags:
-      - v*
+      - v2
 jobs:
   build:
     runs-on: ubuntu-latest

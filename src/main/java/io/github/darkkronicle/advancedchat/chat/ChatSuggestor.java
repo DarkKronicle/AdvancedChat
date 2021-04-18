@@ -36,11 +36,11 @@ public class ChatSuggestor {
     @Getter
     private ParseResults<CommandSource> parse;
     @Getter
-    private CompletableFuture<Suggestions> pendingSuggestions;
+    private CompletableFuture<AdvancedSuggestions> pendingSuggestions;
     @Getter
     private StringRange range;
     @Getter
-    private List<Suggestions> allSuggestions;
+    private List<AdvancedSuggestions> allSuggestions;
 
     private final TextFieldWidget textField;
     private final MinecraftClient client;
@@ -54,13 +54,13 @@ public class ChatSuggestor {
         return pendingSuggestions != null && pendingSuggestions.isDone();
     }
 
-    public List<Suggestion> getSuggestions() {
+    public List<AdvancedSuggestion> getSuggestions() {
         if (!isDone()) {
             return new ArrayList<>();
         }
-        Suggestions suggested = pendingSuggestions.join();
+        AdvancedSuggestions suggested = pendingSuggestions.join();
         range = suggested.getRange();
-        List<Suggestion> suggestions = modifySuggestions(pendingSuggestions.join());
+        List<AdvancedSuggestion> suggestions = modifySuggestions(pendingSuggestions.join());
         return suggestions;
     }
 
@@ -71,7 +71,9 @@ public class ChatSuggestor {
     public void updateCommandSuggestions(Runnable after) {
         allSuggestions = null;
         CommandDispatcher<CommandSource> commandDispatcher = client.player.networkHandler.getCommandDispatcher();
-        this.pendingSuggestions = commandDispatcher.getCompletionSuggestions(this.parse, getCursorIndex());
+        this.pendingSuggestions = new CompletableFuture<>();
+        CompletableFuture<Suggestions> suggests = commandDispatcher.getCompletionSuggestions(this.parse, getCursorIndex());
+        suggests.thenRun(() -> pendingSuggestions.complete(AdvancedSuggestions.fromSuggestions(suggests.join())));
         if (after != null) {
             runAfterDone(after);
         }
@@ -91,41 +93,41 @@ public class ChatSuggestor {
     public void updateChatSuggestions() {
         String startToCursor = textField.getText().substring(0, getCursorIndex());
         int wordIndex = getLastWord(startToCursor);
-        ArrayList<Suggestions> suggestions = new ArrayList<>();
+        ArrayList<AdvancedSuggestions> suggestions = new ArrayList<>();
         for (ChatSuggestorRegistry.ChatSuggestorOption option : ChatSuggestorRegistry.getInstance().getAll()) {
             if (!option.isActive()) {
                 continue;
             }
             IMessageSuggestor suggestor = option.getOption();
-            Optional<List<Suggestions>> suggestion = suggestor.suggest(textField.getText());
+            Optional<List<AdvancedSuggestions>> suggestion = suggestor.suggest(textField.getText());
             suggestion.ifPresent(suggestions::addAll);
         }
         this.allSuggestions = suggestions;
         this.pendingSuggestions = suggestMatching(wordIndex, startToCursor, suggestions);
     }
 
-    private CompletableFuture<Suggestions> suggestMatching(int start, String input, List<Suggestions> other) {
+    private CompletableFuture<AdvancedSuggestions> suggestMatching(int start, String input, List<AdvancedSuggestions> other) {
 //        String string = suggestionsBuilder.getRemaining().toLowerCase(Locale.ROOT);
 
-        List<Suggestion> newSuggestions = new ArrayList<>();
+        List<AdvancedSuggestion> newSuggestions = new ArrayList<>();
         String lastWord = input.substring(start);
         StringRange r = new StringRange(start, input.length());
         for (ChatSuggestorRegistry.ChatSuggestorOption option : ChatSuggestorRegistry.getInstance().getAll()) {
             if (!option.isActive()) {
                 continue;
             }
-            Optional<List<Suggestion>> s = option.getOption().suggestCurrentWord(lastWord, r);
+            Optional<List<AdvancedSuggestion>> s = option.getOption().suggestCurrentWord(lastWord, r);
             s.ifPresent(newSuggestions::addAll);
         }
 
-        for (Suggestions suggestions : other) {
+        for (AdvancedSuggestions suggestions : other) {
             if (suggestions.getRange().getStart() <= textField.getCursor() && suggestions.getRange().getEnd() >= textField.getCursor()) {
-                newSuggestions.addAll(suggestions.getList());
+                newSuggestions.addAll(suggestions.getSuggestions());
             }
         }
 
         if (newSuggestions.size() <= 0) {
-            return Suggestions.empty();
+            return AdvancedSuggestions.empty();
         }
 
         int min = -1;
@@ -139,7 +141,7 @@ public class ChatSuggestor {
         }
 
         range = new StringRange(min, max);
-        Suggestions suggested = new Suggestions(range, newSuggestions);
+        AdvancedSuggestions suggested = new AdvancedSuggestions(range, newSuggestions);
 
         return CompletableFuture.completedFuture(suggested);
     }
@@ -156,39 +158,39 @@ public class ChatSuggestor {
         return String.join("", Arrays.copyOfRange(text, 1, text.length));
     }
 
-    private Map<Suggestion, String> mapNames(Suggestions suggestions) {
-        HashMap<Suggestion, String> map = new HashMap<>();
-        for (Suggestion s : suggestions.getList()) {
+    private Map<AdvancedSuggestion, String> mapNames(AdvancedSuggestions suggestions) {
+        HashMap<AdvancedSuggestion, String> map = new HashMap<>();
+        for (AdvancedSuggestion s : suggestions.getSuggestions()) {
             map.put(s, removeIdentifier(s.getText()));
         }
         return map;
     }
 
-    private List<Suggestion> modifySuggestions(Suggestions suggestions) {
-        List<Suggestion> newSuggestions;
+    private List<AdvancedSuggestion> modifySuggestions(AdvancedSuggestions suggestions) {
+        List<AdvancedSuggestion> newSuggestions;
         if (ConfigStorage.ChatSuggestor.REMOVE_IDENTIFIER.config.getBooleanValue()) {
             newSuggestions =  new ArrayList<>();
-            Map<Suggestion, String> names = mapNames(suggestions);
-            for (Map.Entry<Suggestion, String> entry : names.entrySet()) {
+            Map<AdvancedSuggestion, String> names = mapNames(suggestions);
+            for (Map.Entry<AdvancedSuggestion, String> entry : names.entrySet()) {
                 if (Collections.frequency(names.values(), entry.getValue()) >= 2) {
                     newSuggestions.add(entry.getKey());
                 } else {
-                    newSuggestions.add(new Suggestion(entry.getKey().getRange(), entry.getValue(), entry.getKey().getTooltip()));
+                    newSuggestions.add(new AdvancedSuggestion(entry.getKey().getRange(), entry.getValue(), entry.getKey().getRender(), entry.getKey().getTooltip()));
                 }
             }
         } else {
-            newSuggestions = suggestions.getList();
+            newSuggestions = suggestions.getSuggestions();
         }
         return orderSuggestions(newSuggestions);
     }
 
-    private List<Suggestion> orderSuggestions(List<Suggestion> suggestions) {
+    private List<AdvancedSuggestion> orderSuggestions(List<AdvancedSuggestion> suggestions) {
         String string = this.textField.getText().substring(0, this.textField.getCursor());
         String lastWord = string.substring(getLastWord(string)).toLowerCase(Locale.ROOT);
-        List<Suggestion> minecraftSuggestions = Lists.newArrayList();
-        List<Suggestion> otherSuggestions = Lists.newArrayList();
+        List<AdvancedSuggestion> minecraftSuggestions = Lists.newArrayList();
+        List<AdvancedSuggestion> otherSuggestions = Lists.newArrayList();
 
-        for (Suggestion suggestion : suggestions) {
+        for (AdvancedSuggestion suggestion : suggestions) {
             if (!suggestion.getText().startsWith(lastWord) && !suggestion.getText().startsWith("minecraft:" + lastWord)) {
                 otherSuggestions.add(suggestion);
             } else {

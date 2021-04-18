@@ -1,6 +1,8 @@
 package io.github.darkkronicle.advancedchat.gui;
 
+import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.util.KeyCodes;
+import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
@@ -13,9 +15,8 @@ public class AdvancedSleepingChatScreen extends AdvancedChatScreen {
 
     public void initGui() {
         super.initGui();
-        this.addButton(new ButtonWidget(this.width / 2 - 100, this.height - 40, 200, 20, new TranslatableText("multiplayer.stopSleeping"), (buttonWidget) -> {
-            this.stopSleeping();
-        }));
+        ButtonGeneric stopSleep = new ButtonGeneric(this.width / 2 - 100, this.height - 40, 200, 20, StringUtils.translate("multiplayer.stopSleeping"));
+        this.addButton(stopSleep, (button, mouseButton) -> stopSleeping());
     }
 
     public void onClose() {

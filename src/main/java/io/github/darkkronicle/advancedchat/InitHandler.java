@@ -12,7 +12,7 @@ import io.github.darkkronicle.advancedchat.chat.registry.ChatSuggestorRegistry;
 import io.github.darkkronicle.advancedchat.chat.registry.MatchProcessorRegistry;
 import io.github.darkkronicle.advancedchat.chat.registry.MatchReplaceRegistry;
 import io.github.darkkronicle.advancedchat.chat.suggestors.CalculatorSuggestor;
-import io.github.darkkronicle.advancedchat.chat.suggestors.EmotesSuggestor;
+import io.github.darkkronicle.advancedchat.chat.suggestors.ShortcutSuggestor;
 import io.github.darkkronicle.advancedchat.chat.suggestors.PlayerSuggestor;
 import io.github.darkkronicle.advancedchat.chat.suggestors.SpellCheckSuggestor;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
@@ -65,7 +65,7 @@ public class InitHandler implements IInitializationHandler {
 
         ChatSuggestorRegistry suggestorRegistry = ChatSuggestorRegistry.getInstance();
         suggestorRegistry.register(PlayerSuggestor::new, "players", "advancedchat.config.chatsuggestor.players", "advancedchat.config.chatsuggestor.info.players", true, true);
-//        suggestorRegistry.register(EmotesSuggestor::new, "emotes", "advancedchat.config.chatsuggestor.emotes", "advancedchat.config.chatsuggestor.info.emotes", true, false);
+        suggestorRegistry.register(ShortcutSuggestor::new, "shortcuts", "advancedchat.config.chatsuggestor.shortcuts", "advancedchat.config.chatsuggestor.info.shortcuts", true, false);
         suggestorRegistry.register(CalculatorSuggestor::new, "calculator", "advancedchat.config.chatsuggestor.calculator", "advancedchat.config.chatsuggestor.info.calculator", true, false);
         try {
             suggestorRegistry.register(SpellCheckSuggestor.newWithCatch(), "spellcheck", "advancedchat.config.chatsuggestor.spellcheck", "advancedchat.config.chatsuggestor.info.spellcheck", true, false);

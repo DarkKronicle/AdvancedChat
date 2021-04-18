@@ -92,7 +92,7 @@ public class GuiFilterManager extends GuiListBase<Filter, WidgetFilterEntry, Wid
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (this.type == Type.ADD_FILTER) {
-                ConfigStorage.FILTERS.add(new Filter());
+                ConfigStorage.FILTERS.add(Filter.getRandomFilter());
                 Collections.sort(ConfigStorage.FILTERS);
                 this.gui.getListWidget().refreshEntries();
             } else if (this.type == Type.IMPORT) {

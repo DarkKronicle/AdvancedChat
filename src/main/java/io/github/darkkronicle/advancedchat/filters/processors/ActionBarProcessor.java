@@ -2,6 +2,7 @@ package io.github.darkkronicle.advancedchat.filters.processors;
 
 import io.github.darkkronicle.advancedchat.interfaces.IMatchProcessor;
 import io.github.darkkronicle.advancedchat.util.FluidText;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.util.StringMatch;
 import net.fabricmc.api.EnvType;
@@ -15,7 +16,7 @@ import java.util.List;
 public class ActionBarProcessor implements IMatchProcessor {
 
     @Override
-    public boolean processMatches(FluidText text, FluidText unfiltered, List<StringMatch> matches) {
+    public boolean processMatches(FluidText text, FluidText unfiltered, SearchResult matches) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) {
             return true;

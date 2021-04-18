@@ -47,7 +47,7 @@ public class WidgetRegistryOptionEntry<T extends ConfigRegistryOption<?>> extend
 
     protected int addButton(int x, int y, ButtonListener.Type type) {
         ButtonGeneric button = new ButtonGeneric(x, y, -1, true, type.getDisplayName());
-        this.addButton(button, new ButtonListener(type, this));
+        this.addButton(button, new ButtonListener<>(type, this));
 
         return button.getWidth() + 1;
     }

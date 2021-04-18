@@ -38,10 +38,12 @@ public class CommandColorer implements IMessageFormatter {
         HashMap<StringMatch, FluidText.StringInsert> replace = new HashMap<>();
         int color = -1;
         int lowest = -1;
+        String string = text.getString();
+        int length = string.length();
         for (ParsedArgument<CommandSource, ?> commandSourceParsedArgument : commandContextBuilder.getArguments().values()) {
             int start = commandSourceParsedArgument.getRange().getStart();
-            int end = commandSourceParsedArgument.getRange().getEnd();
-            StringMatch match = new StringMatch(text.getString().subSequence(start, end).toString(), start, end);
+            int end = Math.min(commandSourceParsedArgument.getRange().getEnd(), length);
+            StringMatch match = new StringMatch(string.subSequence(start, end).toString(), start, end);
             if (lowest == -1 || start < lowest) {
                 lowest = start;
             }

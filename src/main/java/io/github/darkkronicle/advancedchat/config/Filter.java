@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import fi.dy.masa.malilib.config.ConfigType;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
@@ -11,6 +12,7 @@ import fi.dy.masa.malilib.config.options.ConfigDouble;
 import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
+import io.github.darkkronicle.advancedchat.AdvancedChat;
 import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
 import lombok.Data;
@@ -339,6 +341,16 @@ public class Filter implements Comparable<Filter> {
             }
             return NotifySound.NONE;
         }
+    }
+
+    public static Filter getRandomFilter() {
+        Filter filter = new Filter();
+        for (ConfigStorage.SaveableConfig<?> c : filter.getOptions()) {
+            if (c.config.getType() == ConfigType.STRING) {
+                ((ConfigString) c.config).setValueFromString(AdvancedChat.getRandomString());
+            }
+        }
+        return filter;
     }
 
 }

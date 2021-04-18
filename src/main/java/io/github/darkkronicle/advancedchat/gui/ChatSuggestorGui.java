@@ -10,6 +10,7 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fi.dy.masa.malilib.util.KeyCodes;
+import io.github.darkkronicle.advancedchat.chat.AdvancedSuggestion;
 import io.github.darkkronicle.advancedchat.chat.ChatSuggestor;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.chat.ChatFormatter;
@@ -108,14 +109,14 @@ public class ChatSuggestorGui {
         if (!suggestor.isDone()) {
             return;
         }
-        List<Suggestion> suggestions = suggestor.getSuggestions();
+        List<AdvancedSuggestion> suggestions = suggestor.getSuggestions();
         if (suggestions.isEmpty()) {
             return;
         }
         int width = 0;
-        for (Suggestion value : suggestions) {
+        for (AdvancedSuggestion value : suggestions) {
             // Have suggestion be as wide as the biggest
-            width = Math.max(width, this.textRenderer.getWidth(value.getText()));
+            width = Math.max(width, this.textRenderer.getWidth(value.getRender()));
         }
 
         int x = MathHelper.clamp(this.textField.getCharacterX(suggestor.getRange().getStart()), 0, this.textField.getCharacterX(0) + this.textField.getInnerWidth() - width);
@@ -257,14 +258,14 @@ public class ChatSuggestorGui {
     public class SuggestionWindow {
         private final Rect2i area;
         private final String typedText;
-        private final List<Suggestion> suggestions;
+        private final List<AdvancedSuggestion> suggestions;
         private int inWindowIndex;
         private int selection;
         private Vec2f mouse;
         private boolean completed;
         private int lastNarrationIndex;
 
-        private SuggestionWindow(int x, int y, int width, List<Suggestion> list, boolean narrateFirstSuggestion) {
+        private SuggestionWindow(int x, int y, int width, List<AdvancedSuggestion> list, boolean narrateFirstSuggestion) {
             this.mouse = Vec2f.ZERO;
             int renderX = x - 1;
             int renderY = ChatSuggestorGui.this.chatScreenSized ? y - 3 - Math.min(list.size(), ChatSuggestorGui.this.maxSuggestionSize) * 12 : y;
@@ -312,7 +313,7 @@ public class ChatSuggestorGui {
             boolean hover = false;
 
             for (int s = 0; s < suggestionSize; ++s) {
-                Suggestion suggestion = this.suggestions.get(s + this.inWindowIndex);
+                AdvancedSuggestion suggestion = this.suggestions.get(s + this.inWindowIndex);
                 DrawableHelper.fill(matrices, this.area.getX(), this.area.getY() + 12 * s, this.area.getX() + this.area.getWidth(), this.area.getY() + 12 * s + 12, ConfigStorage.ChatSuggestor.BACKGROUND_COLOR.config.getSimpleColor().color());
                 if (mouseX > this.area.getX() && mouseX < this.area.getX() + this.area.getWidth() && mouseY > this.area.getY() + 12 * s && mouseY < this.area.getY() + 12 * s + 12) {
                     if (updateMouse) {
@@ -322,7 +323,7 @@ public class ChatSuggestorGui {
                     hover = true;
                 }
 
-                ChatSuggestorGui.this.textRenderer.drawWithShadow(matrices, suggestion.getText(), (float)(this.area.getX() + 1), (float)(this.area.getY() + 2 + 12 * s), (s + this.inWindowIndex) == this.selection ?
+                ChatSuggestorGui.this.textRenderer.drawWithShadow(matrices, suggestion.getRender(), (float)(this.area.getX() + 1), (float)(this.area.getY() + 2 + 12 * s), (s + this.inWindowIndex) == this.selection ?
                         ConfigStorage.ChatSuggestor.HIGHLIGHT_COLOR.config.getSimpleColor().color() :
                         ConfigStorage.ChatSuggestor.UNHIGHLIGHT_COLOR.config.getSimpleColor().color());
             }

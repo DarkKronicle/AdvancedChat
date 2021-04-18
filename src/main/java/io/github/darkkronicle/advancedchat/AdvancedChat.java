@@ -6,6 +6,7 @@ import io.github.darkkronicle.advancedchat.config.ChatLogData;
 import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import io.github.darkkronicle.advancedchat.gui.AdvancedSleepingChatScreen;
 import io.github.darkkronicle.advancedchat.gui.ChatLogScreen;
+import io.github.darkkronicle.advancedchat.util.SyncTaskQueue;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.EnvType;
@@ -25,6 +26,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class AdvancedChat implements ClientModInitializer {
@@ -32,6 +34,10 @@ public class AdvancedChat implements ClientModInitializer {
     private static ChatLogData chatLogData;
 
     public static final String MOD_ID = "advancedchat";
+
+    private final static Random RANDOM = new Random();
+
+    private final static String[] RANDOM_STRINGS = {"yes", "maybe", "no", "potentially", "hello", "goodbye", "tail", "pop", "water", "headphone", "head", "scissor", "paper", "burger", "clock", "peg", "speaker", "computer", "mouse", "mat", "keyboard", "soda", "mac", "cheese", "home", "pillow", "couch", "drums", "drumstick", "math", "Euler", "Chronos", "DarkKronicle", "Kron", "pain", "suffer", "bridge", "Annevdl", "MaLiLib", "pog", "music", "pants", "glockenspiel", "marimba", "chimes", "vibraphone", "vibe", "snare", "monkeymode", "shades", "cactus", "shaker", "pit", "band", "percussion", "foot", "leg", "Kurt", "bruh", "gamer", "gaming"};
 
     @Override
     public void onInitializeClient() {
@@ -46,6 +52,7 @@ public class AdvancedChat implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(keyBinding);
         MinecraftClient client = MinecraftClient.getInstance();
         ClientTickEvents.START_CLIENT_TICK.register(s -> {
+            SyncTaskQueue.getInstance().update(s.inGameHud.getTicks());
             if (keyBinding.wasPressed()) {
                 s.openScreen(new ChatLogScreen());
             }
@@ -96,6 +103,10 @@ public class AdvancedChat implements ClientModInitializer {
             return new FileInputStream(Paths.get(uri).toFile());
 
         }
+    }
+
+    public static String getRandomString() {
+        return RANDOM_STRINGS[RANDOM.nextInt(RANDOM_STRINGS.length)];
     }
 
 }

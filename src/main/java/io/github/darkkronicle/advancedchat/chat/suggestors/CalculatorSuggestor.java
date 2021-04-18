@@ -3,6 +3,8 @@ package io.github.darkkronicle.advancedchat.chat.suggestors;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
+import io.github.darkkronicle.advancedchat.chat.AdvancedSuggestion;
+import io.github.darkkronicle.advancedchat.chat.AdvancedSuggestions;
 import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
@@ -23,7 +25,7 @@ public class CalculatorSuggestor implements IMessageSuggestor {
     public static final String NAN = "NaN";
 
     @Override
-    public Optional<List<Suggestions>> suggest(String text) {
+    public Optional<List<AdvancedSuggestions>> suggest(String text) {
         if (!text.contains("[") || !text.contains("]")) {
             return Optional.empty();
         }
@@ -32,7 +34,7 @@ public class CalculatorSuggestor implements IMessageSuggestor {
             return Optional.empty();
         }
         int last = -1;
-        ArrayList<Suggestions> suggest = new ArrayList<>();
+        ArrayList<AdvancedSuggestions> suggest = new ArrayList<>();
         for (StringMatch m : matches) {
             if (m.start < last || m.end - m.start < 1) {
                 // Don't want overlapping matches (just in case) or too small
@@ -47,7 +49,7 @@ public class CalculatorSuggestor implements IMessageSuggestor {
                 message = String.valueOf(val);
             }
             StringRange range = new StringRange(m.start, m.end);
-            suggest.add(new Suggestions(range, new ArrayList<>(Collections.singleton(new Suggestion(range, message)))));
+            suggest.add(new AdvancedSuggestions(range, new ArrayList<>(Collections.singleton(new AdvancedSuggestion(range, message)))));
         }
         if (suggest.isEmpty()) {
             return Optional.empty();

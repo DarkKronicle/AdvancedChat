@@ -40,7 +40,11 @@ public class ChatFormatter {
         }
         if (suggestor.getAllSuggestions() != null) {
             HashMap<StringMatch, FluidText.StringInsert> format = new HashMap<>();
-            for (Suggestions suggestions : suggestor.getAllSuggestions()) {
+            for (AdvancedSuggestions suggestions : suggestor.getAllSuggestions()) {
+                if (suggestions.getSuggestions().isEmpty()) {
+                    // Don't want to format if there's nothing there...
+                    continue;
+                }
                 StringRange range = suggestions.getRange();
                 String matchString = string.subSequence(range.getStart(), range.getEnd()).toString();
                 format.put(new StringMatch(matchString, range.getStart(), range.getEnd()), (current, match) -> {

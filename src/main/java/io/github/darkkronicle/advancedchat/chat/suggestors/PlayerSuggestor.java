@@ -2,6 +2,7 @@ package io.github.darkkronicle.advancedchat.chat.suggestors;
 
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
+import io.github.darkkronicle.advancedchat.chat.AdvancedSuggestion;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
@@ -21,12 +22,12 @@ import java.util.Optional;
 public class PlayerSuggestor implements IMessageSuggestor {
 
     @Override
-    public Optional<List<Suggestion>> suggestCurrentWord(String text, StringRange range) {
-        List<Suggestion> newSuggestions = new ArrayList<>();
+    public Optional<List<AdvancedSuggestion>> suggestCurrentWord(String text, StringRange range) {
+        List<AdvancedSuggestion> newSuggestions = new ArrayList<>();
         Collection<String> names = getPlayerNames();
         for (String name : names) {
             if (text.equals("") || name.toLowerCase().startsWith(text.toLowerCase())) {
-                newSuggestions.add(new Suggestion(range, name));
+                newSuggestions.add(new AdvancedSuggestion(range, name));
             }
         }
         return Optional.of(newSuggestions);
