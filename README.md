@@ -69,7 +69,7 @@ Build it like other Fabric mods. Run `./gradlew build` to have gradle build the 
 
 Code & Mastermind: DarkKronicle
 
-Update to 1.16.3: Imichaelis
+Update to 1.16.3: lmichaelis
 
 Logo & Proofreading: Chronos22
 

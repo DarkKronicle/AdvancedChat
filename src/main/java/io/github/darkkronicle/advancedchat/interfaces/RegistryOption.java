@@ -17,6 +17,10 @@ public interface RegistryOption<TYPE> {
         return copy(null);
     }
 
+    default boolean isHidden() {
+        return false;
+    }
+
     RegistryOption<TYPE> copy(AbstractRegistry<TYPE, ?> registry);
 
     default Supplier<Screen> getScreen(Screen parent) {

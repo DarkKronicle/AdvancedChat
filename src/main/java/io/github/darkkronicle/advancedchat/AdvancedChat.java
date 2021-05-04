@@ -77,11 +77,6 @@ public class AdvancedChat implements ClientModInitializer {
         }
     }
 
-    public static AdvancedChatHud getAdvancedChatHud() {
-        // TODO remove
-        return AdvancedChatHud.getInstance();
-    }
-
     public static ChatLogData getChatLogData() {
         if (chatLogData == null) {
             chatLogData = new ChatLogData();

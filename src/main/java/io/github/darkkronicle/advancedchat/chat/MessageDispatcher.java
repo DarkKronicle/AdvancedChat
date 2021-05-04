@@ -1,15 +1,22 @@
 package io.github.darkkronicle.advancedchat.chat;
 
+import io.github.darkkronicle.advancedchat.config.Filter;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageFilter;
 import io.github.darkkronicle.advancedchat.util.FluidText;
+import io.github.darkkronicle.advancedchat.util.SearchResult;
+import io.github.darkkronicle.advancedchat.util.SearchUtils;
+import io.github.darkkronicle.advancedchat.util.StringMatch;
 import io.github.darkkronicle.advancedchat.util.StyleFormatter;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageProcessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -32,6 +39,32 @@ public class MessageDispatcher {
         // We don't really want this to be reconstructed or changed because it will lead to problems
         // of not having everything registered
         registerPreFilter((text) -> Optional.of(StyleFormatter.formatText(text)), -1);
+
+        registerPreFilter((text) -> {
+            String string = text.getString();
+            if (string.isEmpty()) {
+                return Optional.empty();
+            }
+            SearchResult search = SearchResult.searchOf(string, "(http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&\\/=]*)", Filter.FindType.REGEX);
+            if (search.size() == 0) {
+                return Optional.empty();
+            }
+            Map<StringMatch, FluidText.StringInsert> insert = new HashMap<>();
+            for (StringMatch match : search.getMatches()) {
+                insert.put(match, (current, match1) -> {
+                    String url = match1.match;
+                    if (!SearchUtils.isMatch(match1.match, "(http(s)?:\\/\\/.)", Filter.FindType.REGEX)) {
+                        url = "https://" + url;
+                    }
+                    if (current.getStyle().getClickEvent() == null) {
+                        return new FluidText(current.withStyle(current.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))));
+                    }
+                    return new FluidText(current);
+                });
+            }
+            text.replaceStrings(insert);
+            return Optional.of(text);
+        }, -1);
         registerPreFilter((IMessageProcessor) (text, orig) -> {
             LogManager.getLogger().info("[CHAT] {}",text.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
             return true;

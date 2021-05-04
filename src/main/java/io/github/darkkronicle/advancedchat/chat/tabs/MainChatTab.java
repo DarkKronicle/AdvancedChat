@@ -1,13 +1,11 @@
 package io.github.darkkronicle.advancedchat.chat.tabs;
 
+import io.github.darkkronicle.advancedchat.chat.ChatHistory;
 import io.github.darkkronicle.advancedchat.chat.ChatMessage;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
-import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
+import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import lombok.Getter;
-import io.github.darkkronicle.advancedchat.AdvancedChat;
-import io.github.darkkronicle.advancedchat.chat.ChatLogMessage;
 import io.github.darkkronicle.advancedchat.config.ChatTab;
-import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.text.*;
 
 import java.util.ArrayList;
@@ -24,56 +22,22 @@ public class MainChatTab extends AbstractChatTab {
     public static boolean nextSend = false;
 
     public MainChatTab() {
-        super("Main", "Main");
+        super("Main", ConfigStorage.MainTab.ABBREVIATION.config.getStringValue(), ConfigStorage.MainTab.MAIN_COLOR.config.getSimpleColor(), ConfigStorage.MainTab.BORDER_COLOR.config.getSimpleColor(), ConfigStorage.MainTab.INNER_COLOR.config.getSimpleColor(), ConfigStorage.MainTab.SHOW_UNREAD.config.getBooleanValue());
         setUpTabs();
     }
+
+    public void refreshOptions() {
+        this.abreviation = ConfigStorage.MainTab.ABBREVIATION.config.getStringValue();
+        this.mainColor = ConfigStorage.MainTab.MAIN_COLOR.config.getSimpleColor();
+        this.innerColor = ConfigStorage.MainTab.INNER_COLOR.config.getSimpleColor();
+        this.borderColor = ConfigStorage.MainTab.BORDER_COLOR.config.getSimpleColor();
+        this.showUnread = ConfigStorage.MainTab.SHOW_UNREAD.config.getBooleanValue();
+    }
+
 
     @Override
     public boolean shouldAdd(Text text) {
         return true;
-    }
-
-    @Override
-    public void addMessage(ChatMessage line) {
-
-        boolean forward = true;
-        ArrayList<AbstractChatTab> added = new ArrayList<>();
-        if (nextSend) {
-            nextSend = false;
-            AbstractChatTab defaultTo = AdvancedChatHud.getInstance().getCurrentTab();
-            defaultTo.addMessage(line, true);
-            if (defaultTo.equals(this)) {
-                forward = false;
-            }
-            added.add(defaultTo);
-        }
-        if (customChatTabs.size() > 0) {
-            for (CustomChatTab tab : customChatTabs) {
-                if (!tab.shouldAdd(line.getOriginalText())) {
-                    continue;
-                }
-                if (added.contains(tab)) {
-                    continue;
-                }
-                tab.addMessage(line);
-                added.add(tab);
-                if (!tab.isForward()) {
-                    forward = false;
-                    break;
-                }
-            }
-        }
-        if (forward) {
-            added.add(this);
-        }
-
-        AdvancedChat.getChatLogData().addMessage(new ChatLogMessage(line, added.toArray(new AbstractChatTab[0])));
-        if (!forward) {
-            return;
-        }
-
-        super.addMessage(line);
-
     }
 
     /**
@@ -84,14 +48,18 @@ public class MainChatTab extends AbstractChatTab {
         allChatTabs = new ArrayList<>();
         allChatTabs.add(this);
         for (ChatTab tab : ConfigStorage.TABS) {
-            CustomChatTab customTab = new CustomChatTab(tab.getName().config.getStringValue(), tab.getAbbreviation().config.getStringValue(), tab.getFind(), tab.getFindString().config.getStringValue(), tab.getForward().config.getBooleanValue(), tab.getStartingMessage().config.getStringValue());
+            CustomChatTab customTab = new CustomChatTab(tab);
             customChatTabs.add(customTab);
             allChatTabs.add(customTab);
         }
-        for (ChatLogMessage l : AdvancedChat.getChatLogData().getMessages()) {
-            for (AbstractChatTab t : customChatTabs) {
-                t.addMessage(l);
+        for (ChatMessage message : ChatHistory.getInstance().getMessages()) {
+            ArrayList<AbstractChatTab> tabs = new ArrayList<>();
+            for (AbstractChatTab t : allChatTabs) {
+                if (t.shouldAdd(message.getOriginalText())) {
+                    tabs.add(t);
+                }
             }
+            message.setTabs(tabs);
         }
     }
 

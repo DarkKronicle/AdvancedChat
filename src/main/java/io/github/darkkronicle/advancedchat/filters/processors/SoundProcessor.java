@@ -62,12 +62,12 @@ public class SoundProcessor implements IMatchProcessor, IJsonApplier, IScreenSup
 
 
     @Override
-    public boolean processMatches(FluidText text, @Nullable FluidText unfiltered, SearchResult search) {
+    public Result processMatches(FluidText text, @Nullable FluidText unfiltered, SearchResult search) {
         if (getSound() != Filter.NotifySound.NONE) {
             MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(getSound().event, (float) soundPitch.config.getDoubleValue(), (float) soundVolume.config.getDoubleValue()));
-            return true;
+            return Result.PROCESSED;
         }
-        return false;
+        return Result.FAIL;
     }
 
 

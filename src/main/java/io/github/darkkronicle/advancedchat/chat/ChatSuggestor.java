@@ -71,9 +71,7 @@ public class ChatSuggestor {
     public void updateCommandSuggestions(Runnable after) {
         allSuggestions = null;
         CommandDispatcher<CommandSource> commandDispatcher = client.player.networkHandler.getCommandDispatcher();
-        this.pendingSuggestions = new CompletableFuture<>();
-        CompletableFuture<Suggestions> suggests = commandDispatcher.getCompletionSuggestions(this.parse, getCursorIndex());
-        suggests.thenRun(() -> pendingSuggestions.complete(AdvancedSuggestions.fromSuggestions(suggests.join())));
+        pendingSuggestions = commandDispatcher.getCompletionSuggestions(this.parse, getCursorIndex()).thenApplyAsync(AdvancedSuggestions::fromSuggestions);
         if (after != null) {
             runAfterDone(after);
         }

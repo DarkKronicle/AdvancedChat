@@ -18,18 +18,20 @@ import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import io.github.darkkronicle.advancedchat.chat.ChatFormatter;
 import io.github.darkkronicle.advancedchat.chat.registry.AbstractRegistry;
 import io.github.darkkronicle.advancedchat.chat.registry.ChatFormatterRegistry;
 import io.github.darkkronicle.advancedchat.chat.registry.ChatSuggestorRegistry;
+import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.util.EasingMethod;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
 import io.github.darkkronicle.advancedchat.chat.ChatDispatcher;
 import io.github.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
+import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -154,8 +156,6 @@ public class ConfigStorage implements IConfigHandler {
                 new ConfigInteger(translate("fadestart"), 100, 20, 1000, translate("info.fadestart")));
         public final static SaveableConfig<ConfigOptionList> FADE_TYPE = SaveableConfig.fromConfig("fadeType",
                 new ConfigOptionList(translate("fadetype"), Easing.LINEAR, translate("info.fadetype")));
-        public final static SaveableConfig<ConfigSimpleColor> HUD_BACKGROUND_COLOR = SaveableConfig.fromConfig("hudbackgroundcolor",
-                new ConfigSimpleColor(translate("hudbackgroundcolor"), ColorUtil.BLACK.withAlpha(100), translate("info.hudbackgroundcolor")));
         public final static SaveableConfig<ConfigSimpleColor> EMPTY_TEXT_COLOR = SaveableConfig.fromConfig("emptyTextColor",
                 new ConfigSimpleColor(translate("emptytextcolor"), ColorUtil.WHITE, translate("info.emptytextcolor")));
         public final static SaveableConfig<ConfigInteger> TAB_SIDE_CHARS = SaveableConfig.fromConfig("tabSideChars",
@@ -192,7 +192,6 @@ public class ConfigStorage implements IConfigHandler {
                 FADE_TIME,
                 FADE_START,
                 FADE_TYPE,
-                HUD_BACKGROUND_COLOR,
                 EMPTY_TEXT_COLOR,
                 TAB_SIDE_CHARS,
                 HUD_LINE_TYPE,
@@ -265,6 +264,39 @@ public class ConfigStorage implements IConfigHandler {
 
     }
 
+    public static class MainTab {
+        public static final String NAME = "maintab";
+
+        public static String translate(String key) {
+            return StringUtils.translate("advancedchat.config.tab." + key);
+        }
+
+        public static final ConfigStorage.SaveableConfig<ConfigString> ABBREVIATION = ConfigStorage.SaveableConfig.fromConfig("abbreviation",
+                new ConfigString(translate("abbreviation"), "Main", translate("info.abbreviation")));
+
+        public static final ConfigStorage.SaveableConfig<ConfigSimpleColor> MAIN_COLOR = ConfigStorage.SaveableConfig.fromConfig("mainColor",
+                new ConfigSimpleColor(translate("maincolor"), ColorUtil.GRAY.withAlpha(100), translate("info.maincolor")));
+
+        public static final ConfigStorage.SaveableConfig<ConfigSimpleColor> BORDER_COLOR = ConfigStorage.SaveableConfig.fromConfig("borderColor",
+                new ConfigSimpleColor(translate("bordercolor"), ColorUtil.BLACK.withAlpha(180), translate("info.bordercolor")));
+
+        public static final ConfigStorage.SaveableConfig<ConfigSimpleColor> INNER_COLOR = ConfigStorage.SaveableConfig.fromConfig("innerColor",
+                new ConfigSimpleColor(translate("innercolor"), ColorUtil.BLACK.withAlpha(100), translate("info.innercolor")));
+
+        public static final ConfigStorage.SaveableConfig<ConfigBoolean> SHOW_UNREAD = ConfigStorage.SaveableConfig.fromConfig("showUnread",
+                new ConfigBoolean(translate("showunread"), false, translate("info.showunread")));
+
+
+
+        public final static ImmutableList<SaveableConfig<? extends IConfigBase>> OPTIONS = ImmutableList.of(
+                ABBREVIATION,
+                MAIN_COLOR,
+                BORDER_COLOR,
+                INNER_COLOR,
+                SHOW_UNREAD
+        );
+    }
+
 
 
     public static void loadFromFile() {
@@ -305,6 +337,7 @@ public class ConfigStorage implements IConfigHandler {
                 readOptions(root, ConfigStorage.ChatScreen.NAME, ConfigStorage.ChatScreen.OPTIONS);
                 readOptions(root, ConfigStorage.ChatSuggestor.NAME, ConfigStorage.ChatSuggestor.OPTIONS);
                 readOptions(root, ChatLog.NAME, ChatLog.OPTIONS);
+                readOptions(root, MainTab.NAME, MainTab.OPTIONS);
 
                 JsonElement o = root.get(FILTER_KEY);
                 ConfigStorage.FILTERS.clear();
@@ -334,6 +367,7 @@ public class ConfigStorage implements IConfigHandler {
         }
         AdvancedChat.chatTab.setUpTabs();
         ChatDispatcher.getInstance().loadFilters();
+        AdvancedChatHud.getInstance().reset();
     }
 
     private static void applyRegistry(JsonElement element, AbstractRegistry<?, ? extends ConfigRegistryOption<?>> registry) {
@@ -368,6 +402,7 @@ public class ConfigStorage implements IConfigHandler {
             writeOptions(root, ConfigStorage.ChatScreen.NAME, ConfigStorage.ChatScreen.OPTIONS);
             writeOptions(root, ChatLog.NAME, ChatLog.OPTIONS);
             writeOptions(root, ChatSuggestor.NAME, ChatSuggestor.OPTIONS);
+            writeOptions(root, MainTab.NAME, MainTab.OPTIONS);
 
             JsonArray arr = new JsonArray();
             for (Filter f : ConfigStorage.FILTERS) {
@@ -621,12 +656,15 @@ public class ConfigStorage implements IConfigHandler {
         FOCUSONLY("focus_only");
 
         private final String configString;
+        @Getter
+        private final Identifier texture;
 
         private static String translate(String key) {
             return StringUtils.translate("advancedchat.config.visibility." + key);
         }
 
         Visibility(String configString) {
+            this.texture = new Identifier(AdvancedChat.MOD_ID, "textures/gui/chatwindow/" + configString + ".png");
             this.configString = configString;
         }
 
@@ -641,7 +679,7 @@ public class ConfigStorage implements IConfigHandler {
         }
 
         @Override
-        public IConfigOptionListEntry cycle(boolean forward) {
+        public Visibility cycle(boolean forward) {
             int id = this.ordinal();
             if (forward) {
                 id++;
@@ -657,7 +695,7 @@ public class ConfigStorage implements IConfigHandler {
         }
 
         @Override
-        public IConfigOptionListEntry fromString(String value) {
+        public Visibility fromString(String value) {
             return fromVisibilityString(value);
         }
 

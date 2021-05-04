@@ -26,6 +26,8 @@ import io.github.darkkronicle.advancedchat.filters.matchreplace.OnlyMatchTextRep
 import io.github.darkkronicle.advancedchat.filters.matchreplace.OwOTextReplace;
 import io.github.darkkronicle.advancedchat.filters.matchreplace.RainbowTextReplace;
 import io.github.darkkronicle.advancedchat.filters.matchreplace.RomanNumeralTextReplace;
+import io.github.darkkronicle.advancedchat.filters.processors.ForwardProcessor;
+import io.github.darkkronicle.advancedchat.filters.processors.NarratorProcessor;
 import io.github.darkkronicle.advancedchat.filters.processors.SoundProcessor;
 import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.fabricmc.api.EnvType;
@@ -55,9 +57,11 @@ public class InitHandler implements IInitializationHandler {
         matchRegistry.register(ReverseTextReplace::new, "reverse", "advancedchat.config.replacetype.reverse", "advancedchat.config.replacetype.info.reverse", true, false);
 
         MatchProcessorRegistry processorRegistry = MatchProcessorRegistry.getInstance();
-        processorRegistry.register(ChatTabProcessor::new, "chat", "advancedchat.config.processor.chat", "advancedchat.config.processor.info.chat", true, true);
+        processorRegistry.register(ChatTabProcessor::new, "chattab", "advancedchat.config.processor.chat", "advancedchat.config.processor.info.chat", false, true, true);
+        processorRegistry.register(ForwardProcessor::new, "forward", "advancedchat.config.processor.forward", "advancedchat.config.processor.info.forward", true, false);
         processorRegistry.register(ActionBarProcessor::new, "actionbar", "advancedchat.config.processor.actionbar", "advancedchat.config.processor.info.actionbar", false, false);
         processorRegistry.register(SoundProcessor::new, "sound", "advancedchat.config.processor.sound", "advancedchat.config.processor.info.sound", false, false);
+        processorRegistry.register(NarratorProcessor::new, "narrator", "advancedchat.config.processor.narrator", "advancedchat.config.processor.info.narrator", false, false);
 
         ChatFormatterRegistry chatRegistry = ChatFormatterRegistry.getInstance();
         chatRegistry.register(CommandColorer::new, "commandcolorer", "advancedchat.config.chatformatter.commandcolorer", "advancedchat.config.chatformatter.info.commandcolorer", true, true);
@@ -72,6 +76,7 @@ public class InitHandler implements IInitializationHandler {
         } catch (Exception e) {
             LogManager.getLogger().log(Level.ERROR, "[AdvancedChat] {}", "Couldn't load SpellCheckSuggestor", e);
         }
+        AdvancedChatHud.getInstance().reset();
     }
 
 }

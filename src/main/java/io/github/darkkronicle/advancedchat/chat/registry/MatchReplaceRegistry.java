@@ -41,8 +41,8 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
     }
 
     @Override
-    public MatchReplaceOption constructOption(Supplier<IMatchReplace> iMatchReplace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
-        return new MatchReplaceOption(iMatchReplace, saveString, translation, infoTranslation, active, this);
+    public MatchReplaceOption constructOption(Supplier<IMatchReplace> iMatchReplace, String saveString, String translation, String infoTranslation, boolean active, boolean hidden, boolean setDefault) {
+        return new MatchReplaceOption(iMatchReplace, saveString, translation, infoTranslation, active, hidden, this);
     }
 
     public static class MatchReplaceOption implements ConfigRegistryOption<IMatchReplace> {
@@ -54,15 +54,17 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
         private final String infoTranslation;
         private final MatchReplaceRegistry registry;
         private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
+        private final boolean hidden;
 
         // Only register
-        private MatchReplaceOption(Supplier<IMatchReplace> replace, String saveString, String translation, String infoTranslation, boolean active, MatchReplaceRegistry registry) {
+        private MatchReplaceOption(Supplier<IMatchReplace> replace, String saveString, String translation, String infoTranslation, boolean active, boolean hidden, MatchReplaceRegistry registry) {
             this.repl = replace;
             this.replace = repl.get();
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
             this.infoTranslation = infoTranslation;
+            this.hidden = hidden;
             this.active = ConfigStorage.SaveableConfig.fromConfig("active", new ConfigBoolean(translation, active, infoTranslation));
         }
 
@@ -96,6 +98,10 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
             return registry.fromString(value);
         }
 
+        @Override
+        public boolean isHidden() {
+            return hidden;
+        }
 
         @Override
         public IMatchReplace getOption() {
@@ -109,7 +115,7 @@ public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchR
 
         @Override
         public MatchReplaceOption copy(AbstractRegistry<IMatchReplace, ?> registry) {
-            return new MatchReplaceOption(repl, saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (MatchReplaceRegistry) registry);
+            return new MatchReplaceOption(repl, saveString, translation, infoTranslation, isActive(), isHidden(), registry == null ? this.registry : (MatchReplaceRegistry) registry);
         }
     }
 

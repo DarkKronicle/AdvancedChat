@@ -8,6 +8,7 @@ import io.github.darkkronicle.advancedchat.chat.tabs.CustomChatTab;
 import io.github.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.gui.elements.CleanButton;
+import io.github.darkkronicle.advancedchat.gui.elements.TabButton;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
 import io.github.darkkronicle.advancedchat.config.gui.GuiConfig;
@@ -40,12 +41,23 @@ public class AdvancedChatScreen extends GuiBase {
         super();
         this.originalChatText = originalChatText;
         if (this.originalChatText.isEmpty()) {
-            AbstractChatTab tab = AdvancedChat.getAdvancedChatHud().getCurrentTab();
-            if (tab instanceof CustomChatTab) {
-                CustomChatTab customTab = (CustomChatTab) tab;
+            ChatWindow tab = AdvancedChatHud.getInstance().getSelected();
+            if (tab != null && (tab.getTab() instanceof CustomChatTab)) {
+                CustomChatTab customTab = (CustomChatTab) tab.getTab();
                 this.originalChatText = customTab.getStartingMessage();
             }
         }
+    }
+
+    private ColorUtil.SimpleColor getColor() {
+        ColorUtil.SimpleColor baseColor;
+        ChatWindow sel = AdvancedChatHud.getInstance().getSelected();
+        if (sel == null) {
+            baseColor = ConfigStorage.MainTab.INNER_COLOR.config.getSimpleColor();
+        } else {
+            baseColor = sel.getTab().getInnerColor();
+        }
+        return baseColor;
     }
 
     public void initGui() {
@@ -70,18 +82,13 @@ public class AdvancedChatScreen extends GuiBase {
         }
         this.chatField.setChangedListener(this::onChatFieldUpdate);
 
-        AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
 
         int width = ConfigStorage.ChatScreen.WIDTH.config.getIntegerValue();
         int height = 11;
         int bottomOffset = ConfigStorage.ChatScreen.Y.config.getIntegerValue() + ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue() + 5 + height;
         int y = client.getWindow().getScaledHeight() - bottomOffset;
-        ColorUtil.SimpleColor baseColor = ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor();
-        CleanButton tabButton = new CleanButton(ConfigStorage.ChatScreen.X.config.getIntegerValue(), y, width, height, baseColor, hud.getCurrentTab().getName());
-        this.addButton(tabButton, (button, mouseButton) -> {
-            hud.cycleTab();
-            button.setDisplayString(hud.getCurrentTab().getName());
-        });
+        ColorUtil.SimpleColor baseColor = getColor();
+
         int x = client.getWindow().getScaledWidth() - 1;
         String chatlog = StringUtils.translate("advancedchat.gui.button.chatlog");
         int chatlogWidth = StringUtils.getStringWidth(chatlog) + 5;
@@ -96,43 +103,23 @@ public class AdvancedChatScreen extends GuiBase {
 
         this.children.add(this.chatField);
 
-        if (ConfigStorage.ChatScreen.SHOW_TABS.config.getBooleanValue()) {
-            int xadd = width + 2;
-            int yadd = client.getWindow().getScaledHeight() - 11 - ConfigStorage.ChatScreen.Y.config.getIntegerValue();
-            int orgYadd = yadd;
-            int tabchar = ConfigStorage.ChatScreen.TAB_SIDE_CHARS.config.getIntegerValue();
-            int bwidth = tabchar * 10 + 2;
-            int relativeHeight = 13;
-            for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
-                if (relativeHeight >= ConfigStorage.ChatScreen.HEIGHT.config.getIntegerValue()) {
-                    xadd = xadd + bwidth + 2;
-                    yadd = orgYadd;
-                    relativeHeight = 13;
-                }
-                String abrev;
-                if (tab.getAbreviation().equals("") || tab.getAbreviation() == null) {
-                    abrev = tab.getName();
-                } else {
-                    abrev = tab.getAbreviation();
-                }
-                if (abrev.length() >= tabchar) {
-                    abrev = abrev.substring(0, tabchar);
-                }
-                CleanButton buttonTab = new CleanButton(xadd, yadd, bwidth, 11, baseColor, abrev);
-                this.addButton(buttonTab, (button, mouseButton) -> {
-                    hud.setCurrentTab(tab);
-                    tabButton.setDisplayString(tab.getName());
-                });
-                yadd = yadd - 13;
-                relativeHeight = relativeHeight + 13;
-            }
-        }
-
+        initTabButtons();
 
         this.commandSuggestor = new ChatSuggestorGui(this.client, this, this.chatField, this.textRenderer, false, false, 1, ConfigStorage.ChatSuggestor.SUGGESTION_SIZE.config.getIntegerValue(), true);
         this.commandSuggestor.refresh();
         this.setInitialFocus(this.chatField);
 
+    }
+
+    public void initTabButtons() {
+        int x = 2;
+        int space = 2;
+        int y = client.getWindow().getScaledHeight() - 15 - 11;
+        for (AbstractChatTab tab : AdvancedChat.chatTab.getAllChatTabs()) {
+            TabButton button = TabButton.fromTab(tab, x, y);
+            this.addButton(button, null);
+            x += button.getWidth() + space;
+        }
     }
 
     public void resize(MinecraftClient client, int width, int height) {
@@ -144,7 +131,7 @@ public class AdvancedChatScreen extends GuiBase {
 
     public void removed() {
         this.client.keyboard.setRepeatEvents(false);
-        AdvancedChat.getAdvancedChatHud().resetScroll();
+        AdvancedChatHud.getInstance().resetScroll();
     }
 
     public void tick() {
@@ -198,11 +185,11 @@ public class AdvancedChatScreen extends GuiBase {
             return true;
         }
         if (keyCode == KeyCodes.KEY_PAGE_UP) {
-            AdvancedChat.getAdvancedChatHud().scroll(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1);
+            AdvancedChatHud.getInstance().scroll(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1);
             return true;
         }
         if (keyCode == KeyCodes.KEY_PAGE_DOWN) {
-            AdvancedChat.getAdvancedChatHud().scroll(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1);
+            AdvancedChatHud.getInstance().scroll(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1);
             return true;
         }
         return false;
@@ -222,25 +209,30 @@ public class AdvancedChatScreen extends GuiBase {
                 amount *= 7.0D;
             }
 
-            AdvancedChat.getAdvancedChatHud().scroll(amount);
+            AdvancedChatHud.getInstance().scroll(amount, mouseX, mouseY);
         }
         return true;
     }
 
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.commandSuggestor.mouseClicked((int) mouseX, (int) mouseY, button)) {
             return true;
-        } else {
-            if (button == 0) {
-                AdvancedChatHud chatHud = AdvancedChat.getAdvancedChatHud();
-
-                Style style = chatHud.getText(mouseX, mouseY);
-                if (style != null && this.handleTextClick(style)) {
-                    return true;
-                }
-            }
-            return this.chatField.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
         }
+        if (AdvancedChatHud.getInstance().mouseClicked(this, mouseX, mouseY, button)) {
+            return true;
+        }
+        return this.chatField.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
+        return AdvancedChatHud.getInstance().mouseReleased(mouseX, mouseY, mouseButton) || super.mouseReleased(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        return AdvancedChatHud.getInstance().mouseDragged(mouseX, mouseY, button, deltaX, deltaY) || super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     @Override
@@ -274,17 +266,17 @@ public class AdvancedChatScreen extends GuiBase {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        AdvancedChatHud hud = AdvancedChat.getAdvancedChatHud();
+        AdvancedChatHud hud = AdvancedChatHud.getInstance();
         this.setFocused(this.chatField);
         this.chatField.setTextFieldFocused(true);
-        fill(matrixStack, 2, this.height - 14, this.width - 2, this.height - 2, ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.getSimpleColor().color());
+        fill(matrixStack, 2, this.height - 14, this.width - 2, this.height - 2, getColor().color());
         this.chatField.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.commandSuggestor.render(matrixStack, mouseX, mouseY);
         Style style = hud.getText(mouseX, mouseY);
         if (style != null && style.getHoverEvent() != null) {
             this.renderTextHoverEffect(matrixStack, style, mouseX, mouseY);
         }
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     @Override

@@ -10,9 +10,9 @@ import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import io.github.darkkronicle.advancedchat.config.ChatTab;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
+import io.github.darkkronicle.advancedchat.config.gui.GuiTabEditor;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
-import io.github.darkkronicle.advancedchat.config.gui.GuiTabEditor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
@@ -106,7 +106,7 @@ public class WidgetTabEntry extends WidgetListEntryBase<ChatTab> {
                 parent.parent.refreshEntries();
                 AdvancedChat.chatTab.setUpTabs();
             } if (type == Type.CONFIGURE) {
-                GuiBase.openGui(new GuiTabEditor(parent.tab, parent.parent.getParent()));
+                GuiBase.openGui(new GuiTabEditor(parent.parent.getParent(), parent.tab));
             }
         }
 

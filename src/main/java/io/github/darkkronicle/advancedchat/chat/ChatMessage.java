@@ -1,5 +1,6 @@
 package io.github.darkkronicle.advancedchat.chat;
 
+import io.github.darkkronicle.advancedchat.chat.tabs.AbstractChatTab;
 import lombok.Builder;
 import lombok.Data;
 import io.github.darkkronicle.advancedchat.util.ColorUtil;
@@ -11,6 +12,7 @@ import net.minecraft.text.Text;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
@@ -25,7 +27,8 @@ public class ChatMessage {
     protected int stacks;
     protected UUID uuid;
     protected MessageOwner owner;
-    protected ArrayList<AdvancedChatLine> lines;
+    protected List<AdvancedChatLine> lines;
+    protected List<AbstractChatTab> tabs;
 
     public void setDisplayText(Text text, int width) {
         this.displayText = text;
@@ -33,7 +36,7 @@ public class ChatMessage {
     }
 
     public ChatMessage shallowClone(int width) {
-        return new ChatMessage(creationTick, displayText, originalText, id, time, background, width, owner);
+        return new ChatMessage(creationTick, displayText, originalText, id, time, background, width, owner, tabs);
     }
 
     @Data
@@ -47,10 +50,24 @@ public class ChatMessage {
             this.text = text;
             this.width = MinecraftClient.getInstance().textRenderer.getWidth(text);
         }
+        @Override
+        public String toString() {
+            return "AdvancedChatLine{" +
+                    "text=" + text +
+                    ", width=" + width +
+                    '}';
+        }
+
+    }
+
+    public void addTab(AbstractChatTab tab) {
+        if (!this.tabs.contains(tab)) {
+            this.tabs.add(tab);
+        }
     }
 
     @Builder
-    protected ChatMessage(int creationTick, Text displayText, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner) {
+    protected ChatMessage(int creationTick, Text displayText, Text originalText, int id, LocalTime time, ColorUtil.SimpleColor background, int width, MessageOwner owner, List<AbstractChatTab> tabs) {
         this.creationTick = creationTick;
         this.displayText = displayText;
         this.id = id;
@@ -60,6 +77,7 @@ public class ChatMessage {
         this.uuid = UUID.randomUUID();
         this.owner = owner;
         this.originalText = originalText == null ? displayText : originalText;
+        this.tabs = tabs == null ? new ArrayList<>() : tabs;
         formatChildren(width);
     }
 

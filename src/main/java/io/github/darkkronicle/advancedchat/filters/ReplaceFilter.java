@@ -27,9 +27,9 @@ public class ReplaceFilter implements IFilter {
     public final ColorUtil.SimpleColor color;
 
     @Getter
-    private ArrayList<IFilter> children = new ArrayList<>();
+    private ArrayList<ParentFilter> children = new ArrayList<>();
 
-    public void addChild(IFilter filter) {
+    public void addChild(ParentFilter filter) {
         children.add(filter);
     }
 

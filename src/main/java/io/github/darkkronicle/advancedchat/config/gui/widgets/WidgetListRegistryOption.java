@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.Screen;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class WidgetListRegistryOption<T extends ConfigRegistryOption<?>> extends WidgetListBase<T, WidgetRegistryOptionEntry<T>> {
 
@@ -28,6 +29,6 @@ public class WidgetListRegistryOption<T extends ConfigRegistryOption<?>> extends
 
     @Override
     protected Collection<T> getAllEntries() {
-        return registry.getAll();
+        return registry.getAll().stream().filter(option -> !option.isHidden()).collect(Collectors.toList());
     }
 }

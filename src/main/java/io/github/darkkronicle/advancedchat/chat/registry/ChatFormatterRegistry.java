@@ -39,8 +39,8 @@ public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, C
     }
 
     @Override
-    public ChatFormatterOption constructOption(Supplier<IMessageFormatter> iMessageFormatter, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
-        return new ChatFormatterOption(iMessageFormatter, saveString, translation, infoTranslation, active, this);
+    public ChatFormatterOption constructOption(Supplier<IMessageFormatter> iMessageFormatter, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault, boolean hidden) {
+        return new ChatFormatterOption(iMessageFormatter, saveString, translation, infoTranslation, active, hidden, this);
     }
 
     public static class ChatFormatterOption implements ConfigRegistryOption<IMessageFormatter> {
@@ -51,9 +51,10 @@ public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, C
         private final String infoTranslation;
         private final ChatFormatterRegistry registry;
         private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
+        private final boolean hidden;
 
-        private ChatFormatterOption(Supplier<IMessageFormatter> formatter, String saveString, String translation, String infoTranslation, boolean active, ChatFormatterRegistry registry) {
-            this(formatter.get(), saveString, translation, infoTranslation, active, registry);
+        private ChatFormatterOption(Supplier<IMessageFormatter> formatter, String saveString, String translation, String infoTranslation, boolean active, boolean hidden, ChatFormatterRegistry registry) {
+            this(formatter.get(), saveString, translation, infoTranslation, active, hidden, registry);
         }
 
         @Override
@@ -62,13 +63,19 @@ public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, C
         }
 
         // Only register
-        private ChatFormatterOption(IMessageFormatter formatter, String saveString, String translation, String infoTranslation, boolean active, ChatFormatterRegistry registry) {
+        private ChatFormatterOption(IMessageFormatter formatter, String saveString, String translation, String infoTranslation, boolean active, boolean hidden, ChatFormatterRegistry registry) {
             this.formatter = formatter;
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
             this.infoTranslation = infoTranslation;
+            this.hidden = hidden;
             this.active = ConfigStorage.SaveableConfig.fromConfig("active", new ConfigBoolean(translation, active, infoTranslation));
+        }
+
+        @Override
+        public boolean isHidden() {
+            return hidden;
         }
 
         @Override
@@ -109,7 +116,7 @@ public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, C
 
         @Override
         public ChatFormatterOption copy(AbstractRegistry<IMessageFormatter, ?> registry) {
-            return new ChatFormatterOption(formatter, saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (ChatFormatterRegistry) registry);
+            return new ChatFormatterOption(formatter, saveString, translation, infoTranslation, isActive(), isHidden(), registry == null ? this.registry : (ChatFormatterRegistry) registry);
         }
 
 

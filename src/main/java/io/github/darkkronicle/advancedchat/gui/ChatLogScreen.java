@@ -240,7 +240,7 @@ public class ChatLogScreen extends GuiBase {
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            AdvancedChatHud chatHud = AdvancedChat.getAdvancedChatHud();
+            AdvancedChatHud chatHud = AdvancedChatHud.getInstance();
 
             Style style = chatHud.getText(mouseX, mouseY);
             if (style != null && this.handleTextClick(style)) {

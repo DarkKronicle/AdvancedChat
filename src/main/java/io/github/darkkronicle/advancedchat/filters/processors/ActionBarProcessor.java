@@ -16,13 +16,13 @@ import java.util.List;
 public class ActionBarProcessor implements IMatchProcessor {
 
     @Override
-    public boolean processMatches(FluidText text, FluidText unfiltered, SearchResult matches) {
+    public Result processMatches(FluidText text, FluidText unfiltered, SearchResult matches) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) {
-            return true;
+            return Result.PROCESSED;
         }
         client.inGameHud.addChatMessage(MessageType.GAME_INFO, text, client.player.getUuid());
-        return true;
+        return Result.PROCESSED;
     }
 
 }

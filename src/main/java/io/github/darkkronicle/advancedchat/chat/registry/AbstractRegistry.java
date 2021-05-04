@@ -33,7 +33,11 @@ public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>
     }
 
     public void register(Supplier<TYPE> replace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
-        OPTION option = constructOption(replace, saveString, translation, infoTranslation, active, setDefault);
+        register(replace, saveString, translation, infoTranslation, active, setDefault, false);
+    }
+
+    public void register(Supplier<TYPE> replace, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault, boolean hidden) {
+        OPTION option = constructOption(replace, saveString, translation, infoTranslation, active, setDefault, hidden);
         options.add(option);
         if (setDefault || defaultOption == null) {
             defaultOption = option;
@@ -42,7 +46,7 @@ public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>
 
     public abstract AbstractRegistry<TYPE, OPTION> clone();
 
-    public abstract OPTION constructOption(Supplier<TYPE> type, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault);
+    public abstract OPTION constructOption(Supplier<TYPE> type, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault, boolean hidden);
 
     public void setDefaultOption(@NonNull OPTION newDefault) {
         defaultOption = newDefault;

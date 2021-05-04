@@ -89,13 +89,6 @@ public class StyleFormatter {
     }
 
     /**
-     * Sends the visitor the maximum character. Used for high surrogate characters.
-     */
-    private boolean sendUnsupportedToVisitor(Style textStyle) {
-        return sendToVisitor((char) 65533, textStyle);
-    }
-
-    /**
      * Sends the current character with the current information to the visitor.
      */
     private boolean sendToVisitor(char c, Style textStyle) {
@@ -120,7 +113,6 @@ public class StyleFormatter {
                     currentStyle = textStyle.withExclusiveFormatting(formatting);
                 } else {
                     // Styles are different so we take what happened before. This allows us to chain formatting symbols.
-                    // TODO this could also fail. Test
                     currentStyle = currentStyle.withExclusiveFormatting(formatting);
                 }
             }
@@ -130,31 +122,6 @@ public class StyleFormatter {
         }
         currentIndex++;
         return Result.INCREMENT;
-    }
-
-    /**
-     * If a character is a high surrogate, it goes to here to get updated.
-     */
-    private Result updateHighSurrogate(Style textStyle, char c, Character nextChar) {
-        if (nextChar == null) {
-            if (!sendUnsupportedToVisitor(textStyle)) {
-                return Result.TERMINATE;
-            }
-            return Result.SKIP;
-        }
-
-        if (Character.isLowSurrogate(nextChar)) {
-            if (!sendToVisitor((char) Character.toCodePoint(c, nextChar), textStyle)) {
-                return Result.TERMINATE;
-            }
-            realIndex += 2;
-            currentIndex++;
-            return Result.INCREMENT;
-        } else if (!sendUnsupportedToVisitor(textStyle)) {
-            return Result.TERMINATE;
-        }
-        realIndex++;
-        return Result.SUCCESS;
     }
 
     /**
@@ -171,7 +138,6 @@ public class StyleFormatter {
             lastTextStyle = textStyle;
         }
         currentStyle = textStyle;
-        boolean differentTextStyle = !textStyle.equals(lastTextStyle);
         int stringLength = string.length();
         for (int i = 0; i < stringLength; i++) {
             char c = string.charAt(i);
@@ -188,16 +154,7 @@ public class StyleFormatter {
                     case INCREMENT:
                         i++;
                 }
-            } else if (Character.isHighSurrogate(c)) {
-                switch (updateHighSurrogate(textStyle, c, nextChar)) {
-                    case SKIP:
-                        return Optional.empty();
-                    case TERMINATE:
-                        return Optional.of(StringVisitable.TERMINATE_VISIT);
-                    case INCREMENT:
-                        i++;
-                }
-            } else if (Character.isSurrogate(c) ? sendUnsupportedToVisitor(textStyle) : sendToVisitor(c, textStyle)) {
+            } else if (sendToVisitor(c, textStyle)) {
                 realIndex++;
             } else {
                 return Optional.of(StringVisitable.TERMINATE_VISIT);

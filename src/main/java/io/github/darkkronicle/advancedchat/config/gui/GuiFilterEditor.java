@@ -134,6 +134,7 @@ public class GuiFilterEditor extends GuiBase {
         y += this.addLabel(x, y, filter.getFindString().config) + 1;
         findString = this.addStringConfigButton(x, y, getWidth() / 2 - 1, 18, filter.getFindString().config);
         findString.setMaxLength(64000);
+        findString.setText(filter.getFindString().config.getStringValue());
         ConfigButtonOptionList findType = new ConfigButtonOptionList(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, 20, filter.getFindType().config);
         this.addButton(findType, null);
         y += findType.getHeight() + 2;
@@ -143,6 +144,7 @@ public class GuiFilterEditor extends GuiBase {
         y += this.addLabel(x, y, filter.getReplaceTo().config) + 1;
         replaceString = this.addStringConfigButton(x, y, getWidth() / 2 - 1, 18, filter.getReplaceTo().config);
         replaceString.setMaxLength(64000);
+        replaceString.setText(filter.getReplaceTo().config.getStringValue());
         ConfigButtonOptionList replaceType = new ConfigButtonOptionList(x + getWidth() / 2 + 1, y, getWidth() / 2 - 1, 20, filter.getReplaceType().config);
         this.addButton(replaceType, null);
         y += findType.getHeight() + 2;

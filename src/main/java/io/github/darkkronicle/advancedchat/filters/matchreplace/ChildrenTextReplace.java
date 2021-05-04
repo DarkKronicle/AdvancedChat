@@ -1,5 +1,6 @@
 package io.github.darkkronicle.advancedchat.filters.matchreplace;
 
+import io.github.darkkronicle.advancedchat.filters.ParentFilter;
 import io.github.darkkronicle.advancedchat.filters.ReplaceFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IFilter;
 import io.github.darkkronicle.advancedchat.interfaces.IMatchReplace;
@@ -26,15 +27,15 @@ public class ChildrenTextReplace implements IMatchReplace {
             if (current == null) {
                 continue;
             }
-            for (IFilter f : filter.getChildren()) {
-                Optional<FluidText> filteredText = f.filter(current);
-                if (filteredText.isPresent()) {
+            for (ParentFilter f : filter.getChildren()) {
+                ParentFilter.FilterResult filteredText = f.filter(current, text);
+                if (filteredText.getText().isPresent()) {
                     HashMap<StringMatch, FluidText.StringInsert> toReplace = new HashMap<>();
 
                     // Get old length and new length. As well as modify the message that is currently being modified
                     // in the match
                     int oldLength = current.getString().length();
-                    current = filteredText.get();
+                    current = filteredText.getText().get();
                     int newLength = current.getString().length();
                     int modifyLength = newLength - oldLength;
                     // Take the new length and figure out how much each match needs to move to have it work.

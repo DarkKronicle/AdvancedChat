@@ -68,7 +68,6 @@ public class ConfigUpdater {
         ConfigStorage.ChatScreen.Y.config.setIntegerValue(obj.get("yOffset").getAsInt());
         ConfigStorage.ChatScreen.STORED_LINES.config.setIntegerValue(obj.get("storedLines").getAsInt());
         ConfigStorage.ChatScreen.CHAT_SCALE.config.setDoubleValue(obj.get("chatscale").getAsDouble());
-        ConfigStorage.ChatScreen.HUD_BACKGROUND_COLOR.config.setIntegerValue(getSimpleColor(obj.get("hudBackground")).color());
         ConfigStorage.ChatScreen.EMPTY_TEXT_COLOR.config.setIntegerValue(getSimpleColor(obj.get("emptyText")).color());
         ConfigStorage.ChatScreen.TAB_SIDE_CHARS.config.setIntegerValue(getSimpleColor(obj.get("sideChars")).color());
     }

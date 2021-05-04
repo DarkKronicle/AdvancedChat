@@ -60,8 +60,8 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
     }
 
     @Override
-    public MatchProcessorOption constructOption(Supplier<IMatchProcessor> iMatchProcessor, String saveString, String translation, String infoTranslation, boolean active, boolean setDefault) {
-        return new MatchProcessorOption(iMatchProcessor, saveString, translation, infoTranslation, active, this);
+    public MatchProcessorOption constructOption(Supplier<IMatchProcessor> iMatchProcessor, String saveString, String translation, String infoTranslation, boolean active, boolean hidden, boolean setDefault) {
+        return new MatchProcessorOption(iMatchProcessor, saveString, translation, infoTranslation, active, hidden, this);
     }
 
     public static class MatchProcessorOption implements Translatable, ConfigRegistryOption<IMatchProcessor> {
@@ -73,15 +73,18 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
         private final MatchProcessorRegistry registry;
         private final String infoTranslation;
         private final ConfigStorage.SaveableConfig<ConfigBoolean> active;
+        private final boolean hidden;
+
 
         // Only register
-        protected MatchProcessorOption(Supplier<IMatchProcessor> processor, String saveString, String translation, String infoTranslation, boolean active, MatchProcessorRegistry registry) {
+        protected MatchProcessorOption(Supplier<IMatchProcessor> processor, String saveString, String translation, String infoTranslation, boolean active, boolean hidden, MatchProcessorRegistry registry) {
             this.processor = processor;
             this.process = processor.get();
             this.saveString = saveString;
             this.translation = translation;
             this.registry = registry;
             this.infoTranslation = infoTranslation;
+            this.hidden = hidden;
             this.active = ConfigStorage.SaveableConfig.fromConfig("active", new ConfigBoolean(translation, active, infoTranslation));
         }
 
@@ -115,6 +118,10 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
             return registry.fromString(value);
         }
 
+        @Override
+        public boolean isHidden() {
+            return hidden;
+        }
 
         @Override
         public String getTranslationKey() {
@@ -133,7 +140,7 @@ public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, Ma
 
         @Override
         public MatchProcessorOption copy(AbstractRegistry<IMatchProcessor, ?> registry) {
-            return new MatchProcessorOption(processor, saveString, translation, infoTranslation, isActive(), registry == null ? this.registry : (MatchProcessorRegistry) registry);
+            return new MatchProcessorOption(processor, saveString, translation, infoTranslation, isActive(), isHidden(), registry == null ? this.registry : (MatchProcessorRegistry) registry);
         }
     }
 }

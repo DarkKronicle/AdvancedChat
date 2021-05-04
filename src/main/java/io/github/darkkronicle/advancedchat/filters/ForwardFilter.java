@@ -31,22 +31,25 @@ public class ForwardFilter implements IFilter {
 
     @Override
     public Optional<FluidText> filter(ParentFilter filter, FluidText text, FluidText unfiltered,SearchResult search) {
-        boolean forward = true;
+        IMatchProcessor.Result result = null;
         for (MatchProcessorRegistry.MatchProcessorOption p : registry.getAll()) {
             if (!p.isActive()) {
                 continue;
             }
+            IMatchProcessor.Result r = null;
             if (!p.getOption().matchesOnly() && !search.getMatches().isEmpty()) {
-                if (p.getOption().processMatches(text, unfiltered, null)) {
-                    forward = false;
-                }
+                r = p.getOption().processMatches(text, unfiltered, null);
             } else if (!search.getMatches().isEmpty()) {
-                if (p.getOption().processMatches(text, unfiltered, search)) {
-                    forward = false;
-                }
+                r = p.getOption().processMatches(text, unfiltered, search);
             }
+            if (r != null) {
+               if (result == null || r.force) {
+                   result = r;
+               }
+            }
+
         }
-        if (!forward) {
+        if (result != null && !result.forward) {
             return Optional.of(ChatDispatcher.TERMINATE);
         }
         return Optional.empty();

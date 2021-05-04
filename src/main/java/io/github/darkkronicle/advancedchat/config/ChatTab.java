@@ -7,6 +7,8 @@ import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.util.StringUtils;
+import io.github.darkkronicle.advancedchat.config.options.ConfigSimpleColor;
+import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import lombok.Data;
 import io.github.darkkronicle.advancedchat.interfaces.IJsonSave;
 import net.fabricmc.api.EnvType;
@@ -44,13 +46,29 @@ public class ChatTab {
     private ConfigStorage.SaveableConfig<ConfigString> abbreviation = ConfigStorage.SaveableConfig.fromConfig("abbreviation",
             new ConfigString(translate("abbreviation"), "BCT", translate("info.abbreviation")));
 
+    private ConfigStorage.SaveableConfig<ConfigSimpleColor> mainColor = ConfigStorage.SaveableConfig.fromConfig("mainColor",
+            new ConfigSimpleColor(translate("maincolor"), ColorUtil.GRAY.withAlpha(100), translate("info.maincolor")));
+
+    private ConfigStorage.SaveableConfig<ConfigSimpleColor> borderColor = ConfigStorage.SaveableConfig.fromConfig("borderColor",
+            new ConfigSimpleColor(translate("bordercolor"), ColorUtil.BLACK.withAlpha(180), translate("info.bordercolor")));
+
+    private ConfigStorage.SaveableConfig<ConfigSimpleColor> innerColor = ConfigStorage.SaveableConfig.fromConfig("innerColor",
+            new ConfigSimpleColor(translate("innercolor"), ColorUtil.BLACK.withAlpha(100), translate("info.innercolor")));
+
+    private ConfigStorage.SaveableConfig<ConfigBoolean> showUnread = ConfigStorage.SaveableConfig.fromConfig("showUnread",
+            new ConfigBoolean(translate("showunread"), false, translate("info.showunread")));
+
     private final ImmutableList<ConfigStorage.SaveableConfig<?>> options = ImmutableList.of(
             name,
             findString,
             findType,
             startingMessage,
             forward,
-            abbreviation
+            abbreviation,
+            mainColor,
+            borderColor,
+            innerColor,
+            showUnread
     );
 
     public Filter.FindType getFind() {

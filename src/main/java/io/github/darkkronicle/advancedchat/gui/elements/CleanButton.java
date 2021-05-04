@@ -14,7 +14,7 @@ import net.minecraft.client.util.math.MatrixStack;
 @ToString
 @Environment(EnvType.CLIENT)
 public class CleanButton extends ButtonBase {
-    private ColorUtil.SimpleColor baseColor;
+    protected ColorUtil.SimpleColor baseColor;
 
     private MinecraftClient client = MinecraftClient.getInstance();
 

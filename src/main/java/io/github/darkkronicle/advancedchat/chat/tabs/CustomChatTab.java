@@ -1,6 +1,7 @@
 package io.github.darkkronicle.advancedchat.chat.tabs;
 
 import io.github.darkkronicle.advancedchat.config.Filter;
+import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import lombok.Getter;
 import io.github.darkkronicle.advancedchat.config.ChatTab;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
@@ -22,15 +23,17 @@ public class CustomChatTab extends AbstractChatTab {
     private boolean forward;
     @Getter
     private String startingMessage;
+    @Getter
+    private ChatTab storage;
 
 
-    public CustomChatTab(String name, String abreviation, Filter.FindType findType, String findString, boolean forward, String startingMessage) {
-        super(name, abreviation);
-        this.name = name;
-        this.findType = findType;
-        this.findString = findString;
-        this.forward = forward;
-        this.startingMessage = startingMessage;
+    public CustomChatTab(ChatTab storage) {
+        super(storage.getName().config.getStringValue(), storage.getAbbreviation().config.getStringValue(), storage.getMainColor().config.getSimpleColor(), storage.getBorderColor().config.getSimpleColor(), storage.getInnerColor().config.getSimpleColor(), storage.getShowUnread().config.getBooleanValue());
+        this.storage = storage;
+        this.findType = storage.getFind();
+        this.findString = storage.getFindString().config.getStringValue();
+        this.forward = storage.getForward().config.getBooleanValue();
+        this.startingMessage = storage.getStartingMessage().config.getStringValue();
     }
 
 

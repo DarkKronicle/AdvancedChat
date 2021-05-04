@@ -117,9 +117,7 @@ public class ChatDispatcher implements IMessageProcessor {
                     for (Filter child : filter.getChildren()) {
                         ParentFilter childf = createFilter(child);
                         if (childf != null) {
-                            for (IFilter childfilter : childf.getFilters()) {
-                                f.addChild(childfilter);
-                            }
+                            f.addChild(childf);
                         }
                     }
                 }

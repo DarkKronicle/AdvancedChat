@@ -245,7 +245,9 @@ public class ChatSuggestorGui {
                 i++;
                 int j = this.chatScreenSized ? this.owner.height - 14 - 13 - 12 * i : 72 + 12 * i;
                 DrawableHelper.fill(matrices, this.x - 1, j, this.x + this.width + 1, j + 12, ConfigStorage.ChatSuggestor.BACKGROUND_COLOR.config.getSimpleColor().color());
-                this.textRenderer.drawWithShadow(matrices, message, (float) this.x, (float) (j + 2), -1);
+                if (message != null) {
+                    this.textRenderer.drawWithShadow(matrices, message, (float) this.x, (float) (j + 2), -1);
+                }
             }
         }
     }
