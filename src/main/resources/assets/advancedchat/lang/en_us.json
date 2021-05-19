@@ -61,7 +61,7 @@
   "advancedchat.config.chatscreen.toppad": "Top-Side Chat Padding",
   "advancedchat.config.chatscreen.info.toppad": "The amount of space between the §6top§r of the chat box to the §6old",
   "advancedchat.config.chatscreen.tabsidechars": "Max Abbreviation Length",
-  "advancedchat.config.chatscreen.info.tabsidechars": "The most amount of characters used for §6abbreviations§r of §bChat Tabs&r \nAffects the appearence of chat tabs §6beside§r the §9Chat HUD",
+  "advancedchat.config.chatscreen.info.tabsidechars": "The most amount of characters used for §6abbreviations§r of §bChat Tabs§r \nAffects the appearence of chat tabs §6beside§r the §9Chat HUD",
   "advancedchat.config.chatscreen.visibility": "Chat Visibility",
   "advancedchat.config.chatscreen.info.visibility": "What the behavior of the §6visibility§r the §9Chat HUD§r should be \n§6Vanilla §r- §9Chat HUD §rrenders as it does in §6Vanilla \n§aAlways §r- Renders the §9Chat HUD §6at all times \n§cFocus Only §r- Renders the §9Chat HUD §6only §rif the §6Chat Box§r is open",
   "advancedchat.config.visibility.vanilla": "§6Vanilla",
