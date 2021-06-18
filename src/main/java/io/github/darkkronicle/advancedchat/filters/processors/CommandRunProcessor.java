@@ -89,7 +89,6 @@ public class CommandRunProcessor implements IMatchProcessor {
                   this.addTextField(textField, null);
               }
 
-      @Override
       public Result processMatches(FluidText text, FluidText unfiltered, SearchResult matches) {
           MinecraftClient client = MinecraftClient.getInstance();
           if (client.player == null) {
@@ -104,7 +103,13 @@ public class CommandRunProcessor implements IMatchProcessor {
           return Result.PROCESSED;
       }
 
+
+    public void back() {
+        this.closeGui(true);
     }
+
+}
+
     public static class ButtonListener implements IButtonActionListener {
 
         private final SenderScreen parent;
