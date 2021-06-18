@@ -29,6 +29,7 @@ import io.github.darkkronicle.advancedchat.filters.matchreplace.RomanNumeralText
 import io.github.darkkronicle.advancedchat.filters.processors.ForwardProcessor;
 import io.github.darkkronicle.advancedchat.filters.processors.NarratorProcessor;
 import io.github.darkkronicle.advancedchat.filters.processors.SoundProcessor;
+import io.github.darkkronicle.advancedchat.filters.processors.CommandRunProcessor;
 import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -60,6 +61,7 @@ public class InitHandler implements IInitializationHandler {
         processorRegistry.register(ChatTabProcessor::new, "chattab", "advancedchat.config.processor.chat", "advancedchat.config.processor.info.chat", false, true, true);
         processorRegistry.register(ForwardProcessor::new, "forward", "advancedchat.config.processor.forward", "advancedchat.config.processor.info.forward", true, false);
         processorRegistry.register(ActionBarProcessor::new, "actionbar", "advancedchat.config.processor.actionbar", "advancedchat.config.processor.info.actionbar", false, false);
+        processorRegistry.register(CommandRunProcessor::new, "command", "advancedchat.config.processor.commandrun", "advancedchat.config.processor.info.commandrun", false, false);
         processorRegistry.register(SoundProcessor::new, "sound", "advancedchat.config.processor.sound", "advancedchat.config.processor.info.sound", false, false);
         processorRegistry.register(NarratorProcessor::new, "narrator", "advancedchat.config.processor.narrator", "advancedchat.config.processor.info.narrator", false, false);
 
