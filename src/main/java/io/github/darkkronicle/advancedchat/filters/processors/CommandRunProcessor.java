@@ -58,12 +58,6 @@ public class CommandRunProcessor implements IMatchProcessor, IJsonApplier {
         return Result.PROCESSED;
     }
 
-//       @Override
-//     public Result processMatches(FluidText text, @Nullable FluidText unfiltered, @Nullable SearchResult search) {
-//          String content = search.getGroupReplacements(command.config.getStringValue(), true);
-//          return Result.getFromBool(true);
-//     }
-
     @Override
     public JsonObject save() {
         JsonObject obj = new JsonObject();
@@ -80,7 +74,7 @@ public class CommandRunProcessor implements IMatchProcessor, IJsonApplier {
         command.config.setValueFromJsonElement(obj.get(command.key));
     }
     
-    // @Override
+    @Override
     public Supplier<Screen> getScreen(@Nullable Screen parent) {
         return () -> new SenderScreen(parent);
     }
@@ -119,6 +113,7 @@ public class CommandRunProcessor implements IMatchProcessor, IJsonApplier {
             super.initGui();
             int x = 10;
             int y = 26;
+
             String name = CommandRunProcessor.ButtonListener.Type.BACK.getDisplayName();
             int nameW = StringUtils.getStringWidth(name) + 10;
             ButtonGeneric button = new ButtonGeneric(x, y, nameW, 20, name);
@@ -145,21 +140,6 @@ public class CommandRunProcessor implements IMatchProcessor, IJsonApplier {
         }
 
     }
-
-      // public Result processMatches(FluidText text, FluidText unfiltered, SearchResult matches) {
-      //     MinecraftClient client = MinecraftClient.getInstance();
-      //     if (client.player == null) {
-      //         return Result.PROCESSED;
-      //     }
-
-      //     String commandstr = command.config.getStringValue();
-      //     if (!commandstr.startsWith("/")) {
-      //       commandstr = "/" + commandstr;
-      //     }
-      //     client.player.sendChatMessage(commandstr);
-      //     return Result.PROCESSED;
-      // }
-
 
     public static class ButtonListener implements IButtonActionListener {
 
