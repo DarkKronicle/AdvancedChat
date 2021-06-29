@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
-public class CommandRunProcessor implements IMatchProcessor, IJsonApplier {
+public class CommandRunProcessor implements IMatchProcessor, IScreenSupplier, IJsonApplier {
     private static String translate(String key) {
         return "advancedchat.config.processor.commandrun."  + key;
     }
@@ -73,8 +73,8 @@ public class CommandRunProcessor implements IMatchProcessor, IJsonApplier {
         JsonObject obj = element.getAsJsonObject();
         command.config.setValueFromJsonElement(obj.get(command.key));
     }
-    
-    @Override
+
+    @Override 
     public Supplier<Screen> getScreen(@Nullable Screen parent) {
         return () -> new SenderScreen(parent);
     }
