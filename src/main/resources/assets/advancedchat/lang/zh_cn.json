@@ -43,7 +43,7 @@
   "advancedchat.config.general.chatheads": "显示聊天头颅",
   "advancedchat.config.general.info.chatheads": "是否 §6显示玩家头颅§r 于玩家聊天信息前",
   "advancedchat.config.general.messageownerregex": "消息所有者正则",
-  "advancedchat.config.general.info.chatheadregex": "用于检测聊天头的§6正则表达式\n不要搞砸这个，除非你真正理解你在使用什么！",
+  "advancedchat.config.general.info.messageownerregex": "用于检测聊天头的§6正则表达式\n不要搞砸这个，除非你真正理解你在使用什么！",
 
   "advancedchat.config.chatscreen.width": "聊天框宽度",
   "advancedchat.config.chatscreen.info.width": "§9聊天框的宽度\n这将覆盖原版的聊天宽度！",
