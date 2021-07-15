@@ -33,7 +33,7 @@
   "advancedchat.config.general.timeformat": "时间格式",
   "advancedchat.config.general.info.timeformat": "当 §6显示时间§r 在 §9聊天框§r 和 §a聊天日志§r 中开启时，时间的显示格式是怎样的？ \n检阅 §6简易日期格式§r 类来获取样式 ",
   "advancedchat.config.general.timetextformat": "完整时间格式",
-  "advancedchat.config.general.info.timetextformat": "控制有关 §6time§r 的 §6文本§r 如何格式化",
+  "advancedchat.config.general.info.timetextformat": "控制有关 §6时间§r 的 §6文本§r 如何格式化",
   "advancedchat.config.general.timecolor": "时间颜色",
   "advancedchat.config.general.info.timecolor": "控制 §6时间§r 用什么颜色来区分",
   "advancedchat.config.general.clearondisconnect": "在断开连接时清空聊天框",
