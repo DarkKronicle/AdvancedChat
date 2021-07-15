@@ -31,7 +31,7 @@
 
 
   "advancedchat.config.general.timeformat": "时间格式",
-  "advancedchat.config.general.info.timeformat": "当 §6显示时间§r 在 §9聊天框§r 和 §a聊天日志§r 中开启时，时间的显示格式是怎样的？ \n检阅 §6简易日期格式§r 类来获取样式 ",
+  "advancedchat.config.general.info.timeformat": "当 §6显示时间§r 在 §9聊天框§r 和 §a聊天记录§r 中开启时，时间的显示格式是怎样的？ \n检阅 §6SimpleDateFormat§r 类来获取样式 ",
   "advancedchat.config.general.timetextformat": "完整时间格式",
   "advancedchat.config.general.info.timetextformat": "控制有关 §6时间§r 的 §6文本§r 如何格式化",
   "advancedchat.config.general.timecolor": "时间颜色",
@@ -152,7 +152,7 @@
   "advancedchat.config.tab.startingmessage": "初始化信息",
   "advancedchat.config.tab.info.startingmessage": "§6当分页被聚焦时§r显示的信息",
   "advancedchat.config.tab.abbreviation": "分页框缩写",
-  "advancedchat.config.tab.info.abbreviation": "分页将以怎样的缩写名称显示在§9聊天框§6旁边。当然，前提是 §6显示聊天分页§r 必须在§9聊天框§r 设置中开启",
+  "advancedchat.config.tab.info.abbreviation": "分页将以怎样的缩写名称显示在§9聊天框§6旁边§r。当然，前提是 §6显示聊天分页§r 必须在§9聊天框§r 设置中开启",
   "advancedchat.config.tab.forward": "将消息转发到主分页",
   "advancedchat.config.tab.info.forward": "在这个分页中收到的消息是否会显示在 §6主体聊天分页§r",
   "advancedchat.config.tab.forwardtoggle": "%s",
@@ -180,7 +180,7 @@
   "advancedchat.config.findtype.regex": "§b正则表达式",
   "advancedchat.config.findtype.all": "§d全部",
   "advancedchat.config.filter.replaceto": "替换为",
-  "advancedchat.config.filter.info.replaceto": "字符串§6替换为§6替换类型§r的设定\n§b%MATCH% 总是被替换，无论是否被过滤器 §6标记§r",
+  "advancedchat.config.filter.info.replaceto": "字符串§6替换为§r替换类型的§6设定\n§b%MATCH% 总是被替换，无论是否被过滤器 §6标记§r",
   "advancedchat.config.filter.replacetype": "替换类型",
   "advancedchat.config.filter.info.replacetype": "筛选器如何替换被筛选信息 \n§e仅匹配 §r- 替换过滤器 §6标记 §r的信息片段 \n§6整条信息 §r- 整条信息 §6替换§r 字符串 \n§d传递给子集 §r- 传递 §6匹配字符串§r 给§6子筛选器§r来更改 \n§c啥也不干 §r - 什么都 §6不替换",
   "advancedchat.config.replacetype.onlymatch": "§e仅匹配",
