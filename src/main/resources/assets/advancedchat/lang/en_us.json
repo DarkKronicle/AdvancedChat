@@ -44,7 +44,7 @@
   "advancedchat.config.general.chatheads": "Display Chat Heads",
   "advancedchat.config.general.info.chatheads": "Whether or not the §6head of the message sender§r displays beside their message",
   "advancedchat.config.general.messageownerregex": "Message Owner Regex",
-  "advancedchat.config.general.info.chatheadregex": "The §6regular expression§r used to detect the head used for chat heads \n§cDon't mess with this unless you §c§oreally §cunderstand what you're working with!",
+  "advancedchat.config.general.info.messageownerregex": "The §6regular expression§r used to detect the head used for chat heads \n§cDon't mess with this unless you §c§oreally §cunderstand what you're working with!",
 
   "advancedchat.config.chatscreen.width": "Chat Width",
   "advancedchat.config.chatscreen.info.width": "The §6width §rof the §9Chat HUD \nOverrides Vanilla chat width!",
