@@ -76,7 +76,6 @@ public class WidgetTabEntry extends WidgetListEntryBase<ChatTab> {
         super.render(mouseX, mouseY, selected, matrixStack);
 
         RenderUtils.disableDiffuseLighting();
-        RenderSystem.disableLighting();
     }
 
     @Override

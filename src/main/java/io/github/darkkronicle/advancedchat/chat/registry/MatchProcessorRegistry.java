@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Match processor registry
+ */
 @Environment(EnvType.CLIENT)
 public class MatchProcessorRegistry extends AbstractRegistry<IMatchProcessor, MatchProcessorRegistry.MatchProcessorOption> {
 

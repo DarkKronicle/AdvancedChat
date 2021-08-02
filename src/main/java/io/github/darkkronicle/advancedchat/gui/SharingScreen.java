@@ -18,6 +18,9 @@ import io.github.darkkronicle.advancedchat.config.Filter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 
+/**
+ * Screen for importing and exporting {@link Filter} and {@link ChatTab}.
+ */
 public class SharingScreen extends GuiBase {
 
     private final String starting;
@@ -30,19 +33,24 @@ public class SharingScreen extends GuiBase {
         this.starting = starting;
     }
 
+    /**
+     * Creates a SharingScreen from a filter
+     */
     public static SharingScreen fromFilter(Filter filter, Screen parent) {
         Filter.FilterJsonSave filterJsonSave = new Filter.FilterJsonSave();
         return new SharingScreen(GSON.toJson(filterJsonSave.save(filter)), parent);
     }
 
+    /**
+     * Creates a SharingScreen from a tab
+     */
     public static SharingScreen fromTab(ChatTab tab, Screen parent) {
         ChatTab.ChatTabJsonSave tabJsonSave = new ChatTab.ChatTabJsonSave();
         return new SharingScreen(GSON.toJson(tabJsonSave.save(tab)), parent);
     }
 
     @Override
-    public void init(MinecraftClient client, int width, int height) {
-        super.init(client, width, height);
+    public void init() {
         int x = this.width / 2 - 150;
         int y = 50;
         text = new GuiTextFieldGeneric(x, y, 300, 20, client.textRenderer);

@@ -8,8 +8,16 @@ import io.github.darkkronicle.advancedchat.util.StringMatch;
 import javax.annotation.Nullable;
 import java.util.List;
 
+/**
+ * An interface to receive text and matches to process.
+ *
+ * Similar to {@link IMessageProcessor} but it takes matches and can return a {@link Result}
+ */
 public interface IMatchProcessor extends IMessageProcessor {
 
+    /**
+     * Different outcome's the processor can have
+     */
     enum Result {
         FAIL(false, true, false),
         PROCESSED(true, false, false),
@@ -39,8 +47,22 @@ public interface IMatchProcessor extends IMessageProcessor {
         return processMatches(text, unfiltered, null).success;
     }
 
+    /**
+     * Process specific matches and return how the rest of the processors should be handled
+     *
+     * @param text Final text
+     * @param unfiltered Unfiltered version of text. If not available null.
+     * @param search {@link SearchResult} matches
+     * @return The {@link Result} that the method performed
+     */
     Result processMatches(FluidText text, @Nullable FluidText unfiltered, @Nullable SearchResult search);
 
+    /**
+     * Whether or not this processor should only trigger when matches are present. If false {@link SearchResult}
+     * can be null.
+     *
+     * @return If this processor should only trigger when matches are present
+     */
     default boolean matchesOnly() {
         return true;
     }

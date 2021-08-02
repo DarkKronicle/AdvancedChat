@@ -5,11 +5,15 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * Create a registry with options that can be added from anywhere.
+ *
+ * @param <TYPE> Class to be wrapped
+ * @param <OPTION> Wrapper option for the class
+ */
 public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>> {
 
     private List<OPTION> options = new ArrayList<>();
@@ -21,6 +25,10 @@ public abstract class AbstractRegistry<TYPE, OPTION extends RegistryOption<TYPE>
     @Getter
     private OPTION defaultOption;
 
+    /**
+     * Add's an option directly. Recommended to use register
+     * @param option Option to add
+     */
     protected void add(OPTION option) {
         if (defaultOption == null) {
             defaultOption = option;

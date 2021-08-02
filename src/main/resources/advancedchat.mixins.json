@@ -6,10 +6,10 @@
   ],
   "client": [
     "MixinChatHud",
+    "MixinChatHudInvoker",
     "MixinChatScreen",
     "MixinKeyboard",
     "MixinMinecraftClient",
-    "MixinChatHudInvoker",
     "MixinSleepingChatScreen"
   ],
   "injectors": {

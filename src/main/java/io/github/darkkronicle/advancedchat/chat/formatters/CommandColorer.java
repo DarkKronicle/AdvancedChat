@@ -18,6 +18,9 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * Format's commands
+ */
 @Environment(EnvType.CLIENT)
 public class CommandColorer implements IMessageFormatter {
 

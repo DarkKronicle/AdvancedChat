@@ -101,7 +101,7 @@ public class AdvancedChatScreen extends GuiBase {
         CleanButton settingsButton = new CleanButton(x, client.getWindow().getScaledHeight() - 27, settingsWidth, 11, baseColor, settings);
         this.addButton(settingsButton, (button, mouseButton) -> GuiBase.openGui(new GuiConfig()));
 
-        this.children.add(this.chatField);
+        this.addSelectableChild(this.chatField);
 
         initTabButtons();
 

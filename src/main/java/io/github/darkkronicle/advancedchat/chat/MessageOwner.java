@@ -8,6 +8,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.util.Identifier;
 
+/**
+ * Stores data about a message owner
+ */
 @Data
 @Value
 @AllArgsConstructor

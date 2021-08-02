@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A holder of {@link AdvancedSuggestion}
+ *
+ * Maintains the start/stop range and suggestions in that range
+ */
 @Environment(EnvType.CLIENT)
 public class AdvancedSuggestions {
 
@@ -21,8 +26,14 @@ public class AdvancedSuggestions {
     @Getter
     private StringRange range;
 
+    /**
+     * Empty suggestions
+     */
     public final static AdvancedSuggestions EMPTY = new AdvancedSuggestions(StringRange.at(0), new ArrayList<>());
 
+    /**
+     * Future of EMPTY
+     */
     public static CompletableFuture<AdvancedSuggestions> empty() {
         return CompletableFuture.completedFuture(EMPTY);
     }
@@ -47,6 +58,11 @@ public class AdvancedSuggestions {
         this.range = new StringRange(start, end);
     }
 
+    /**
+     * Converts {@link Suggestions} into {@link AdvancedSuggestions}
+     * @param suggestions Suggestions to convert
+     * @return Converted object
+     */
     public static AdvancedSuggestions fromSuggestions(Suggestions suggestions) {
         List<AdvancedSuggestion> s = new ArrayList<>();
         for (Suggestion suggestion : suggestions.getList()) {

@@ -19,10 +19,20 @@ import net.minecraft.util.Formatting;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * A class to format the chat box on the {@link io.github.darkkronicle.advancedchat.config.ConfigStorage.ChatScreen}
+ */
 @Environment(EnvType.CLIENT)
 public class ChatFormatter {
 
+    /**
+     * The last content that was formatted
+     */
     private String current = null;
+
+    /**
+     * The formatted current
+     */
     private FluidText last = null;
     private final TextFieldWidget widget;
     private final ChatSuggestor suggestor;
@@ -32,7 +42,11 @@ public class ChatFormatter {
         this.suggestor = suggestor;
     }
 
-
+    /**
+     * Format's the chat box contents
+     * @param string Contents
+     * @return Formatted FluidText. If nothing is changed it will be the contents with Style.EMPTY
+     */
     public FluidText format(String string) {
         FluidText text = new FluidText(new RawText(string, Style.EMPTY));
         if (string.length() == 0) {
@@ -81,6 +95,7 @@ public class ChatFormatter {
     public OrderedText apply(String s, Integer integer) {
         String text = widget.getText();
         if (text.equals(current)) {
+            // If the content hasn't changed, use the previous one.
             return set(s, integer);
         }
         current = text;

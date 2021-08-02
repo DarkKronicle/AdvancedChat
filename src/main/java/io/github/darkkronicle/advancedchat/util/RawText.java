@@ -81,7 +81,7 @@ public class RawText implements MutableText {
 
     @Override
     public OrderedText asOrderedText() {
-        return OrderedText.styledString(message, style);
+        return OrderedText.styledForwardsVisitedString(message, style);
     }
 
     @Override

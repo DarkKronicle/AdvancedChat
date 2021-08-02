@@ -30,15 +30,34 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A maintainer of suggestions to suggest to the player.
+ */
 @Environment(EnvType.CLIENT)
 public class ChatSuggestor {
     private static final Pattern SPACE_PATTERN = Pattern.compile("(\\s+)");
+
+    /**
+     * Parsed command results
+     */
     @Getter
     private ParseResults<CommandSource> parse;
+
+    /**
+     * Suggestions to complete
+     */
     @Getter
     private CompletableFuture<AdvancedSuggestions> pendingSuggestions;
+
+    /**
+     * Range of suggestion
+     */
     @Getter
     private StringRange range;
+
+    /**
+     * All completed suggestions
+     */
     @Getter
     private List<AdvancedSuggestions> allSuggestions;
 
@@ -50,10 +69,18 @@ public class ChatSuggestor {
         this.client = MinecraftClient.getInstance();
     }
 
+    /**
+     * Checks to see if pending suggestions has completed
+     * @return If suggestions are ready
+     */
     public boolean isDone() {
         return pendingSuggestions != null && pendingSuggestions.isDone();
     }
 
+    /**
+     * Get all the suggestions
+     * @return List of {@link AdvancedSuggestion}
+     */
     public List<AdvancedSuggestion> getSuggestions() {
         if (!isDone()) {
             return new ArrayList<>();
@@ -64,10 +91,17 @@ public class ChatSuggestor {
         return suggestions;
     }
 
+    /**
+     * Update command suggestions
+     */
     public void updateCommandSuggestions() {
         updateCommandSuggestions(null);
     }
 
+    /**
+     * Update command suggestions and run something afterwards
+     * @param after Runnable to run after suggestions have completed
+     */
     public void updateCommandSuggestions(Runnable after) {
         allSuggestions = null;
         CommandDispatcher<CommandSource> commandDispatcher = client.player.networkHandler.getCommandDispatcher();
@@ -77,6 +111,10 @@ public class ChatSuggestor {
         }
     }
 
+    /**
+     * Update what's being parsed by a {@link StringReader}
+     * @param stringReader StringReader which contains reading string
+     */
     public void updateParse(StringReader stringReader) {
         CommandDispatcher<CommandSource> commandDispatcher = client.player.networkHandler.getCommandDispatcher();
         if (parse == null) {
@@ -84,10 +122,17 @@ public class ChatSuggestor {
         }
     }
 
+    /**
+     * Get's the index of the cursor in the chat field
+     * @return Cursor index
+     */
     private int getCursorIndex() {
         return textField.getCursor();
     }
 
+    /**
+     * Update's suggestions specifically for chat (not command).
+     */
     public void updateChatSuggestions() {
         String startToCursor = textField.getText().substring(0, getCursorIndex());
         int wordIndex = getLastWord(startToCursor);
@@ -104,9 +149,15 @@ public class ChatSuggestor {
         this.pendingSuggestions = suggestMatching(wordIndex, startToCursor, suggestions);
     }
 
+    /**
+     * Build suggestions and suggest
+     *
+     * @param start Start of input
+     * @param input Input
+     * @param other Other suggestions
+     * @return CompletableFuture of the suggestions
+     */
     private CompletableFuture<AdvancedSuggestions> suggestMatching(int start, String input, List<AdvancedSuggestions> other) {
-//        String string = suggestionsBuilder.getRemaining().toLowerCase(Locale.ROOT);
-
         List<AdvancedSuggestion> newSuggestions = new ArrayList<>();
         String lastWord = input.substring(start);
         StringRange r = new StringRange(start, input.length());
@@ -148,6 +199,11 @@ public class ChatSuggestor {
         pendingSuggestions.thenRun(runnable);
     }
 
+    /**
+     * Removes the identifier section of a suggestion. ("identifier:name")
+     * @param string Input to remove identifier
+     * @return String without the identifier. If there is no identifier it will just return the original one.
+     */
     private String removeIdentifier(String string) {
         String[] text = string.split(":");
         if (text.length < 2) {
@@ -156,6 +212,11 @@ public class ChatSuggestor {
         return String.join("", Arrays.copyOfRange(text, 1, text.length));
     }
 
+    /**
+     * Create's a map of {@link AdvancedSuggestion} and suggestion name. Used to remove identifiers.
+     * @param suggestions List of suggestions to map
+     * @return Map which contains the suggestion and the name.
+     */
     private Map<AdvancedSuggestion, String> mapNames(AdvancedSuggestions suggestions) {
         HashMap<AdvancedSuggestion, String> map = new HashMap<>();
         for (AdvancedSuggestion s : suggestions.getSuggestions()) {
@@ -164,12 +225,20 @@ public class ChatSuggestor {
         return map;
     }
 
+    /**
+     * Modifies suggestions to comply with the formatting that is wanted.
+     * @param suggestions Suggestions to modify.
+     * @return List of filtered {@link AdvancedSuggestion}
+     */
     private List<AdvancedSuggestion> modifySuggestions(AdvancedSuggestions suggestions) {
         List<AdvancedSuggestion> newSuggestions;
         if (ConfigStorage.ChatSuggestor.REMOVE_IDENTIFIER.config.getBooleanValue()) {
+            // Remove identifier
             newSuggestions =  new ArrayList<>();
             Map<AdvancedSuggestion, String> names = mapNames(suggestions);
+            // Map
             for (Map.Entry<AdvancedSuggestion, String> entry : names.entrySet()) {
+                // Check if it appears more than once (then we keep it)
                 if (Collections.frequency(names.values(), entry.getValue()) >= 2) {
                     newSuggestions.add(entry.getKey());
                 } else {
@@ -182,6 +251,11 @@ public class ChatSuggestor {
         return orderSuggestions(newSuggestions);
     }
 
+    /**
+     * Order's suggestions based off of deliminator.
+     * @param suggestions List of {@link AdvancedSuggestion} to order
+     * @return Ordered suggestions
+     */
     private List<AdvancedSuggestion> orderSuggestions(List<AdvancedSuggestion> suggestions) {
         String string = this.textField.getText().substring(0, this.textField.getCursor());
         String lastWord = string.substring(getLastWord(string)).toLowerCase(Locale.ROOT);
@@ -195,11 +269,17 @@ public class ChatSuggestor {
                 minecraftSuggestions.add(suggestion);
             }
         }
-
+        Collections.sort(minecraftSuggestions);
+        Collections.sort(otherSuggestions);
         minecraftSuggestions.addAll(otherSuggestions);
         return minecraftSuggestions;
     }
 
+    /**
+     * Get's the index of the last word from an input string. (from the end to the last space)
+     * @param input Input string
+     * @return Last word of string
+     */
     public static int getLastWord(String input) {
         if (Strings.isNullOrEmpty(input)) {
             return 0;
@@ -213,6 +293,9 @@ public class ChatSuggestor {
         return index;
     }
 
+    /**
+     * Remove the parse
+     */
     public void invalidateParse() {
         this.parse = null;
     }

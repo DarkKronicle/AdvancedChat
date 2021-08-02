@@ -22,6 +22,7 @@ public class GuiChildrenManager extends GuiListBase<Filter, WidgetFilterEntry, W
         this.title = parent.filter.getName().config.getStringValue();
         this.parent = parent;
         if (parent.getParent() != null) {
+            // !IMPORTANT PARENT
             this.setParent(parent.getParent());
         } else {
             this.setParent(parent);

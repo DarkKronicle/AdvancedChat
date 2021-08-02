@@ -12,6 +12,9 @@ import net.minecraft.text.Text;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Suggestion that contains render text, suggested text, suggested start/stop, and tooltip.
+ */
 @Environment(EnvType.CLIENT)
 public class AdvancedSuggestion extends Suggestion {
 
@@ -19,6 +22,12 @@ public class AdvancedSuggestion extends Suggestion {
     @Getter
     private final Text render;
 
+    /**
+     * @param range Range from the original string where it is recommending
+     * @param text Suggested text to use
+     * @param render How the suggestion will render
+     * @param tooltip Message to show up on hover
+     */
     public AdvancedSuggestion(StringRange range, String text, Text render, Message tooltip) {
         super(range, text, tooltip);
         if (render == null) {
@@ -48,6 +57,11 @@ public class AdvancedSuggestion extends Suggestion {
         return render.getString().compareToIgnoreCase(o.getText());
     }
 
+    /**
+     * Create's an {@link AdvancedSuggestion} from an {@link Suggestion}
+     * @param suggestion Suggestion to convert
+     * @return New objeect
+     */
     public static AdvancedSuggestion fromSuggestion(Suggestion suggestion) {
         return new AdvancedSuggestion(suggestion.getRange(), suggestion.getText(), null, suggestion.getTooltip());
     }

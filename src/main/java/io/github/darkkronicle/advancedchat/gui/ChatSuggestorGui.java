@@ -24,8 +24,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
-import net.minecraft.client.util.Rect2i;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Rect2i;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.OrderedText;
@@ -213,7 +213,7 @@ public class ChatSuggestorGui {
 
         for (Map.Entry<CommandNode<CommandSource>, String> commandNodeStringEntry : map.entrySet()) {
             if (!(commandNodeStringEntry.getKey() instanceof LiteralCommandNode)) {
-                list.add(OrderedText.styledString(commandNodeStringEntry.getValue(), style));
+                list.add(OrderedText.styledForwardsVisitedString(commandNodeStringEntry.getValue(), style));
                 i = Math.max(i, this.textRenderer.getWidth(commandNodeStringEntry.getValue()));
             }
         }

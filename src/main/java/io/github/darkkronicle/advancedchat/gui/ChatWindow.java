@@ -174,8 +174,7 @@ public class ChatWindow {
         }
 
         matrixStack.push();
-        RenderSystem.pushMatrix();
-        RenderSystem.scalef((float) getScale(), (float) getScale(), 1);
+        matrixStack.scale((float) getScale(), (float) getScale(), 1);
 
         int lines = 0;
         int renderedLines = 0;
@@ -227,7 +226,7 @@ public class ChatWindow {
             int labelWidth = StringUtils.getStringWidth(label) + 8;
             RenderUtils.drawRect(leftX, getActualY(newY), labelWidth, scaledBar, tab.getMainColor().color());
             RenderUtils.drawOutline(leftX, getActualY(newY), labelWidth, scaledBar, tab.getBorderColor().withAlpha(180).color());
-            DrawableHelper.drawCenteredString(matrixStack, MinecraftClient.getInstance().textRenderer, tab.getAbreviation(), leftX + (labelWidth) / 2, getActualY(newY - 3), ColorUtil.WHITE.color());
+            DrawableHelper.drawCenteredText(matrixStack, MinecraftClient.getInstance().textRenderer, tab.getAbreviation(), leftX + (labelWidth) / 2, getActualY(newY - 3), ColorUtil.WHITE.color());
             RenderUtils.drawRect(leftX + labelWidth, getActualY(newY), getScaledWidth() - labelWidth, scaledBar, selected ? tab.getMainColor().color() : tab.getInnerColor().color());
             RenderUtils.drawOutline(leftX + labelWidth, getActualY(newY), getScaledWidth() - labelWidth, scaledBar, tab.getBorderColor().color());
 
@@ -250,8 +249,7 @@ public class ChatWindow {
             int scrollHeight = (int) (add * getScaledHeight());
             RenderUtils.drawRect(getScaledWidth() + leftX - 1, getActualY(scrollHeight + 10), 1, 10, ColorUtil.WHITE.color());
         }
-
-        RenderSystem.popMatrix();
+        matrixStack.pop();
     }
 
     private void drawLine(MatrixStack matrixStack, ChatMessage.AdvancedChatLine line, int x, int y, int pLX, int pRX, int lineIndex, int messageIndex, int renderedLines, boolean focused, int ticks) {
@@ -294,11 +292,11 @@ public class ChatWindow {
         }
         RenderUtils.drawRect(x, getActualY(y), getScaledWidth(), height, background.color());
         if (lineIndex == line.getParent().getLineCount() - 1 && line.getParent().getOwner() != null && ConfigStorage.General.CHAT_HEADS.config.getBooleanValue()) {
-            RenderUtils.color(1, 1, 1, applied);
-            client.getTextureManager().bindTexture(line.getParent().getOwner().getTexture());
+            RenderSystem.setShaderColor(1, 1, 1, applied);
+            RenderSystem.setShaderTexture(0, line.getParent().getOwner().getTexture());
             DrawableHelper.drawTexture(matrixStack, pLX - 10, getActualY(y), 8, 8, 8, 8, 8, 8, 64, 64);
             DrawableHelper.drawTexture(matrixStack, pLX - 10, getActualY(y), 8, 8, 40, 8, 8, 8, 64, 64);
-            RenderUtils.color(1, 1, 1, 1);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
 
         Text render = line.getText();
@@ -311,7 +309,7 @@ public class ChatWindow {
             render = toPrint;
         }
 
-        DrawableHelper.drawTextWithShadow(matrixStack, client.textRenderer, render, pLX, getActualY(y) + 1, text.color());
+        client.textRenderer.drawWithShadow(matrixStack, render.asOrderedText(), pLX, getActualY(y) + 1, text.color());
     }
 
     public Style getText(double mouseX, double mouseY) {
@@ -393,4 +391,15 @@ public class ChatWindow {
         return true;
     }
 
+    public boolean isMouseOverResize(double mouseX, double mouseY) {
+        return isMouseOver(mouseX, mouseY) && mouseX >= x + width - (getScaledBarHeight()) && mouseY <= y - height;
+    }
+
+    public void setDimensions(int width, int height) {
+        this.width = width;
+        this.height = height;
+        for (ChatMessage m : lines) {
+            m.formatChildren(this.width);
+        }
+    }
 }

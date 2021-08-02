@@ -55,6 +55,7 @@ public class GuiTabManager extends GuiListBase<ChatTab, WidgetTabEntry, WidgetLi
 
         this.setListPosition(this.getListX(), 68 + (rows - 1) * 22);
         this.reCreateListWidget();
+        this.getListWidget().refreshEntries();
 
         y += 24;
         x = this.width - 10;

@@ -115,6 +115,7 @@ public class FluidText implements MutableText {
         return rawTexts.get(0).getStyle();
     }
 
+
     @Override
     public String asString() {
         return getString();
@@ -233,6 +234,16 @@ public class FluidText implements MutableText {
 
         // At the end we take the siblings created in this method and override the old ones.
         return null;
+    }
+
+    @Override
+    public MutableText fillStyle(Style styleOverride) {
+        for (RawText t : rawTexts) {
+            if (t.getStyle().equals(Style.EMPTY)) {
+                t.setStyle(styleOverride);
+            }
+        }
+        return this;
     }
 
     /**

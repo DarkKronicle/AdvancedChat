@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Match replace registry
+ */
 @Environment(EnvType.CLIENT)
 public class MatchReplaceRegistry extends AbstractRegistry<IMatchReplace, MatchReplaceRegistry.MatchReplaceOption> {
 

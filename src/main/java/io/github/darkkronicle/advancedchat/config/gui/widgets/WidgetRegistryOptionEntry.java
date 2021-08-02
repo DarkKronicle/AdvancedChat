@@ -80,7 +80,6 @@ public class WidgetRegistryOptionEntry<T extends ConfigRegistryOption<?>> extend
         super.render(mouseX, mouseY, selected, matrixStack);
 
         RenderUtils.disableDiffuseLighting();
-        RenderSystem.disableLighting();
     }
 
     @Override

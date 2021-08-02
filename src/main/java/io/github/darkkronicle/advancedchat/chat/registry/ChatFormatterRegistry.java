@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Registry of Chat Formatters
+ */
 @Environment(EnvType.CLIENT)
 public class ChatFormatterRegistry extends AbstractRegistry<IMessageFormatter, ChatFormatterRegistry.ChatFormatterOption> {
 

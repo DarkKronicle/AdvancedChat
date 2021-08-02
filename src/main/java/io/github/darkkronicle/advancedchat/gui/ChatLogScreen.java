@@ -10,6 +10,7 @@ import io.github.darkkronicle.advancedchat.util.ColorUtil;
 import io.github.darkkronicle.advancedchat.util.SearchUtils;
 import io.github.darkkronicle.advancedchat.AdvancedChat;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -91,10 +92,6 @@ public class ChatLogScreen extends GuiBase {
             button.setMessage(new LiteralText(findType.name()));
         });
 
-        addButton(tabButton);
-        addButton(searchBox);
-        addButton(searchFull);
-        addButton(findButton);
     }
 
     public Filter.FindType cycleResult(Filter.FindType result) {
@@ -132,7 +129,7 @@ public class ChatLogScreen extends GuiBase {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        drawCenteredString(matrices, client.textRenderer, "ChatLog", client.getWindow().getScaledWidth()/2, 20, ColorUtil.WHITE.color());
+        DrawableHelper.drawCenteredText(matrices, client.textRenderer, "ChatLog", client.getWindow().getScaledWidth() / 2, 20, ColorUtil.WHITE.color());
         int windowHeight = client.getWindow().getScaledHeight();
         int maxheight =  windowHeight - 90;
         List<ChatLogMessage> filteredLines = AdvancedChat.getChatLogData().getMessages();
@@ -173,7 +170,7 @@ public class ChatLogScreen extends GuiBase {
             }
             int startLine = scrolledLines + 1;
             int endLine = filteredLines.size();
-            for (int i = 0; i + scrolledLines < filteredLines.size(); i++) {
+            for (int i = filteredLines.size() - 1; i + scrolledLines >= 0; i--) {
                 ChatLogMessage line = filteredLines.get(i + scrolledLines);
                 lines++;
                 int relativeHeight = (lines * lineHeight);
@@ -185,7 +182,7 @@ public class ChatLogScreen extends GuiBase {
                 }
                 drawTextWithShadow(matrices, client.textRenderer, line.getDisplayText(), 20, height + 1, textColor.color());
             }
-            drawCenteredString(matrices, client.textRenderer, startLine + "-" + endLine + "/" + filteredLines.size(), client.getWindow().getScaledWidth() / 2, 10, ColorUtil.WHITE.color());
+            DrawableHelper.drawCenteredText(matrices, client.textRenderer, startLine + "-" + endLine + "/" + filteredLines.size(), client.getWindow().getScaledWidth() / 2, 10, ColorUtil.WHITE.color());
 
         } else {
             drawStringWithShadow(matrices, client.textRenderer, "Nothing found...", 20, windowHeight - bottomScreenOffset - lineHeight, textColor.color());
@@ -228,7 +225,7 @@ public class ChatLogScreen extends GuiBase {
                 if (trueY < (double)(9 * numOfMessages + numOfMessages)) {
                     int lineNum = (int)(trueY / ConfigStorage.ChatScreen.LINE_SPACE.config.getIntegerValue() + (double)this.scrolledLines);
                     if (lineNum >= 0 && lineNum < AdvancedChat.getChatLogData().getMessages().size() && lineNum <= getVisibleLineCount() + scrolledLines) {
-                        ChatLogMessage chatHudLine = AdvancedChat.getChatLogData().getMessages().get(lineNum);
+                        ChatLogMessage chatHudLine = AdvancedChat.getChatLogData().getMessages().get(AdvancedChat.getChatLogData().getMessages().size() - lineNum - 1);
                         return this.client.textRenderer.getTextHandler().getStyleAt(chatHudLine.getDisplayText(), (int)trueX - 20);
                     }
                 }

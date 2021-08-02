@@ -1,9 +1,9 @@
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
-    id 'fabric-loom' version '0.7-SNAPSHOT'
+    id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
-    id "io.freefair.lombok" version "5.1.0"
+    id "io.freefair.lombok" version "6.0.0-m2"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id 'com.github.johnrengelman.shadow' version '4.0.2'
 }
@@ -38,7 +38,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 
-    modImplementation "fi.dy.masa.malilib:malilib-fabric-1.16.2:${project.malilib_version}"
+    modImplementation "fi.dy.masa.malilib:malilib-fabric-1.17.0:${project.malilib_version}"
 
     modCompileOnly "io.github.prospector:modmenu:1.16.8"
 
@@ -59,6 +59,7 @@ dependencies {
 }
 
 shadowJar {
+    duplicatesStrategy = 'include'
     destinationDir = file("${buildDir}/tmp/allJar")
     configurations = [project.configurations.shadow]
     relocate 'com.softcorporation', 'io.github.darkkronicle.inscribe.shadow.com.softcorporation'
@@ -86,13 +87,8 @@ build {
 processResources {
     inputs.property "version", project.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include "fabric.mod.json"
+    filesMatching("fabric.mod.json") {
         expand "version": project.version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude "fabric.mod.json"
     }
 }
 

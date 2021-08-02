@@ -58,6 +58,8 @@ public class GuiFilterManager extends GuiListBase<Filter, WidgetFilterEntry, Wid
         this.setListPosition(this.getListX(), 68 + (rows - 1) * 22);
         this.reCreateListWidget();
 
+        this.getListWidget().refreshEntries();
+
         y += 24;
         x = this.width - 10;
         x -= this.addButton(x, y, ButtonListener.Type.ADD_FILTER) + 2;

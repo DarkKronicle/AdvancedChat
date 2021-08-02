@@ -6,7 +6,6 @@ import fi.dy.masa.malilib.util.StringUtils;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.interfaces.ConfigRegistryOption;
 import io.github.darkkronicle.advancedchat.interfaces.IMessageSuggestor;
-import io.github.darkkronicle.advancedchat.interfaces.RegistryOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -14,6 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Chat suggestor registry
+ */
 @Environment(EnvType.CLIENT)
 public class ChatSuggestorRegistry extends AbstractRegistry<IMessageSuggestor, ChatSuggestorRegistry.ChatSuggestorOption> {
 

@@ -134,7 +134,6 @@ public class WidgetFilterEntry extends WidgetListEntryBase<Filter> {
         super.render(mouseX, mouseY, selected, matrixStack);
 
         RenderUtils.disableDiffuseLighting();
-        RenderSystem.disableLighting();
     }
 
     @Override

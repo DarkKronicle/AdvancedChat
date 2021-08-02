@@ -209,6 +209,5 @@ public class ShortcutEntryListWidget extends WidgetListEntryBase<ShortcutSuggest
         super.render(mouseX, mouseY, selected, matrixStack);
 
         RenderUtils.disableDiffuseLighting();
-        RenderSystem.disableLighting();
     }
 }

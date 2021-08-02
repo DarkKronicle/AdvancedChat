@@ -43,7 +43,7 @@ public class AdvancedChatHud implements IRenderer {
     }
 
     @Override
-    public void onRenderGameOverlayPost(float partialTicks, MatrixStack matrixStack) {
+    public void onRenderGameOverlayPost(MatrixStack matrixStack) {
         for (int i = windows.size() - 1; i >= 0; i--) {
             windows.get(i).render(matrixStack, client.inGameHud.getTicks(), isChatFocused());
         }
@@ -120,6 +120,11 @@ public class AdvancedChatHud implements IRenderer {
                 dragX = (int) mouseX - over.getX();
                 dragY = (int) mouseY - over.getY();
                 resize = false;
+            } else if (over.isMouseOverResize(mouseX, mouseY)) {
+                drag = over;
+                dragX = (int) mouseX - over.getWidth();
+                dragY = (int) mouseY + over.getHeight();
+                resize = true;
             }
             Style style = over.getText(mouseX, mouseY);
             if (style != null && screen.handleTextClick(style)) {
@@ -141,6 +146,11 @@ public class AdvancedChatHud implements IRenderer {
             x = Math.min(x, client.getWindow().getScaledWidth() - drag.getWidth());
             y = Math.min(y, client.getWindow().getScaledHeight());
             drag.setPosition(x, y);
+            return true;
+        } else if (drag != null) {
+            int width = Math.max((int) mouseX - dragX, 80);
+            int height = Math.max(dragY - (int) mouseY, 40);
+            drag.setDimensions(width, height);
             return true;
         }
         return false;

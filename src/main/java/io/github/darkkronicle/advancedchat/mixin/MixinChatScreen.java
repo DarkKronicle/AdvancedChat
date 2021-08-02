@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +21,11 @@ public class MixinChatScreen {
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)
     public void chatInit(CallbackInfo ci) {
         MinecraftClient.getInstance().openScreen(new AdvancedChatScreen(this.originalChatText));
+        ci.cancel();
+    }
+
+    @Inject(method = "addScreenNarrations", at = @At("HEAD"), cancellable = true)
+    public void screenNarrations(NarrationMessageBuilder builder, CallbackInfo ci) {
         ci.cancel();
     }
 

@@ -3,7 +3,6 @@ package io.github.darkkronicle.advancedchat;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import io.github.darkkronicle.advancedchat.chat.tabs.MainChatTab;
 import io.github.darkkronicle.advancedchat.config.ChatLogData;
-import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
 import io.github.darkkronicle.advancedchat.gui.AdvancedSleepingChatScreen;
 import io.github.darkkronicle.advancedchat.gui.ChatLogScreen;
 import io.github.darkkronicle.advancedchat.util.SyncTaskQueue;
@@ -13,7 +12,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.apache.commons.compress.utils.IOUtils;
 import org.lwjgl.glfw.GLFW;
@@ -84,8 +83,14 @@ public class AdvancedChat implements ClientModInitializer {
         return chatLogData;
     }
 
-
-
+    /**
+     * Get's a resource from src/resources. Works in a emulated environment.
+     * @param path Path from the resources to get
+     * @return Stream of the resource
+     *
+     * @throws URISyntaxException If the resource doesn't exist
+     * @throws IOException Can't be opened
+     */
     public static InputStream getResource(String path) throws URISyntaxException, IOException {
         URI uri = Thread.currentThread().getContextClassLoader().getResource(path).toURI();
         if(uri.getScheme().contains("jar")){
@@ -100,6 +105,10 @@ public class AdvancedChat implements ClientModInitializer {
         }
     }
 
+    /**
+     * Get's a random string.
+     * @return Random generated string.
+     */
     public static String getRandomString() {
         return RANDOM_STRINGS[RANDOM.nextInt(RANDOM_STRINGS.length)];
     }
