@@ -1,7 +1,11 @@
 package io.github.darkkronicle.advancedchat.chat;
 
+import io.github.darkkronicle.advancedchat.AdvancedChat;
+import io.github.darkkronicle.advancedchat.config.ChatLogData;
 import io.github.darkkronicle.advancedchat.config.ConfigStorage;
 import io.github.darkkronicle.advancedchat.gui.AdvancedChatHud;
+import io.github.darkkronicle.advancedchat.gui.ChatLogScreen;
+import io.github.darkkronicle.advancedchat.gui.ChatWindow;
 import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,6 +33,15 @@ public class ChatHistory {
     }
 
     /**
+     * Goes through and clears all message data from everywhere.
+     */
+    public void clearAll() {
+        this.messages.clear();
+        AdvancedChatHud.getInstance().clear();
+        AdvancedChat.getChatLogData().clearLines();
+    }
+
+    /**
      * Clear's all the chat messages from the history
      */
     public void clear() {
@@ -44,6 +57,8 @@ public class ChatHistory {
             ChatMessage chatLine = messages.get(i);
             if (message.isSimilar(chatLine)) {
                 chatLine.setStacks(chatLine.getStacks() + 1);
+                // We shallow clone each line so to have stacks apply to all tabs we gotta look through previous stuff.
+                AdvancedChatHud.getInstance().onStackedMessage(chatLine);
                 return;
             }
         }

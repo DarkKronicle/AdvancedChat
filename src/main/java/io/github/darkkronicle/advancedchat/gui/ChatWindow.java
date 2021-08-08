@@ -81,11 +81,17 @@ public class ChatWindow {
     }
 
     public void addMessage(ChatMessage message) {
-        if (message.getTabs().contains(tab)) {
-            this.lines.add(0, message.shallowClone(getPaddedWidth()));
-        }
-        if (scrolledLines > 0) {
-            scrolledLines++;
+        this.addMessage(message, false, false);
+    }
+
+    public void addMessage(ChatMessage message, boolean force, boolean updateCreation) {
+        if (force || message.getTabs().contains(tab)) {
+            ChatMessage newMessage = message.shallowClone(getPaddedWidth());
+            newMessage.setCreationTick(MinecraftClient.getInstance().inGameHud.getTicks());
+            this.lines.add(0, newMessage);
+            if (scrolledLines > 0) {
+                scrolledLines++;
+            }
         }
     }
 
@@ -300,7 +306,7 @@ public class ChatWindow {
             Style style = Style.EMPTY;
             TextColor color = TextColor.fromRgb(ColorUtil.GRAY.color());
             style = style.withColor(color);
-            toPrint.getRawTexts().add(new RawText(" (" + line.getParent().getStacks() + ")", style));
+            toPrint.getRawTexts().add(new RawText(" (" + (line.getParent().getStacks() + 1) + ")", style));
             render = toPrint;
         }
 
@@ -414,5 +420,29 @@ public class ChatWindow {
         for (ChatMessage m : lines) {
             m.formatChildren(this.width);
         }
+    }
+
+    public void stackMessage(ChatMessage message) {
+        ChatMessage toRemove = null;
+        for (ChatMessage line : lines) {
+            if (message.isSimilar(line)) {
+                if (!ConfigStorage.General.CHAT_STACK_UPDATE.config.getBooleanValue()) {
+                    // Just update the message and don't resend it
+                    line.setStacks(message.getStacks());
+                    return;
+                }
+                toRemove = line;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            // Remove and then readd it with the updated stack information
+            lines.remove(toRemove);
+            addMessage(message, true, true);
+        }
+    }
+
+    public void clearLines() {
+        this.lines.clear();
     }
 }

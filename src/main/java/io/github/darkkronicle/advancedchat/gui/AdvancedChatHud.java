@@ -193,6 +193,12 @@ public class AdvancedChatHud implements IRenderer {
         }
     }
 
+    public void onStackedMessage(ChatMessage message) {
+        for (ChatWindow w : windows) {
+            w.stackMessage(message);
+        }
+    }
+
     public void onNewMessage(ChatMessage message) {
         for (ChatWindow w : windows) {
             w.addMessage(message);
@@ -201,5 +207,8 @@ public class AdvancedChatHud implements IRenderer {
 
     public void clear() {
         messageHistory.clear();
+        for (ChatWindow w : windows) {
+            w.clearLines();
+        }
     }
 }

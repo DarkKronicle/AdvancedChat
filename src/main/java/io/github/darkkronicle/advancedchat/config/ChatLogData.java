@@ -34,5 +34,7 @@ public class ChatLogData {
 
     }
 
-
+    public void clearLines() {
+        this.messages.clear();
+    }
 }

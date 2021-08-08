@@ -20,7 +20,6 @@ public class GuiFilterProcessors extends GuiListBase<MatchProcessorRegistry.Matc
         this.parent = parent;
         this.setParent(parent.getParent());
         this.title = parent.filter.getName().config.getStringValue();
-
     }
 
     @Override
@@ -52,6 +51,7 @@ public class GuiFilterProcessors extends GuiListBase<MatchProcessorRegistry.Matc
         x = 10;
 
         this.addButton(x, y, ButtonListener.Type.BACK, false);
+        this.getListWidget().refreshEntries();
     }
 
     protected int addButton(int x, int y, ButtonListener.Type type, boolean rightAlign) {

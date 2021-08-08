@@ -61,8 +61,10 @@ public class GuiSuggesterConfig extends GuiConfigsBase {
             this.setListPosition(this.getListX(), 80 + (rows - 1) * 22);
             this.reCreateListWidget();
             this.getListWidget().getScrollbar().setValue(scrollbarPosition);
-            this.getListWidget().refreshEntries();
+        } else {
+            this.reCreateListWidget();
         }
+        this.getListWidget().refreshEntries();
     }
 
     private int createButton(int x, int y, int width, GuiConfig.ConfigGuiTab tab) {

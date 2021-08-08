@@ -20,7 +20,7 @@ public class MixinMinecraftClient {
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("RETURN"))
     public void onDisconnect(Screen screen, CallbackInfo ci) {
         if (ConfigStorage.General.CLEAR_ON_DISCONNECT.config.getBooleanValue()) {
-            ChatHistory.getInstance().clear();
+            ChatHistory.getInstance().clearAll();
         }
     }
 }

@@ -97,6 +97,9 @@ public class ConfigStorage implements IConfigHandler {
         public final static SaveableConfig<ConfigInteger> CHAT_STACK = SaveableConfig.fromConfig("chatStack",
                 new ConfigInteger(translate("chatstack"), 0, 0, 20, translate("info.chatstack")));
 
+        public final static SaveableConfig<ConfigBoolean> CHAT_STACK_UPDATE = SaveableConfig.fromConfig("chatStackUpdate",
+                new ConfigBoolean(translate("chatstackupdate"), false, translate("info.chatstackupdate")));
+
         public final static SaveableConfig<ConfigBoolean> CHAT_HEADS = SaveableConfig.fromConfig("chatHeads",
                 new ConfigBoolean(translate("chatheads"), false, translate("info.chatheads")));
 
@@ -110,6 +113,7 @@ public class ConfigStorage implements IConfigHandler {
                 TIME_COLOR,
                 CLEAR_ON_DISCONNECT,
                 CHAT_STACK,
+                CHAT_STACK_UPDATE,
                 CHAT_HEADS,
                 MESSAGE_OWNER_REGEX
         );

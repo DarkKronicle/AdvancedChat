@@ -30,6 +30,7 @@ public class GuiFormatterRegistry extends GuiListBase<ChatFormatterRegistry.Chat
         int width = StringUtils.getStringWidth(name) + 10;
         ButtonGeneric generic = new ButtonGeneric(x, y, width, 20, name);
         this.addButton(generic, new ButtonListener(ButtonListener.Type.BACK, this));
+        this.getListWidget().refreshEntries();
     }
 
     @Override

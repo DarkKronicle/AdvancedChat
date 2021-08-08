@@ -95,7 +95,9 @@ public class ChatMessage {
      * @return Cloned object
      */
     public ChatMessage shallowClone(int width) {
-        return new ChatMessage(creationTick, displayText, originalText, id, time, background, width, owner, tabs);
+        ChatMessage message = new ChatMessage(creationTick, displayText, originalText, id, time, background, width, owner, tabs);
+        message.setStacks(getStacks());
+        return message;
     }
 
     /**
