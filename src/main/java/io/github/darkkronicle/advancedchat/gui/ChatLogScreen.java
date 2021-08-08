@@ -171,7 +171,7 @@ public class ChatLogScreen extends GuiBase {
             int startLine = scrolledLines + 1;
             int endLine = filteredLines.size();
             for (int i = filteredLines.size() - 1; i >= 0; i--) {
-                if(i - scrolledLines >= 0) {
+                if (i - scrolledLines >= 0) {
                     ChatLogMessage line = filteredLines.get(i - scrolledLines);
                     lines++;
                     int relativeHeight = (lines * lineHeight);
