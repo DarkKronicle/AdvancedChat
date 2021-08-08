@@ -276,6 +276,7 @@ public class ChatWindow {
         }
         float applied = 1;
         if (!focused) {
+            // Find fade percentage
             int fadeStart = ConfigStorage.ChatScreen.FADE_START.config.getIntegerValue();
             int fadeStop = fadeStart + ConfigStorage.ChatScreen.FADE_TIME.config.getIntegerValue();
             int timeAlive = ticks - line.getParent().getCreationTick();
@@ -286,19 +287,13 @@ public class ChatWindow {
                 return;
             }
             if (applied < 1) {
+                // Adjust color for background and text due to fade
                 background = ColorUtil.fade(background, applied);
                 text = ColorUtil.fade(text, applied);
             }
         }
-        RenderUtils.drawRect(x, getActualY(y), getScaledWidth(), height, background.color());
-        if (lineIndex == line.getParent().getLineCount() - 1 && line.getParent().getOwner() != null && ConfigStorage.General.CHAT_HEADS.config.getBooleanValue()) {
-            RenderSystem.setShaderColor(1, 1, 1, applied);
-            RenderSystem.setShaderTexture(0, line.getParent().getOwner().getTexture());
-            DrawableHelper.drawTexture(matrixStack, pLX - 10, getActualY(y), 8, 8, 8, 8, 8, 8, 64, 64);
-            DrawableHelper.drawTexture(matrixStack, pLX - 10, getActualY(y), 8, 8, 40, 8, 8, 8, 64, 64);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-        }
 
+        // Get line
         Text render = line.getText();
         if (line.getParent().getStacks() > 0 && lineIndex == 0) {
             FluidText toPrint = new FluidText(render);
@@ -307,6 +302,24 @@ public class ChatWindow {
             style = style.withColor(color);
             toPrint.getRawTexts().add(new RawText(" (" + line.getParent().getStacks() + ")", style));
             render = toPrint;
+        }
+
+        int backgroundWidth;
+
+        if (!focused && ConfigStorage.ChatScreen.HUD_LINE_TYPE.config.getOptionListValue() == ConfigStorage.HudLineType.COMPACT) {
+            backgroundWidth = client.textRenderer.getWidth(render) + 4 + headOffset();
+        } else {
+            backgroundWidth = getScaledWidth();
+        }
+
+        // Draw background
+        RenderUtils.drawRect(x, getActualY(y), backgroundWidth, height, background.color());
+        if (lineIndex == line.getParent().getLineCount() - 1 && line.getParent().getOwner() != null && ConfigStorage.General.CHAT_HEADS.config.getBooleanValue()) {
+            RenderSystem.setShaderColor(1, 1, 1, applied);
+            RenderSystem.setShaderTexture(0, line.getParent().getOwner().getTexture());
+            DrawableHelper.drawTexture(matrixStack, pLX - 10, getActualY(y), 8, 8, 8, 8, 8, 8, 64, 64);
+            DrawableHelper.drawTexture(matrixStack, pLX - 10, getActualY(y), 8, 8, 40, 8, 8, 8, 64, 64);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
 
         client.textRenderer.drawWithShadow(matrixStack, render.asOrderedText(), pLX, getActualY(y) + 1, text.color());
