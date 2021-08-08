@@ -170,17 +170,19 @@ public class ChatLogScreen extends GuiBase {
             }
             int startLine = scrolledLines + 1;
             int endLine = filteredLines.size();
-            for (int i = filteredLines.size() - 1; i + scrolledLines >= 0; i--) {
-                ChatLogMessage line = filteredLines.get(i + scrolledLines);
-                lines++;
-                int relativeHeight = (lines * lineHeight);
-                int height = (windowHeight - bottomScreenOffset) - relativeHeight;
+            for (int i = filteredLines.size() - 1; i >= 0; i--) {
+                if(i - scrolledLines >= 0) {
+                    ChatLogMessage line = filteredLines.get(i - scrolledLines);
+                    lines++;
+                    int relativeHeight = (lines * lineHeight);
+                    int height = (windowHeight - bottomScreenOffset) - relativeHeight;
 
-                if (relativeHeight > maxheight) {
-                    endLine = i + scrolledLines;
-                    break;
+                    if (relativeHeight > maxheight) {
+                        endLine = i + scrolledLines;
+                        break;
+                    }
+                    drawTextWithShadow(matrices, client.textRenderer, line.getDisplayText(), 20, height + 1, textColor.color());
                 }
-                drawTextWithShadow(matrices, client.textRenderer, line.getDisplayText(), 20, height + 1, textColor.color());
             }
             DrawableHelper.drawCenteredText(matrices, client.textRenderer, startLine + "-" + endLine + "/" + filteredLines.size(), client.getWindow().getScaledWidth() / 2, 10, ColorUtil.WHITE.color());
 
