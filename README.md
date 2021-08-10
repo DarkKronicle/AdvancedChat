@@ -2,6 +2,8 @@
 
 A Minecraft mod designed to give the client more customizability over the vanilla chat.
 
+**IMPORTANT AdvancedChat is being split up and this repository will be archived soon. Check out AdvancedChatCore and the discord for more information.**
+
 ## Features
 
 - Change colors

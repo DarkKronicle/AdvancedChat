@@ -92,6 +92,10 @@ public class ChatWindow {
             if (scrolledLines > 0) {
                 scrolledLines++;
             }
+            int visibleMessagesMaxSize = ConfigStorage.ChatScreen.STORED_LINES.config.getIntegerValue();
+            while(this.lines.size() > visibleMessagesMaxSize) {
+                this.lines.remove(this.lines.size() - 1);
+            }
         }
     }
 
