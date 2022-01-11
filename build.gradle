@@ -59,8 +59,8 @@ dependencies {
 }
 
 shadowJar {
-    duplicatesStrategy = 'include'
-    destinationDir = file("${buildDir}/tmp/allJar")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    destinationDir(file("${buildDir}/tmp/allJar"))
     configurations = [project.configurations.shadow]
     relocate 'com.softcorporation', 'io.github.darkkronicle.inscribe.shadow.com.softcorporation'
     relocate 'com.github.maowcraft', 'io.github.darkkronicle.inscribe.shadow.com.github.maowcraft'
@@ -75,8 +75,8 @@ shadowJar {
 
 task remapShadowJar(type: RemapJarTask) {
     dependsOn shadowJar
-    addNestedDependencies = false
-    input = shadowJar.archivePath
+    addNestedDependencies.set(false)
+    input.set(shadowJar.archivePath)
 }
 
 
@@ -103,7 +103,7 @@ tasks.withType(JavaCompile) {
 // if it is present.
 // If you remove this task, sources will not be generated.
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
+    classifier("sources")
     from sourceSets.main.allSource
 }
 
@@ -131,7 +131,6 @@ publishing {
         // mavenLocal()
     }
 }
-
 
 
 curseforge {
