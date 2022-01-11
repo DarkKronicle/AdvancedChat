@@ -160,7 +160,7 @@ public class AdvancedChatScreen extends GuiBase {
             return true;
         }
         if (keyCode == KeyCodes.KEY_ESCAPE) {
-            this.client.openScreen(null);
+            this.client.setScreen(null);
             return true;
         }
         if (keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_KP_ENTER) {
@@ -173,7 +173,7 @@ public class AdvancedChatScreen extends GuiBase {
             }
             this.chatField.setText("");
             last = "";
-            this.client.openScreen(null);
+            this.client.setScreen(null);
             return true;
         }
         if (keyCode == KeyCodes.KEY_UP) {

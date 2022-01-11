@@ -20,7 +20,7 @@ public class MixinChatScreen {
 
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)
     public void chatInit(CallbackInfo ci) {
-        MinecraftClient.getInstance().openScreen(new AdvancedChatScreen(this.originalChatText));
+        MinecraftClient.getInstance().setScreen(new AdvancedChatScreen(this.originalChatText));
         ci.cancel();
     }
 

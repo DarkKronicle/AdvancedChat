@@ -16,7 +16,7 @@ public class MixinSleepingChatScreen {
 
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)
     public void sleepInit(CallbackInfo ci) {
-        MinecraftClient.getInstance().openScreen(new AdvancedSleepingChatScreen());
+        MinecraftClient.getInstance().setScreen(new AdvancedSleepingChatScreen());
         ci.cancel();
     }
 

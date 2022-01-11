@@ -120,7 +120,7 @@ public class ChatLogScreen extends GuiBase {
         if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else if (keyCode == 256) {
-            client.openScreen(null);
+            client.setScreen(null);
             return true;
         }
         return true;
@@ -204,7 +204,7 @@ public class ChatLogScreen extends GuiBase {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 

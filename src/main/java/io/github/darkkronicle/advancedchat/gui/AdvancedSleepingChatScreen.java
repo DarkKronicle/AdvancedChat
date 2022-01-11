@@ -43,6 +43,6 @@ public class AdvancedSleepingChatScreen extends AdvancedChatScreen {
     private void stopSleeping() {
         ClientPlayNetworkHandler clientPlayNetworkHandler = this.client.player.networkHandler;
         clientPlayNetworkHandler.sendPacket(new ClientCommandC2SPacket(this.client.player, ClientCommandC2SPacket.Mode.STOP_SLEEPING));
-        client.openScreen(null);
+        client.setScreen(null);
     }
 }
